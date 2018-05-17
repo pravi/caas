@@ -35,7 +35,6 @@
                     <generatedSourcesDirectory>
                         ${project.build.directory}/generated-sources/
                     </generatedSourcesDirectory>
-                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
         </plugins>

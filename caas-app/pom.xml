@@ -30,6 +30,13 @@
                     <generatedSourcesDirectory>
                         ${project.build.directory}/generated-sources/
                     </generatedSourcesDirectory>
+                    <annotationProcessorPaths>
+                       <path>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>caas-annotations</artifactId>
+                            <version>0.0.1</version>
+                       </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 

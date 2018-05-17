@@ -50,11 +50,11 @@
     <form id="form_add" action="/add/" method="post">
         <div>
             <label for="jid" class="input_label_add">JID</label>
-            <input name="jid" class="input_add" type="text"/>
+            <input serverName="jid" class="input_add" type="text"/>
         </div>
         <div>
             <label for="password" class="input_label_add">Password</label>
-            <input name="password" class="input_add" type="password"/>
+            <input serverName="password" class="input_add" type="password"/>
         </div>
         <div>
             <input type="submit" class="button" id="button_add" value="Submit"/>

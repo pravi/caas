@@ -230,7 +230,7 @@
     </style>
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">
     <title>${title!"Check your XMPP server for compliance"}</title>
-    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0">
+    <meta serverName="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0">
     <meta property="og:description" content="${description}">
     <meta property="og:locale" content="en_US">
     <meta charset="UTF-8">

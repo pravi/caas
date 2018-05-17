@@ -3,6 +3,7 @@ package im.conversations.compliance;
 
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.web.Controller;
+import im.conversations.compliance.xmpp.Tests;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 

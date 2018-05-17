@@ -6,6 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>caas-app</artifactId>
     <version>0.0.1</version>
+    <packaging>jar</packaging>
 
     <parent>
         <artifactId>caas</artifactId>

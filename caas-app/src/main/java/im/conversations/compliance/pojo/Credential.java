@@ -5,13 +5,19 @@ import rocks.xmpp.addr.Jid;
 public class Credential {
 
     private final String domain;
-    private final String jid;
+    private final Jid jid;
     private final String password;
 
-    public Credential(String jid, String password) {
+    public Credential(String domain, Jid jid, String password) {
         this.jid = jid;
         this.password = password;
-        this.domain = Jid.of(jid).getDomain();
+        this.domain = domain;
+    }
+
+    public Credential(String jidString, String password) {
+        this.jid = Jid.of(jidString);
+        this.password = password;
+        this.domain = jid.getDomain();
     }
 
     public String getDomain() {
@@ -19,7 +25,7 @@ public class Credential {
     }
 
     public Jid getJid() {
-        return Jid.of(jid);
+        return jid;
     }
 
     public String getPassword() {

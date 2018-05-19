@@ -2,10 +2,16 @@ package im.conversations.compliance.persistence;
 
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.sql2o.JidConverter;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
+import org.sql2o.converters.Converter;
+import org.sql2o.quirks.NoQuirks;
+import org.sql2o.quirks.Quirks;
+import rocks.xmpp.addr.Jid;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,12 +22,19 @@ public class ServerStore {
 
     private ServerStore() {
         final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
-        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null);
+        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null, getQuirks());
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text,password text)").executeUpdate();
             }
         }
+    }
+
+    private Quirks getQuirks() {
+        HashMap<Class, Converter> converters = new HashMap<>();
+        final JidConverter jidConverter = new JidConverter();
+        converters.put(Jid.class, jidConverter);
+        return new NoQuirks(converters);
     }
 
     public boolean addCredential(Credential credential) {
@@ -37,7 +50,7 @@ public class ServerStore {
         return true;
     }
 
-    public void fetchCredentials() {
+    private void fetchCredentials() {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 String query = "select domain,jid,password from credentials";

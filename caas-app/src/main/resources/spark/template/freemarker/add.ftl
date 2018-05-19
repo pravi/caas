@@ -63,18 +63,21 @@
         <div>
             <label for="password" class="input_label_add">Password</label>
             <input name="password" class="input_add" id="pass" type="password"/>
-            <div id="input_error_msg" class="error_message"></input>
-            </div>
-            <div>
-                <input type="submit" class="button" id="button_add" value="Submit"/>
-            </div>
+        </div>
+        <div id="input_error_msg" class="error_message"></div>
+        <div>
+            <input type="submit" class="button" id="button_add" value="Submit"/>
+            <input name="public" id="public" type="checkbox"/>
+            <label for="public">Is this server public?</label>
+        </div>
     </form>
     <script>
         $(function () {
-            var jid, pass;
+            var jid, pass, public = false;
             var jidregex = new RegExp("(?:(?:[^@/<>'\"]+)@)(?:[^@<>'\"]+)$");
             var form = $("#form_add");
             var requestQueued = false;
+
             /*
             Checks if request can be sent by checking if any request already exists,
             the validity of jid and password supplied.
@@ -101,17 +104,21 @@
                     $('#button_add').prop('disabled', false);
                     $('#input_error_msg').text("");
                 }
-
                 return pass != '' && jidregex.test(jid);
             };
+
             $('#jid').keyup(canRequestBeSent);
             $('#pass').keyup(canRequestBeSent);
+            $('#public').click(function () {
+                public = !public;
+            }.bind(this));
+
             form.submit(function (event) {
                 event.preventDefault();
                 if (!canRequestBeSent()) {
                     return;
                 }
-                $.post("/add/", {"jid": jid, "password": pass}, function (val) {
+                $.post("/add/", {"jid": jid, "password": pass, "public": public}, function (val) {
                     data = JSON.parse(val);
                     if (data.success) {
                         window.location = data.redirectLink;

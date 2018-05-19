@@ -42,6 +42,7 @@ public class ServerStore {
             try (Connection con = this.database.open()) {
                 String query = "insert into credentials(domain,jid,password) values(:domain,:jid,:password)";
                 con.createQuery(query).bind(credential).executeUpdate();
+                fetchCredentials();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return false;

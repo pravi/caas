@@ -4,7 +4,6 @@ package im.conversations.compliance;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.web.Controller;
 import spark.TemplateEngine;
-
 import spark.template.freemarker.FreeMarkerEngine;
 
 import static spark.Spark.*;
@@ -20,6 +19,7 @@ public class Main {
             }
         });
         get("/add/", Controller.getAdd, templateEngine);
-        post("/add/", Controller.postAdd, templateEngine);
+        post("/add/", Controller.postAdd);
+        get("/live/:domain/", Controller.getLive, templateEngine);
     }
 }

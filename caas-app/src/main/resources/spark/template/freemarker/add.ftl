@@ -29,6 +29,14 @@
             border-radius: 101px;
         }
 
+        .error_message {
+            color: red;
+            display: block;
+            margin: auto;
+            padding: 10px;
+            text-align: center;
+        }
+
         @media only screen and (max-width: 500px) {
             .input_add {
                 width: 170px;
@@ -50,14 +58,72 @@
     <form id="form_add" action="/add/" method="post">
         <div>
             <label for="jid" class="input_label_add">JID</label>
-            <input name="jid" class="input_add" type="text"/>
+            <input name="jid" class="input_add" id="jid" type="text"/>
         </div>
         <div>
             <label for="password" class="input_label_add">Password</label>
-            <input name="password" class="input_add" type="password"/>
-        </div>
-        <div>
-            <input type="submit" class="button" id="button_add" value="Submit"/>
-        </div>
+            <input name="password" class="input_add" id="pass" type="password"/>
+            <div id="input_error_msg" class="error_message"></input>
+            </div>
+            <div>
+                <input type="submit" class="button" id="button_add" value="Submit"/>
+            </div>
     </form>
+    <script>
+        $(function () {
+            var jid, pass;
+            var jidregex = new RegExp("(?:(?:[^@/<>'\"]+)@)(?:[^@<>'\"]+)$");
+            var form = $("#form_add");
+            var requestQueued = false;
+            /*
+            Checks if request can be sent by checking if any request already exists,
+            the validity of jid and password supplied.
+            Moreover, it updates the error message according to where the error
+             */
+            var canRequestBeSent = function (event) {
+                //If we already have a request queued
+                if (requestQueued) {
+                    $('#input_error_msg').text("Processing your request");
+                    $('#button_add').prop('disabled', true);
+                    return false;
+                }
+                jid = $("#jid").val();
+                pass = $("#pass").val();
+                if (!jidregex.test(jid)) {
+                    $('#input_error_msg').text("Invalid JID");
+                    $('#button_add').prop('disabled', true);
+                }
+                else if (pass == '') {
+                    $('#input_error_msg').text("Password empty");
+                    $('#button_add').prop('disabled', true);
+                }
+                else {
+                    $('#button_add').prop('disabled', false);
+                    $('#input_error_msg').text("");
+                }
+
+                return pass != '' && jidregex.test(jid);
+            };
+            $('#jid').keyup(canRequestBeSent);
+            $('#pass').keyup(canRequestBeSent);
+            form.submit(function (event) {
+                event.preventDefault();
+                if (!canRequestBeSent()) {
+                    return;
+                }
+                $.post("/add/", {"jid": jid, "password": pass}, function (val) {
+                    data = JSON.parse(val);
+                    if (data.success) {
+                        window.location = data.redirectLink;
+                    } else {
+                        $("#input_error_msg").text(data.message);
+                    }
+                    requestQueued = false;
+                }.bind(this));
+                requestQueued = true;
+                canRequestBeSent();
+            });
+        });
+
+    </script>
 </@page.page>

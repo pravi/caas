@@ -40,6 +40,10 @@
             padding: 10px;
         }
 
+        .button:disabled, button:disabled {
+            cursor: not-allowed;
+        }
+
         .button:hover, button:hover {
             background: #FFFFFF;
             color: #43A047;
@@ -234,6 +238,7 @@
     <meta property="og:description" content="${description}">
     <meta property="og:locale" content="en_US">
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 </head>
 
 <body>

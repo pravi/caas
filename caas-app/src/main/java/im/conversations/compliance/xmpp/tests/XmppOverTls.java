@@ -41,11 +41,7 @@ public class XmppOverTls extends AbstractTest {
                     socket.setSoTimeout(1000);
                     socket.startHandshake();
                     final boolean result;
-                    if (XmppDomainVerifier.getInstance().verify(domain, socket.getSession())) {
-                        result = true;
-                    } else {
-                        result = false;
-                    }
+                    result = XmppDomainVerifier.getInstance().verify(domain, socket.getSession());
                     socket.close();
                     return result;
                 } catch (IOException e) {

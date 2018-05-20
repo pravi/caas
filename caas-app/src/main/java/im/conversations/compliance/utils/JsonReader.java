@@ -25,8 +25,7 @@ public class JsonReader<T> {
     public T read(File file) {
         try {
             System.out.println("Reading json file from " + file.getAbsolutePath());
-            final T t = gson.fromJson(new FileReader(file), typeClass);
-            return t;
+            return gson.fromJson(new FileReader(file), typeClass);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Configuration file not found");
         } catch (JsonSyntaxException e) {

@@ -1,9 +1,9 @@
 package im.conversations.compliance.pojo;
 
 public class PostResponse {
-    private boolean success;
-    private String message;
-    private String redirectLink;
+    private final boolean success;
+    private final String message;
+    private final String redirectLink;
 
     public PostResponse(boolean success, String message, String redirectLink) {
         this.success = success;

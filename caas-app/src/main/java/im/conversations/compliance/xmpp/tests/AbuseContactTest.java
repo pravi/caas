@@ -32,7 +32,7 @@ public class AbuseContactTest extends AbstractTest {
             List<DataForm> extensions = serviceDiscoveryManager.discoverInformation(target).getResult().getExtensions();
             for (DataForm extension : extensions) {
                 final DataForm.Field addr = extension.findField("abuse-addresses");
-                if (addr != null && addr.getValues() != null && addr.getValues().size() > 0) {
+                if (addr != null && addr.getValues().size() > 0) {
                     return true;
                 }
             }

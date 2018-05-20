@@ -27,7 +27,7 @@ public class Configuration {
 
     public synchronized static Configuration getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new JsonReader<Configuration>(Configuration.class).read(FILE);
+            INSTANCE = new JsonReader<>(Configuration.class).read(FILE);
         }
         return INSTANCE;
     }

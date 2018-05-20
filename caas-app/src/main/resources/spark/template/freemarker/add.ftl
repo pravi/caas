@@ -73,9 +73,8 @@
     </form>
     <script>
         $(function () {
-            var jid, pass, public = false;
+            var jid, pass, publicServer = false;
             var jidregex = new RegExp("(?:(?:[^@/<>'\"]+)@)(?:[^@<>'\"]+)$");
-            var form = $("#form_add");
             var requestQueued = false;
 
             /*
@@ -83,7 +82,7 @@
             the validity of jid and password supplied.
             Moreover, it updates the error message according to where the error
              */
-            var canRequestBeSent = function (event) {
+            var canRequestBeSent = function () {
                 //If we already have a request queued
                 if (requestQueued) {
                     $('#input_error_msg').text("Processing your request");
@@ -108,17 +107,19 @@
             };
 
             $('#jid').keyup(canRequestBeSent);
+
             $('#pass').keyup(canRequestBeSent);
+
             $('#public').click(function () {
-                public = !public;
+                publicServer = !publicServer;
             }.bind(this));
 
-            form.submit(function (event) {
+            $("#form_add").submit(function (event) {
                 event.preventDefault();
                 if (!canRequestBeSent()) {
                     return;
                 }
-                $.post("/add/", {"jid": jid, "password": pass, "public": public}, function (val) {
+                $.post("/add/", {"jid": jid, "password": pass, "public": publicServer}, function (val) {
                     data = JSON.parse(val);
                     if (data.success) {
                         window.location = data.redirectLink;

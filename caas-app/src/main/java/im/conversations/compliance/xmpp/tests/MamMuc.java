@@ -51,7 +51,7 @@ public class MamMuc extends AbstractTest {
             final Set<String> features = serviceDiscoveryManager.discoverInformation(room.getAddress()).getResult().getFeatures();
             final boolean mam = TestUtils.hasAnyone(MAM.NAMESPACES, features);
             room.destroy().getResult();
-            return mam ? true : false;
+            return mam;
         } catch (XmppException e) {
             return false;
         }

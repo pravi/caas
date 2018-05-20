@@ -15,11 +15,7 @@ public abstract class AbstractStreamFeatureTest extends AbstractTest {
     @Override
     public boolean run() {
         Map<Class<? extends StreamFeature>, StreamFeature> features = client.getManager(StreamFeaturesManager.class).getFeatures();
-        if (features.containsKey(getStreamFeature())) {
-            return true;
-        } else {
-            return false;
-        }
+        return features.containsKey(getStreamFeature());
     }
 
     abstract Class<? extends StreamFeature> getStreamFeature();

@@ -15,7 +15,7 @@ import java.util.List;
 
 
 public class TestExecutor {
-    private static XmppSessionConfiguration configuration;
+    private static final XmppSessionConfiguration configuration;
 
     static {
         configuration = XmppSessionConfiguration.builder()

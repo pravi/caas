@@ -26,7 +26,7 @@ public abstract class AbstractDiscoTest extends AbstractTest {
         final ServiceDiscoveryManager serviceDiscoveryManager = client.getManager(ServiceDiscoveryManager.class);
         try {
             Set<String> features = serviceDiscoveryManager.discoverInformation(target).getResult().getFeatures();
-            return TestUtils.hasAnyone(getNamespaces(), features) ? true : false;
+            return TestUtils.hasAnyone(getNamespaces(), features);
         } catch (XmppException e) {
             return false;
         }

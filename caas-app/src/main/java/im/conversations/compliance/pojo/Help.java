@@ -22,7 +22,7 @@ public class Help {
 
     private static void init() {
         if (INSTANCE == null) {
-            INSTANCE = new JsonReader<Help>(Help.class).read(new File("servers.json"));
+            INSTANCE = new JsonReader<>(Help.class).read(new File("servers.json"));
         }
 
     }

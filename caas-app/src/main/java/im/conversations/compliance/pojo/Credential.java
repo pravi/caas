@@ -8,16 +8,14 @@ public class Credential {
     private final Jid jid;
     private final String password;
 
-    public Credential(String domain, Jid jid, String password) {
-        this.jid = jid;
+    public Credential(Jid jid, String password) {
+        this.jid = jid.asBareJid();
+        this.domain = jid.getDomain();
         this.password = password;
-        this.domain = domain;
     }
 
     public Credential(String jidString, String password) {
-        this.jid = Jid.of(jidString);
-        this.password = password;
-        this.domain = jid.getDomain();
+        this(Jid.of(jidString), password);
     }
 
     public String getDomain() {

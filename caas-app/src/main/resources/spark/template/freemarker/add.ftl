@@ -54,7 +54,7 @@
             }
         }
     </style>
-    <h2>Add credentials for an XMPP server to test</h2>
+    <h2>Add/update credentials for an XMPP server to test</h2>
     <form id="form_add" action="/add/" method="post">
         <div>
             <label for="jid" class="input_label_add">JID</label>

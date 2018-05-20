@@ -12,6 +12,7 @@ import spark.TemplateViewRoute;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static spark.Spark.halt;
 
@@ -21,13 +22,14 @@ public class Controller {
     private static final Gson gson = gsonBuilder.create();
 
     public static TemplateViewRoute getAdd = ((request, response) -> {
-        HashMap<String, Object> model = new HashMap<String, Object>();
+        HashMap<String, Object> model = new HashMap<>();
         return new ModelAndView(model, "add.ftl");
     });
 
     public static Route postAdd = (request, response) -> {
         String jid = request.queryParams("jid");
         String password = request.queryParams("password");
+        boolean publicServer = Boolean.parseBoolean(request.queryParams("public"));
         final Credential credential;
         PostResponse postResponse;
         try {
@@ -40,9 +42,10 @@ public class Controller {
             return gson.toJson(postResponse);
         }
 
-        // Make sure credential is not already present
         List<Credential> credentials = ServerStore.INSTANCE.getCredentials();
-        if (credentials != null && credentials.stream().anyMatch(it -> it.getJid().toString().equals(credential.getJid().asBareJid().toString()))) {
+        Predicate<Credential> jidMatches = it -> it.getJid().toString().equals(credential.getJid().toString());
+        Predicate<Credential> passwordMatches = it -> it.getPassword().equals(credential.getPassword());
+        if (credentials != null && credentials.stream().filter(jidMatches).anyMatch(passwordMatches)) {
             postResponse = new PostResponse(
                     false,
                     "ERROR: Credentials already exist in the database",
@@ -53,7 +56,7 @@ public class Controller {
         //TODO: Check if domain exists, if not add to domains table
 
         // Verify credentials
-        boolean verified = true;
+        boolean verified;
         try {
             verified = CredentialVerifier.verifyCredential(credential);
         } catch (Exception ex) {
@@ -67,13 +70,23 @@ public class Controller {
                     null);
             return gson.toJson(postResponse);
         }
+        // If credentials are verified, and there was some old credential with the same jid, remove it
+        else if (credentials != null) {
+            Credential oldCredential = credentials.stream().filter(jidMatches).findFirst().orElse(null);
+            if (oldCredential != null) {
+                ServerStore.INSTANCE.removeCredential(oldCredential);
+            }
+        }
 
         // Add credentials to database
-        boolean status = false;
+        boolean dbAdded;
         try {
-            ServerStore.INSTANCE.addCredential(credential);
+            dbAdded = ServerStore.INSTANCE.addCredential(credential);
         } catch (Exception ex) {
             ex.printStackTrace();
+            dbAdded = false;
+        }
+        if (!dbAdded) {
             postResponse = new PostResponse(
                     false,
                     "ERROR: Could not add server with the provided credentials to the database",
@@ -81,6 +94,7 @@ public class Controller {
             );
             return gson.toJson(postResponse);
         }
+
         postResponse = new PostResponse(
                 true,
                 "Successfully added credentials",

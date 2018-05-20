@@ -26,16 +26,11 @@ public class ServerStore {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text,password text)").executeUpdate();
+                con.createQuery("create table if not exists servers(domain text, first_added text, listed boolean)").executeUpdate();
             }
         }
     }
 
-    private Quirks getQuirks() {
-        HashMap<Class, Converter> converters = new HashMap<>();
-        final JidConverter jidConverter = new JidConverter();
-        converters.put(Jid.class, jidConverter);
-        return new NoQuirks(converters);
-    }
 
     public boolean addCredential(Credential credential) {
         synchronized (this.database) {
@@ -51,6 +46,34 @@ public class ServerStore {
         return true;
     }
 
+    public List<Credential> getCredentials() {
+        if (credentials == null) {
+            fetchCredentials();
+        }
+        return Collections.unmodifiableList(credentials);
+    }
+
+    public boolean removeCredential(Credential oldCredential) {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                String query = "delete from credentials where jid=:jid and password=:password";
+                con.createQuery(query).bind(oldCredential).executeUpdate();
+                fetchCredentials();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private Quirks getQuirks() {
+        HashMap<Class, Converter> converters = new HashMap<>();
+        final JidConverter jidConverter = new JidConverter();
+        converters.put(Jid.class, jidConverter);
+        return new NoQuirks(converters);
+    }
+
     private void fetchCredentials() {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
@@ -60,13 +83,6 @@ public class ServerStore {
                 ex.printStackTrace();
             }
         }
-    }
-
-    public List<Credential> getCredentials() {
-        if (credentials == null) {
-            fetchCredentials();
-        }
-        return Collections.unmodifiableList(credentials);
     }
 
 }

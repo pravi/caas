@@ -31,7 +31,6 @@
 
         .error_message {
             color: red;
-            display: block;
             margin: auto;
             padding: 10px;
             text-align: center;
@@ -53,6 +52,8 @@
                 margin-left: 50px;
             }
         }
+
+
     </style>
     <h2>Add/update credentials for an XMPP server to test</h2>
     <form id="form_add" action="/add/" method="post">
@@ -65,6 +66,10 @@
             <input name="password" class="input_add" id="pass" type="password"/>
         </div>
         <div id="input_error_msg" class="error_message"></div>
+        <div id="loading_add" class="loading_status">
+            <div class="loader"></div>
+            <div>Processing your request</div>
+        </div>
         <div>
             <input type="submit" class="button" id="button_add" value="Submit"/>
             <input name="public" id="public" type="checkbox"/>
@@ -76,6 +81,7 @@
             var jid, pass, publicServer = false;
             var jidregex = new RegExp("(?:(?:[^@/<>'\"]+)@)(?:[^@<>'\"]+)$");
             var requestQueued = false;
+            $("#loading_add").hide();
 
             /*
             Checks if request can be sent by checking if any request already exists,
@@ -85,7 +91,6 @@
             var canRequestBeSent = function () {
                 //If we already have a request queued
                 if (requestQueued) {
-                    $('#input_error_msg').text("Processing your request");
                     $('#button_add').prop('disabled', true);
                     return false;
                 }
@@ -119,8 +124,10 @@
                 if (!canRequestBeSent()) {
                     return;
                 }
+                $("#loading_add").show();
                 $.post("/add/", {"jid": jid, "password": pass, "public": publicServer}, function (val) {
                     data = JSON.parse(val);
+                    $("#loading_add").hide();
                     if (data.success) {
                         window.location = data.redirectLink;
                     } else {

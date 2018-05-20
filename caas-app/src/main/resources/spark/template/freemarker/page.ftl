@@ -231,6 +231,32 @@
                 width: 55px;
             }
         }
+
+        .loading_status, .loading_status > * {
+            font-size: 1.3em;
+            display: inline;
+            line-height: 70px;
+            vertical-align: middle;
+        }
+
+        .loader {
+            border: 9px solid #f3f3f3;
+            border-top: 9px solid #43a047;
+            border-radius: 50%;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">
     <title>${title!"Check your XMPP server for compliance"}</title>

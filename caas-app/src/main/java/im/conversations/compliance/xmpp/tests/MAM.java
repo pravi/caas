@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @ComplianceTest(
-        short_name = "xep0045",
-        full_name = "XEP-0045: Multi-User Chat",
-        url = "https://xmpp.org/extensions/xep-0045.html",
-        description = "Provides a way for multiple users to create a room and chat with each other"
+        short_name = "xep0313",
+        full_name = "XEP-0313: Message Archive Management",
+        url = "https://xmpp.org/extensions/xep-0313.html",
+        description = "Provides a protocol to query and control an archive of messages stored on a server. " +
+                "It is used to record conversations that take place on clients that do not support local history storage, " +
+                "to synchronise conversation history seamlessly between multiple clients, etc."
 )
 public class MAM extends AbstractDiscoTest {
 

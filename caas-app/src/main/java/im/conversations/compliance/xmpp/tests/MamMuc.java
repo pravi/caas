@@ -16,12 +16,11 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @ComplianceTest(
-        short_name = "xep0313",
-        full_name = "XEP-0313: Message Archive Management",
+        short_name = "xep0313MUC",
+        full_name = "XEP-0313: Message Archive Management for Multi-User Chat",
         url = "https://xmpp.org/extensions/xep-0313.html",
-        description = "Provides a protocol to query and control an archive of messages stored on a server." +
-                " It is used to record conversations that take place on clients that do not support local history storage," +
-                " to synchronise conversation history seamlessly between multiple clients, etc."
+        description = "Provides a generic protocol for streaming binary data between any two entities on an XMPP network. " +
+                "It establishes an out-of-band bytestream between any two XMPP users which can be direct(peer-to-peer) or mediated."
 )
 public class MamMuc extends AbstractTest {
     public MamMuc(XmppClient client) {

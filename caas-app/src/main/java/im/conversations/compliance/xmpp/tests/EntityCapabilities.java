@@ -12,7 +12,8 @@ import rocks.xmpp.core.stream.model.StreamFeature;
         short_name = "xep0115",
         full_name = "XEP-0115: Entity Capabilities",
         url = "https://xmpp.org/extensions/xep-0115.html",
-        description = "Provides a robust, scalable way for exchanging information about capabilities supported by an entity. It caches the results determined with the help of XEP-0030 for improved network efficiency"
+        description = "Provides a robust, scalable way for exchanging information about capabilities supported by an entity. " +
+                "It caches the results determined with the help of XEP-0030 for improved network efficiency."
 )
 public class EntityCapabilities extends AbstractStreamFeatureTest {
 

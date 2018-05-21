@@ -18,7 +18,9 @@ import java.util.Arrays;
         short_name = "xep0368",
         full_name = "XEP-0368: SRV records for XMPP over TLS",
         url = "https://xmpp.org/extensions/xep-0368.html",
-        description = "Provides users a virtually zero overhead way to bypass restrictive firewalls that only allow HTTP over port 80 and HTTPS over port 443. For servers, it allows multiple services to run on the same port."
+        description = "Provides users a virtually zero overhead way to bypass restrictive firewalls " +
+                "that only allow HTTP over port 80 and HTTPS over port 443. " +
+                "For servers, it allows multiple services to run on the same port."
 )
 public class XmppOverTls extends AbstractTest {
 

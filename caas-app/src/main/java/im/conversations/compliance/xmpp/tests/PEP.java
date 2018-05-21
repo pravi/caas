@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit;
         short_name = "xep0163",
         full_name = "XEP-0163: Personal Eventing Protocol",
         url = "https://xmpp.org/extensions/xep-0163.html",
-        description = "Allows users to send updates or events to all the contacts present in their roster. It is also used for avatars and enabling OMEMO encryption"
+        description = "Allows users to send updates or events to all the contacts present in their roster. " +
+                "It is also used for avatars and enabling OMEMO encryption"
 )
 public class PEP extends AbstractTest {
 

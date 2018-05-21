@@ -10,7 +10,8 @@ import java.util.List;
         short_name = "xep0357",
         full_name = "XEP-0357: Push Notifications",
         url = "https://xmpp.org/extensions/xep-0357.html",
-        description = "Defines a way for an XMPP servers to deliver information for use in push notifications to mobile and other devices."
+        description = "Defines a way for an XMPP servers to deliver information for use in " +
+                "push notifications to mobile and other devices."
 )
 public class Push extends AbstractDiscoTest {
 

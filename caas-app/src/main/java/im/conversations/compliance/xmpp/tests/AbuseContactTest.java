@@ -13,7 +13,7 @@ import java.util.List;
         short_name = "xep0157",
         full_name = "XEP-0157: Contact Addresses for XMPP Services",
         url = "https://xmpp.org/extensions/xep-0163.html",
-        description = "Checks if the server has abuse contact"
+        description = "Checks if the server has a contact for reporting abuse."
 )
 public class AbuseContactTest extends AbstractTest {
     public AbuseContactTest(XmppClient client) {

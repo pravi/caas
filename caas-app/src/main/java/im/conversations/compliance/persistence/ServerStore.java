@@ -1,7 +1,9 @@
 package im.conversations.compliance.persistence;
 
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.sql2o.ComplianceTestConverter;
 import im.conversations.compliance.sql2o.JidConverter;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
@@ -26,7 +28,8 @@ public class ServerStore {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text,password text)").executeUpdate();
-                con.createQuery("create table if not exists servers(domain text, first_added text, listed boolean)").executeUpdate();
+                con.createQuery("create table if not exists domains(domain text,first_added text,listed integer)").executeUpdate();
+                con.createQuery("create index if not exists domain_index on credentials(domain)").executeUpdate();
             }
         }
     }
@@ -70,7 +73,9 @@ public class ServerStore {
     private Quirks getQuirks() {
         HashMap<Class, Converter> converters = new HashMap<>();
         final JidConverter jidConverter = new JidConverter();
+        final ComplianceTestConverter complianceTestConverter = new ComplianceTestConverter();
         converters.put(Jid.class, jidConverter);
+        converters.put(ComplianceTest.class, complianceTestConverter);
         return new NoQuirks(converters);
     }
 

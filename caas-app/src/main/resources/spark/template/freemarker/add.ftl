@@ -72,13 +72,13 @@
         </div>
         <div>
             <input type="submit" class="button" id="button_add" value="Submit"/>
-            <input name="public" id="public" type="checkbox"/>
-            <label for="public">Is this server public?</label>
+            <input name="listed" id="listed" type="checkbox"/>
+            <label for="listed">Include server in list?</label>
         </div>
     </form>
     <script>
         $(function () {
-            var jid, pass, publicServer = false;
+            var jid, pass, listedServer = false;
             var jidregex = new RegExp("(?:(?:[^@/<>'\"]+)@)(?:[^@<>'\"]+)$");
             var requestQueued = false;
             $("#loading_add").hide();
@@ -115,8 +115,8 @@
 
             $('#pass').keyup(canRequestBeSent);
 
-            $('#public').click(function () {
-                publicServer = !publicServer;
+            $('#listed').click(function () {
+                listedServer = !listedServer;
             }.bind(this));
 
             $("#form_add").submit(function (event) {
@@ -125,7 +125,7 @@
                     return;
                 }
                 $("#loading_add").show();
-                $.post("/add/", {"jid": jid, "password": pass, "public": publicServer}, function (val) {
+                $.post("/add/", {"jid": jid, "password": pass, "listed": listedServer}, function (val) {
                     data = JSON.parse(val);
                     $("#loading_add").hide();
                     if (data.success) {

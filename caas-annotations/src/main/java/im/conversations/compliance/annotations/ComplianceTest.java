@@ -15,4 +15,6 @@ public @interface ComplianceTest {
     String url();
 
     String description();
+
+    boolean informational() default false;
 }

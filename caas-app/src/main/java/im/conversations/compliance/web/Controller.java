@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import im.conversations.compliance.persistence.ServerStore;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.pojo.Domain;
 import im.conversations.compliance.pojo.PostResponse;
 import im.conversations.compliance.xmpp.CredentialVerifier;
 import spark.ModelAndView;
@@ -29,7 +30,7 @@ public class Controller {
     public static Route postAdd = (request, response) -> {
         String jid = request.queryParams("jid");
         String password = request.queryParams("password");
-        boolean publicServer = Boolean.parseBoolean(request.queryParams("public"));
+        boolean listedServer = Boolean.parseBoolean(request.queryParams("listed"));
         final Credential credential;
         PostResponse postResponse;
         try {
@@ -53,7 +54,6 @@ public class Controller {
             return gson.toJson(postResponse);
         }
 
-        //TODO: Check if domain exists, if not add to domains table
 
         // Verify credentials
         boolean verified;
@@ -78,14 +78,19 @@ public class Controller {
             }
         }
 
-        // Add credentials to database
-        boolean dbAdded;
-        try {
-            dbAdded = ServerStore.INSTANCE.addCredential(credential);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            dbAdded = false;
+        //Check if domain exists, if not add to domains table
+        boolean domainAdded = ServerStore.INSTANCE.addOrUpdateDomain(new Domain(credential.getDomain(),listedServer));
+        if (!domainAdded) {
+            postResponse = new PostResponse(
+                    false,
+                    "ERROR: Could not add/update domain to the database",
+                    null
+            );
+            return gson.toJson(postResponse);
         }
+
+        // Add credentials to database
+        boolean dbAdded = ServerStore.INSTANCE.addCredential(credential);
         if (!dbAdded) {
             postResponse = new PostResponse(
                     false,

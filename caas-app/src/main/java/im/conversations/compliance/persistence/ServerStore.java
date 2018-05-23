@@ -1,22 +1,15 @@
 package im.conversations.compliance.persistence;
 
-import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Domain;
-import im.conversations.compliance.sql2o.ComplianceTestConverter;
-import im.conversations.compliance.sql2o.JidConverter;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
-import org.sql2o.converters.Converter;
-import org.sql2o.quirks.NoQuirks;
-import org.sql2o.quirks.Quirks;
-import rocks.xmpp.addr.Jid;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
 
 public class ServerStore {
     public static final ServerStore INSTANCE = new ServerStore();
@@ -25,7 +18,7 @@ public class ServerStore {
 
     private ServerStore() {
         final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
-        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null, getQuirks());
+        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null);
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text primary key,password text)").executeUpdate();
@@ -112,15 +105,6 @@ public class ServerStore {
     }
 
 
-    private Quirks getQuirks() {
-        HashMap<Class, Converter> converters = new HashMap<>();
-        final JidConverter jidConverter = new JidConverter();
-        final ComplianceTestConverter complianceTestConverter = new ComplianceTestConverter();
-        converters.put(Jid.class, jidConverter);
-        converters.put(ComplianceTest.class, complianceTestConverter);
-        return new NoQuirks(converters);
-    }
-
     private void fetchCredentials() {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
@@ -131,5 +115,4 @@ public class ServerStore {
             }
         }
     }
-
 }

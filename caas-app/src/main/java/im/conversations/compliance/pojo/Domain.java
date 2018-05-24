@@ -8,9 +8,11 @@ public class Domain {
         this.domain = domain;
         this.listed = listed;
     }
+
     public String getDomain() {
         return domain;
     }
+
     public boolean getListed() {
         return listed;
     }

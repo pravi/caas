@@ -47,4 +47,8 @@ public class Configuration {
             return storagePath + File.separator;
         }
     }
+
+    public int getTestRunInterval() {
+        return testRunInterval;
+    }
 }

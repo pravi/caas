@@ -10,6 +10,7 @@ import rocks.xmpp.core.session.Extension;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.session.XmppSessionConfiguration;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class TestExecutor {
     static {
         configuration = XmppSessionConfiguration.builder()
                 .extensions(Extension.of(ClientStateIndication.class))
+                .defaultResponseTimeout(Duration.ofSeconds(10))
                 .initialPresence(null)
                 .build();
     }

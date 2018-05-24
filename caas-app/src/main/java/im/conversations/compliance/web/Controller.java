@@ -79,7 +79,7 @@ public class Controller {
         }
 
         //Check if domain exists, if not add to domains table
-        boolean domainAdded = ServerStore.INSTANCE.addOrUpdateDomain(new Domain(credential.getDomain(),listedServer));
+        boolean domainAdded = ServerStore.INSTANCE.addOrUpdateDomain(new Domain(credential.getDomain(), listedServer));
         if (!domainAdded) {
             postResponse = new PostResponse(
                     false,

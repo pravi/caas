@@ -31,10 +31,11 @@ public class Help {
         return serverHelps;
     }
 
-    public Optional<ServerHelp> getHelpFor(String server) {
+    public Optional<ServerHelp> getHelpFor(String software) {
+        final String softwareName = software.toLowerCase().trim();
         return serverHelps.
                 stream().
-                filter(it -> it.getServerName().equals(server)).
+                filter(it -> it.getSoftwareName().equals(softwareName)).
                 findFirst();
     }
 }

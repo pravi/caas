@@ -2,16 +2,20 @@ package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
 import im.conversations.compliance.persistence.ServerStore;
+import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.pojo.Server;
 import im.conversations.compliance.pojo.ServerResponse;
 import im.conversations.compliance.utils.JsonReader;
+import im.conversations.compliance.utils.TimeUtils;
 import im.conversations.compliance.xmpp.CredentialVerifier;
 import im.conversations.compliance.xmpp.OneOffTestRunner;
 import spark.ModelAndView;
 import spark.Route;
 import spark.TemplateViewRoute;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
@@ -122,5 +126,23 @@ public class Controller {
         }
         OneOffTestRunner.runOneOffTestsFor(credential);
         return new ModelAndView(model, "live.ftl");
+    };
+    public static TemplateViewRoute getServer = (request, response) -> {
+        HashMap<String, Object> model = new HashMap<>();
+        String domain = request.params("domain");
+        Server server = ServerStore.INSTANCE.getServer(domain);
+        if (server == null) {
+            halt(400, "ERROR: Results unavailable for " + domain);
+            return null;
+        }
+        List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
+        Instant lastRun = TestResultStore.INSTANCE.getLastRunFor(domain);
+        model.put("domain", domain);
+        model.put("results", results);
+        model.put("softwareName", server.getSoftwareName());
+        model.put("softwareVersion", server.getSoftwareVersion());
+        model.put("timeSince", TimeUtils.getTimeSince(lastRun));
+        model.put("badgeCode", "<img src=\"https://compliance.conversations.im/badge/" + domain + "\">");
+        return new ModelAndView(model, "server.ftl");
     };
 }

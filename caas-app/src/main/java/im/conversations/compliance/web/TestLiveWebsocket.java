@@ -23,7 +23,7 @@ public class TestLiveWebsocket {
                 ServerResponse liveResultResponse = new ServerResponse(
                         success,
                         msg,
-                        "/result/" + domain);
+                        "/server/" + domain);
                 message(session, gson.toJson(liveResultResponse));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -33,7 +33,7 @@ public class TestLiveWebsocket {
             ServerResponse liveResultResponse = new ServerResponse(
                     false,
                     "No live tests running for " + domain + ". Try refreshing this page",
-                    "/result/" + domain);
+                    null);
             try {
                 message(session, gson.toJson(liveResultResponse));
             } catch (IOException e) {

@@ -3,20 +3,20 @@ package im.conversations.compliance.pojo;
 import java.util.List;
 
 public class ServerHelp {
-    private String serverName;
+    private String softwareName;
     private List<TestHelp> testsHelp;
 
     public ServerHelp(String serverName, List<TestHelp> implementationHelp) {
-        this.serverName = serverName;
+        this.softwareName = serverName;
         this.testsHelp = implementationHelp;
     }
 
-    public String getServerName() {
-        return serverName;
+    public String getSoftwareName() {
+        return softwareName;
     }
 
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
+    public void setSoftwareName(String softwareName) {
+        this.softwareName = softwareName;
     }
 
     public List<TestHelp> getTestsHelp() {

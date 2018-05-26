@@ -33,7 +33,8 @@ public class PeriodicTestRunner implements Runnable {
         Duration between = Duration.between(lastIteration.getBegin(), Instant.now());
         long minutes = between.toMinutes();
         long minutesLeft = Configuration.getInstance().getTestRunInterval() - minutes;
-        System.out.println("Next test scheduled " + minutesLeft + " minutes from now");
+        if (minutesLeft > 0)
+            System.out.println("Next test scheduled " + minutesLeft + " minutes from now");
         // Run on start
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this, minutesLeft, Configuration.getInstance().getTestRunInterval(), TimeUnit.MINUTES);
     }

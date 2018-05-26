@@ -13,6 +13,7 @@ import static spark.Spark.*;
 public class Main {
     public static void main(String[] args) {
         TemplateEngine templateEngine = new FreeMarkerEngine();
+        staticFileLocation("/public");
         webSocket("/socket/*", TestLiveWebsocket.class);
         ipAddress(Configuration.getInstance().getIp());
         port(Configuration.getInstance().getPort());
@@ -24,6 +25,7 @@ public class Main {
         get("/add/", Controller.getAdd, templateEngine);
         post("/add/", Controller.postAdd);
         get("/live/:domain/", Controller.getLive, templateEngine);
+        get("/server/:domain/", Controller.getServer, templateEngine);
         PeriodicTestRunner.getInstance();
     }
 }

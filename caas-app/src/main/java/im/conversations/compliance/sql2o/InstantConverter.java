@@ -4,14 +4,19 @@ import org.sql2o.converters.Converter;
 import org.sql2o.converters.ConverterException;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 public class InstantConverter implements Converter<Instant> {
     @Override
     public Instant convert(Object val) throws ConverterException {
-        if (val instanceof String) {
-            return Instant.parse((String) val);
+        try {
+            if (val instanceof String) {
+                return Instant.parse((String) val);
+            }
+        } catch (DateTimeParseException ex) {
+            throw new ConverterException(ex.getMessage());
         }
-        return null;
+        throw new ConverterException("can not convert object of type " + val.getClass().getName() + " to Instant");
     }
 
     @Override

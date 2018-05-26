@@ -2,18 +2,21 @@ package im.conversations.compliance.persistence;
 
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Iteration;
-import im.conversations.compliance.xmpp.PeriodicTestRunner;
 import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.xmpp.PeriodicTestRunner;
+import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
+import org.sql2o.data.Table;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TestResultStore {
     public static final TestResultStore INSTANCE = new TestResultStore();
+    private final HashMap<String, List<Result>> serverResults = new HashMap<>();
     private final Sql2o database;
 
     private TestResultStore() {
@@ -44,8 +47,24 @@ public class TestResultStore {
                         "end_time integer)"
                 ).executeUpdate();
 
+                List<String> domains = con.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
+                domains.forEach(domain -> {
+                    Table table = con.createQuery("select test,success from current_tests where domain=:domain")
+                            .addParameter("domain", domain)
+                            .executeAndFetchTable();
+                    ArrayList<Result> r = table.rows().stream()
+                            .map(row -> new Result(
+                                    TestUtils.getTestFrom(row.getString("test")),
+                                    (row.getInteger("success") == 1)))
+                            .collect(Collectors.toCollection(ArrayList::new));
+                    serverResults.put(domain, r);
+                });
             }
         }
+    }
+
+    public List<Result> getResultsFor(String domain) {
+        return Collections.unmodifiableList(serverResults.get(domain));
     }
 
     public Iteration getLastIteration() {
@@ -97,6 +116,7 @@ public class TestResultStore {
                 });
                 query.executeBatch();
                 con.commit();
+                serverResults.put(domain, results);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return false;
@@ -138,5 +158,20 @@ public class TestResultStore {
             }
         }
         return false;
+    }
+
+    public Instant getLastRunFor(String domain) {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                Instant lastRun = con.createQuery("select timestamp from current_tests where domain=:domain limit 1;")
+                        .addParameter("domain", domain)
+                        .executeScalar(Instant.class);
+                return lastRun;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return Instant.now();
+            }
+        }
+
     }
 }

@@ -24,7 +24,6 @@ public class Help {
         if (INSTANCE == null) {
             INSTANCE = new JsonReader<>(Help.class).read(new File("servers.json"));
         }
-
     }
 
     public ArrayList<ServerHelp> getServerHelps() {

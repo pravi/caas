@@ -1,12 +1,10 @@
 package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.persistence.ServerStore;
 import im.conversations.compliance.persistence.TestResultStore;
-import im.conversations.compliance.pojo.Credential;
-import im.conversations.compliance.pojo.Result;
-import im.conversations.compliance.pojo.Server;
-import im.conversations.compliance.pojo.ServerResponse;
+import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.utils.JsonReader;
 import im.conversations.compliance.utils.TimeUtils;
 import im.conversations.compliance.xmpp.CredentialVerifier;
@@ -19,6 +17,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static spark.Spark.halt;
 
@@ -136,6 +135,10 @@ public class Controller {
             return null;
         }
         List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
+        List<String> failedTests = results.stream()
+                .filter(result -> !result.isSuccess())
+                .map(result -> result.getTest().short_name())
+                .collect(Collectors.toList());
         long total = 0;
         long passed = 0;
         for (Result result : results) {
@@ -147,6 +150,10 @@ public class Controller {
             }
         }
         int percent = (int) (passed * 100 / total);
+        ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
+        List<TestHelp> helps = serverHelp.getTestsHelp().stream()
+                .filter(th -> failedTests.contains(th.getName()))
+                .collect(Collectors.toList());
         Instant lastRun = TestResultStore.INSTANCE.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);
@@ -158,6 +165,7 @@ public class Controller {
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
+        model.put("helps", helps);
         model.put("badgeCode", "<img src=\"https://compliance.conversations.im/badge/" + domain + "\">");
         return new ModelAndView(model, "server.ftl");
     };

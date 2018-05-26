@@ -1,7 +1,7 @@
 {
   "serverHelps": [
     {
-      "serverName": "prosody",
+      "softwareName": "prosody",
       "testsHelp": [
         {
           "name": "xep0163",
@@ -10,8 +10,7 @@
           "modulesRequired": [
             {
               "name": "pep",
-              "type": "inbuilt",
-              "link": "https://modules.prosody.im/mod_pep"
+              "type": "core"
             }
           ]
         },
@@ -20,8 +19,8 @@
           "possible": true,
           "modulesRequired": [
             {
-              "name": "mod_caps",
-              "type": "inbuilt"
+              "name": "caps",
+              "type": "core"
             }
           ]
         },
@@ -31,13 +30,37 @@
           "since": "v0.3",
           "instructions": "https://prosody.im/doc/chatrooms"
         },
+         {
+          "name": "xep0077",
+          "possible": true,
+          "since": "v0.1",
+            "modulesRequired": [
+            {
+              "name": "register",
+              "type": "core"
+            }
+          ],
+          "instructions": "Set allow_registration = true in your configuration file"
+        },
+        {
+          "name": "xep0157",
+          "possible": true,
+          "since": "v0.9",
+          "modulesRequired": [
+            {
+              "name": "server_contact_info",
+              "type": "community_prosody",
+              "link": "https://modules.prosody.im/mod_server_contact_info.html"
+            }
+          ]
+        },
         {
           "name": "Roster_Versioning",
           "possible": true,
           "since": "v0.4",
           "modulesRequired": [
             {
-              "name": "mod_roster",
+              "name": "roster",
               "type": "core",
               "link": "https://modules.prosody.im/mod_roster"
             }
@@ -49,9 +72,9 @@
           "since": "v0.7",
           "modulesRequired": [
             {
-              "name": "mod_blocking",
+              "name": "blocking",
               "type": "core",
-              "link": "https://modules.prosody.im/mod_blocking"
+              "link": "https://modules.prosody.im/mod_blocking.html"
             }
           ]
         },
@@ -61,7 +84,7 @@
           "since": "v0.8",
           "modulesRequired": [
             {
-              "name": "mod_smacks",
+              "name": "smacks",
               "type": "core",
               "link": "https://modules.prosody.im/mod_smacks"
             }
@@ -73,7 +96,7 @@
           "since": "v0.10",
           "modulesRequired": [
             {
-              "name": "mod_carbons",
+              "name": "carbons",
               "type": "core",
               "link": "https://modules.prosody.im/mod_carbons"
             }
@@ -85,7 +108,7 @@
           "since": "v0.9",
           "modulesRequired": [
             {
-              "name": "mod_csi",
+              "name": "csi",
               "type": "core",
               "link": "https://modules.prosody.im/mod_csi"
             }
@@ -97,7 +120,7 @@
           "since": "v0.7",
           "modulesRequired": [
             {
-              "name": "mod_proxy65",
+              "name": "proxy65",
               "type": "core",
               "link": "https://modules.prosody.im/mod_proxy65"
             }
@@ -109,7 +132,7 @@
           "since": "v0.10",
           "modulesRequired": [
             {
-              "name": "mod_mam",
+              "name": "mam",
               "type": "core",
               "link": "https://modules.prosody.im/mod_mam"
             }
@@ -121,7 +144,7 @@
           "since": "v0.9",
           "modulesRequired": [
             {
-              "name": "mod_http_upload",
+              "name": "http_upload",
               "type": "core",
               "link": "https://modules.prosody.im/mod_http_upload"
             }
@@ -134,7 +157,7 @@
           "modulesRequired": [
             {
               "name": "mod_cloud_notify",
-              "type": "community",
+              "type": "community_prosody",
               "link": "https://modules.prosody.im/mod_cloud_notify"
             }
           ]
@@ -145,8 +168,8 @@
           "since": "v0.10",
           "modulesRequired": [
             {
-              "name": "mod_mam_muc",
-              "type": "community",
+              "name": "mam_muc",
+              "type": "community_prosody",
               "link": "https://modules.prosody.im/mod_mam_muc"
             }
           ]
@@ -157,8 +180,8 @@
           "since": "v0.10",
           "modulesRequired": [
             {
-              "name": "mod_omemo_all_access",
-              "type": "community",
+              "name": "omemo_all_access",
+              "type": "community_prosody",
               "link": "https://modules.prosody.im/mod_omemo_all_access"
             }
           ]
@@ -171,7 +194,7 @@
       ]
     },
     {
-      "serverName": "ejabberd",
+      "softwareName": "ejabberd",
       "testsHelp": [
         {
           "name": "xep0163",
@@ -341,7 +364,7 @@
       ]
     },
     {
-      "serverName": "metronome",
+      "softwareName": "metronome",
       "testsHelp": [
         {
           "name": "xep0163",

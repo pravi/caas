@@ -5,6 +5,7 @@ import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Iteration;
+import im.conversations.compliance.pojo.Result;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
@@ -44,7 +45,7 @@ public class PeriodicTestRunner implements Runnable {
     @Override
     public void run() {
         List<Credential> credentials = ServerStore.INSTANCE.getCredentials();
-        if(credentials.isEmpty())
+        if (credentials.isEmpty())
             return;
         final List<Credential> credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Instant beginTime = Instant.now();
@@ -74,7 +75,7 @@ public class PeriodicTestRunner implements Runnable {
         lastIteration = new Iteration(lastIteration.getIterationNumber() + 1, beginTime, endTime);
 
         //Add results to database
-        TestResultStore.INSTANCE.putPeriodicTestResults(rdpList,lastIteration);
+        TestResultStore.INSTANCE.putPeriodicTestResults(rdpList, lastIteration);
 
         //Remove invalid credential
         credentialsMarkedForRemoval.forEach(credential -> {

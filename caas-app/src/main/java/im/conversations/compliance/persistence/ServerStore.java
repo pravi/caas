@@ -82,8 +82,8 @@ public class ServerStore {
             try (Connection con = this.database.open()) {
                 String query = "select domain,software_name,software_version,listed from servers where domain=:domain";
                 return con.createQuery(query)
-                        .addColumnMapping("software_name","softwareName")
-                        .addColumnMapping("software_version","softwareVersion")
+                        .addColumnMapping("software_name", "softwareName")
+                        .addColumnMapping("software_version", "softwareVersion")
                         .addParameter("domain", domainName)
                         .executeAndFetchFirst(Server.class);
             } catch (Exception ex) {

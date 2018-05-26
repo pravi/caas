@@ -2,6 +2,7 @@ package im.conversations.compliance.xmpp;
 
 import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.utils.ExceptionUtils;
 import rocks.xmpp.core.XmppException;
 
@@ -58,15 +59,15 @@ public class OneOffTestRunner {
         List<Result> results;
         try {
             results = TestExecutor.executeTestsFor(credential);
-            TestResultStore.INSTANCE.putOneOffTestResults(credential.getDomain(),results);
+            TestResultStore.INSTANCE.putOneOffTestResults(credential.getDomain(), results);
             synchronized (testRunningFor) {
-                testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(true,"OK"));
+                testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(true, "OK"));
                 testRunningFor.remove(credential.getDomain());
             }
         } catch (XmppException | TestFactory.TestCreationException ex) {
             String msg = ExceptionUtils.getRootCause(ex).getMessage();
             synchronized (testRunningFor) {
-                testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(false,msg));
+                testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(false, msg));
                 testRunningFor.remove(credential.getDomain());
             }
             ex.printStackTrace();
@@ -74,7 +75,7 @@ public class OneOffTestRunner {
     }
 
     public interface ResultListener {
-        void onResult(boolean success,String msg);
+        void onResult(boolean success, String msg);
     }
 
 }

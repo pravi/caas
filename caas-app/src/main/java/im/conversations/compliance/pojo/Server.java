@@ -21,7 +21,7 @@ public class Server {
     }
 
     public Server(Server server, SoftwareVersion softwareVersion) {
-        this(server.domain,softwareVersion.getName(),softwareVersion.getVersion(),server.listed);
+        this(server.domain, softwareVersion.getName(), softwareVersion.getVersion(), server.listed);
     }
 
     public String getDomain() {

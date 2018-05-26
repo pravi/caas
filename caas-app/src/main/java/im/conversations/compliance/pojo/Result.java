@@ -1,4 +1,4 @@
-package im.conversations.compliance.xmpp;
+package im.conversations.compliance.pojo;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 

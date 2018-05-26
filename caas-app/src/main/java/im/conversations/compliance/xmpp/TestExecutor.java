@@ -3,6 +3,7 @@ package im.conversations.compliance.xmpp;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Credential;
+import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.xmpp.extensions.csi.ClientStateIndication;
 import im.conversations.compliance.xmpp.tests.AbstractTest;
 import rocks.xmpp.core.XmppException;
@@ -31,10 +32,10 @@ public class TestExecutor {
         ArrayList<Result> results = new ArrayList<>();
         XmppClient client = XmppClient.create(credential.getDomain(), configuration);
         client.connect(credential.getJid());
-        client.login(credential.getJid().getLocal(), credential.getPassword(),"caas");
+        client.login(credential.getJid().getLocal(), credential.getPassword(), "caas");
 
         //Update server metadata
-        ServerMetadataChecker.updateServerMetadataFor(client,credential);
+        ServerMetadataChecker.updateServerMetadataFor(client, credential);
 
         //Run tests
         List<Class<? extends AbstractTest>> testClasses = Tests.getTests();

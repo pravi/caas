@@ -14,12 +14,11 @@ import static im.conversations.compliance.utils.JsonReader.gson;
 
 @WebSocket
 public class TestLiveWebsocket {
-    // Store sessions if you want to, for example, broadcast a message to all users
 
     @OnWebSocketConnect
     public void connected(Session session) {
         String domain = session.getUpgradeRequest().getParameterMap().get("domain").get(0);
-        boolean status = OneOffTestRunner.addResultListener(domain, (success,msg) -> {
+        boolean status = OneOffTestRunner.addResultListener(domain, (success, msg) -> {
             try {
                 ServerResponse liveResultResponse = new ServerResponse(
                         success,
@@ -33,7 +32,7 @@ public class TestLiveWebsocket {
         if (!status) {
             ServerResponse liveResultResponse = new ServerResponse(
                     false,
-                    "No live tests running for " + domain,
+                    "No live tests running for " + domain + ". Try refreshing this page",
                     "/result/" + domain);
             try {
                 message(session, gson.toJson(liveResultResponse));
@@ -50,7 +49,7 @@ public class TestLiveWebsocket {
 
     @OnWebSocketMessage
     public void message(Session session, String message) throws IOException {
-        System.out.println("Got: " + message);   // Print message
-        session.getRemote().sendString(message); // and send it back
+        System.out.println("Sent: " + message);
+        session.getRemote().sendString(message);
     }
 }

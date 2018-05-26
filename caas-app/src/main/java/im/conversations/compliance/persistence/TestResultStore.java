@@ -3,7 +3,7 @@ package im.conversations.compliance.persistence;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Iteration;
 import im.conversations.compliance.xmpp.PeriodicTestRunner;
-import im.conversations.compliance.xmpp.Result;
+import im.conversations.compliance.pojo.Result;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;

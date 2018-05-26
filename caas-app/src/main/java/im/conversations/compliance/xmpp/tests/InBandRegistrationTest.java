@@ -8,7 +8,8 @@ import rocks.xmpp.extensions.register.RegistrationManager;
         short_name = "xep0077",
         full_name = "XEP-0077: In-Band Registration",
         url = "https://xmpp.org/extensions/xep-0077.html",
-        description = "Provides a protocol for registration of users directly through XMPP i.e. \"in-band\"."
+        description = "Provides a protocol for registration of users directly through XMPP i.e. \"in-band\".",
+        informational = true
 )
 public class InBandRegistrationTest extends AbstractTest {
 

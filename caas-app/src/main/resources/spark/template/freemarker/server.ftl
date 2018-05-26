@@ -76,16 +76,16 @@
     </style>
      <h2> Compliance status for ${domain}</h2>
     <div id="server_stats">
-    <#--<#list stats as stat,value>-->
-    <#--<div class="stat_result">-->
-    <#--${value}-->
-    <#--87%-->
-    <#--</div>-->
-    <#--<div class="stat_info">-->
-    <#--${stat}-->
-    <#--Specifications compliant-->
-    <#--</div>-->
-    <#--</#list>-->
+        <#list stats as stat,value>
+            <div class="server_stat">
+                <div class="stat_result">
+                    ${value}
+                </div>
+                <div class="stat_info">
+                    ${stat}
+                </div>
+            </div>
+        </#list>
     </div>
 
     <button id="download_report" href="#">Download report</button>

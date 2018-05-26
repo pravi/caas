@@ -136,9 +136,25 @@ public class Controller {
             return null;
         }
         List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
+        long total = 0;
+        long passed = 0;
+        for (Result result : results) {
+            if (!result.getTest().informational()) {
+                if(result.isSuccess()) {
+                    passed++;
+                }
+                total++;
+            }
+        }
+        int percent = (int) (passed * 100 / total);
         Instant lastRun = TestResultStore.INSTANCE.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);
+        model.put("stats", new HashMap<String, String>() {
+            {
+                put("Specifications compliant", percent + "%");
+            }
+        });
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));

@@ -2,7 +2,7 @@ package im.conversations.compliance.persistence;
 
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
-import im.conversations.compliance.pojo.Domain;
+import im.conversations.compliance.pojo.Server;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -22,9 +22,9 @@ public class ServerStore {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text primary key,password text)").executeUpdate();
-                con.createQuery("create table if not exists domains(domain text primary key,listed integer)").executeUpdate();
+                con.createQuery("create table if not exists servers(domain text primary key,listed integer, software_name text, software_version text)").executeUpdate();
                 con.createQuery("create index if not exists credentials_index on credentials(domain)").executeUpdate();
-                con.createQuery("create index if not exists domains_index on credentials(domain)").executeUpdate();
+                con.createQuery("create index if not exists servers_index on credentials(domain)").executeUpdate();
             }
         }
     }
@@ -64,11 +64,11 @@ public class ServerStore {
         }
     }
 
-    public boolean addOrUpdateDomain(Domain domain) {
+    public boolean addOrUpdateServer(Server server) {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
-                String query = "insert or replace into domains(domain,listed) values(:domain,:listed)";
-                con.createQuery(query).bind(domain).executeUpdate();
+                String query = "insert or replace into servers(domain,listed,software_name,software_version) values(:domain,:listed,:softwareName,:softwareVersion)";
+                con.createQuery(query).bind(server).executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return false;
@@ -77,25 +77,27 @@ public class ServerStore {
         return true;
     }
 
-    public Domain getDomain(String domainName) {
+    public Server getServer(String domainName) {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
-                String query = "select domain,listed from domains where domain=:domain";
-                Domain domain = con.createQuery(query).bind(domainName).executeAndFetchFirst(Domain.class);
-                return domain;
+                String query = "select domain,software_name,software_version,listed from servers where domain=:domain";
+                return con.createQuery(query)
+                        .addColumnMapping("software_name","softwareName")
+                        .addColumnMapping("software_version","softwareVersion")
+                        .addParameter("domain", domainName)
+                        .executeAndFetchFirst(Server.class);
             } catch (Exception ex) {
-                System.out.println("Couldn't find domain in database");
                 ex.printStackTrace();
                 return null;
             }
         }
     }
 
-    public boolean removeDomain(Domain domain) {
+    public boolean removeDomain(Server server) {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
-                String query = "delete from domains where domain=:domain";
-                con.createQuery(query).bind(domain).executeUpdate();
+                String query = "delete from servers where domain=:domain";
+                con.createQuery(query).bind(server).executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return false;

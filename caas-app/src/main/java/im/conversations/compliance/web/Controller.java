@@ -1,12 +1,13 @@
 package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import im.conversations.compliance.persistence.ServerStore;
 import im.conversations.compliance.pojo.Credential;
-import im.conversations.compliance.pojo.Domain;
-import im.conversations.compliance.pojo.PostResponse;
+import im.conversations.compliance.pojo.Server;
+import im.conversations.compliance.pojo.ServerResponse;
+import im.conversations.compliance.utils.JsonReader;
 import im.conversations.compliance.xmpp.CredentialVerifier;
+import im.conversations.compliance.xmpp.OneOffTestRunner;
 import spark.ModelAndView;
 import spark.Route;
 import spark.TemplateViewRoute;
@@ -19,8 +20,7 @@ import static spark.Spark.halt;
 
 public class Controller {
 
-    private static final GsonBuilder gsonBuilder = new GsonBuilder();
-    private static final Gson gson = gsonBuilder.create();
+    private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getAdd = ((request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
@@ -32,11 +32,11 @@ public class Controller {
         String password = request.queryParams("password");
         boolean listedServer = Boolean.parseBoolean(request.queryParams("listed"));
         final Credential credential;
-        PostResponse postResponse;
+        ServerResponse postResponse;
         try {
             credential = new Credential(jid, password);
         } catch (Exception ex) {
-            postResponse = new PostResponse(
+            postResponse = new ServerResponse(
                     false,
                     "ERROR: Invalid credentials provided",
                     null);
@@ -47,7 +47,7 @@ public class Controller {
         Predicate<Credential> jidMatches = it -> it.getJid().toString().equals(credential.getJid().toString());
         Predicate<Credential> passwordMatches = it -> it.getPassword().equals(credential.getPassword());
         if (credentials != null && credentials.stream().filter(jidMatches).anyMatch(passwordMatches)) {
-            postResponse = new PostResponse(
+            postResponse = new ServerResponse(
                     false,
                     "ERROR: Credentials already exist in the database",
                     null);
@@ -64,7 +64,7 @@ public class Controller {
             ex.printStackTrace();
         }
         if (!verified) {
-            postResponse = new PostResponse(
+            postResponse = new ServerResponse(
                     false,
                     "ERROR: Credentials could not be verified",
                     null);
@@ -79,9 +79,9 @@ public class Controller {
         }
 
         //Check if domain exists, if not add to domains table
-        boolean domainAdded = ServerStore.INSTANCE.addOrUpdateDomain(new Domain(credential.getDomain(), listedServer));
+        boolean domainAdded = ServerStore.INSTANCE.addOrUpdateServer(new Server(credential.getDomain(), listedServer));
         if (!domainAdded) {
-            postResponse = new PostResponse(
+            postResponse = new ServerResponse(
                     false,
                     "ERROR: Could not add/update domain to the database",
                     null
@@ -92,7 +92,7 @@ public class Controller {
         // Add credentials to database
         boolean dbAdded = ServerStore.INSTANCE.addCredential(credential);
         if (!dbAdded) {
-            postResponse = new PostResponse(
+            postResponse = new ServerResponse(
                     false,
                     "ERROR: Could not add server with the provided credentials to the database",
                     null
@@ -100,7 +100,7 @@ public class Controller {
             return gson.toJson(postResponse);
         }
 
-        postResponse = new PostResponse(
+        postResponse = new ServerResponse(
                 true,
                 "Successfully added credentials",
                 "/live/" + credential.getDomain()
@@ -109,8 +109,18 @@ public class Controller {
     };
 
     public static TemplateViewRoute getLive = (request, response) -> {
-        //TODO: Implement this
-        halt(500, "Not implemented yet");
-        return null;
+        HashMap<String, Object> model = new HashMap<>();
+        String domain = request.params("domain");
+        model.put("domain", domain);
+        Credential credential = ServerStore.INSTANCE.getCredentials()
+                .stream()
+                .filter(it -> it.getDomain().equals(domain))
+                .findFirst().orElse(null);
+        if (credential == null) {
+            halt("No credentials for " + domain + " found in database");
+            return null;
+        }
+        OneOffTestRunner.runOneOffTestsFor(credential);
+        return new ModelAndView(model, "live.ftl");
     };
 }

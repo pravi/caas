@@ -10,7 +10,7 @@ import java.io.FileReader;
 
 public class JsonReader<T> {
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
-    private static final Gson gson = gsonBuilder.create();
+    public static final Gson gson = gsonBuilder.create();
     private final Class<T> typeClass;
 
     public JsonReader(Class<T> typeClass) {

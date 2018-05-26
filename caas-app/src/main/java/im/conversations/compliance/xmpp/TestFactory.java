@@ -10,8 +10,7 @@ public class TestFactory {
             throw new TestCreationException();
         }
         try {
-            AbstractTest test = clazz.getDeclaredConstructor(XmppClient.class).newInstance(client);
-            return test;
+            return clazz.getDeclaredConstructor(XmppClient.class).newInstance(client);
         } catch (Exception e) {
             e.printStackTrace();
             throw new TestCreationException();

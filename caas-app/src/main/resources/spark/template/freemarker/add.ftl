@@ -68,7 +68,7 @@
         <div id="input_error_msg" class="error_message"></div>
         <div id="loading_add" class="loading_status">
             <div class="loader"></div>
-            <div>Processing your request</div>
+            <div>Verifying your credentials</div>
         </div>
         <div>
             <input type="submit" class="button" id="button_add" value="Submit"/>

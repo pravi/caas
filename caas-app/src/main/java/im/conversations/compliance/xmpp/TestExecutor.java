@@ -31,7 +31,12 @@ public class TestExecutor {
         ArrayList<Result> results = new ArrayList<>();
         XmppClient client = XmppClient.create(credential.getDomain(), configuration);
         client.connect(credential.getJid());
-        client.login(credential.getJid().getLocal(), credential.getPassword());
+        client.login(credential.getJid().getLocal(), credential.getPassword(),"caas");
+
+        //Update server metadata
+        ServerMetadataChecker.updateServerMetadataFor(client,credential);
+
+        //Run tests
         List<Class<? extends AbstractTest>> testClasses = Tests.getTests();
         for (Class<? extends AbstractTest> testClass : testClasses) {
             ComplianceTest test = testClass.getAnnotation(ComplianceTest.class);

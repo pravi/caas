@@ -4,7 +4,7 @@ import im.conversations.compliance.annotations.ComplianceTest;
 import rocks.xmpp.core.session.XmppClient;
 
 @ComplianceTest(
-        short_name = "xep363",
+        short_name = "xep0363",
         full_name = "XEP-0363: HTTP File Upload",
         url = "https://xmpp.org/extensions/xep-0363.html",
         description = "Provides a protocol for transferring files between entities by uploading the file to an HTTP server."

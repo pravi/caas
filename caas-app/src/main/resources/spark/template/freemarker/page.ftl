@@ -1,3 +1,4 @@
+<#assign project_name="CaaS">
 <#macro page>
 <html>
 <head>
@@ -56,6 +57,8 @@
         }
 
         .card {
+            padding: 20px;
+            margin: 15px 10px;
             background: #ffffff;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
@@ -286,7 +289,7 @@
         }
     </script>
     <div id="brand" href="#">
-        <h1 id="brand_name">CaaS</h1>
+        <h1 id="brand_name">${project_name}</h1>
     </div>
     <div id="hamburger" onclick="menu_toggle()">
         <span></span>
@@ -294,7 +297,7 @@
         <span></span>
     </div>
     <div id="nav_list_menu" onclick="menu_toggle()">
-        <a href="#">
+        <a href="/add">
             Test your server
         </a>
         <a href="#">

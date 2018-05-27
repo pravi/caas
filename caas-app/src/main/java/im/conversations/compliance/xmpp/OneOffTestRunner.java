@@ -54,7 +54,6 @@ public class OneOffTestRunner {
         return true;
     }
 
-
     private static void startTests(Credential credential) {
         List<Result> results;
         try {

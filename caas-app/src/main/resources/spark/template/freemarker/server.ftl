@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
 <#assign description="Server compliance result for ${domain}" in page>
-<#assign title="Compliance result for ${domain}" in page>
+<#assign title="${page.project_name}: Compliance result for ${domain}" in page>
 <@page.page>
     <style>
         #server_stats {
@@ -47,10 +47,6 @@
             justify-content: space-between;
         }
 
-        #additional_server > div {
-            margin: 20px 10px;
-            padding: 15px;
-        }
 
         .input_subscribe {
             width: 250px;
@@ -64,8 +60,6 @@
         }
 
         .help {
-            margin: 15px 10px;
-            padding: 20px;
             text-align: left;
         }
 

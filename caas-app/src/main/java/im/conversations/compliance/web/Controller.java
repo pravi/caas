@@ -1,7 +1,6 @@
 package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
-import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.persistence.ServerStore;
 import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.*;
@@ -18,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static spark.Spark.halt;
 
 public class Controller {
 
@@ -114,16 +111,17 @@ public class Controller {
     public static TemplateViewRoute getLive = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        model.put("domain", domain);
         Credential credential = ServerStore.INSTANCE.getCredentials()
                 .stream()
                 .filter(it -> it.getDomain().equals(domain))
                 .findFirst().orElse(null);
         if (credential == null) {
-            halt("No credentials for " + domain + " found in database");
-            return null;
+            model.put("error_code", 400);
+            model.put("error_msg", "No credentials for " + domain + " found in database");
+            return new ModelAndView(model, "error.ftl");
         }
         OneOffTestRunner.runOneOffTestsFor(credential);
+        model.put("domain", domain);
         return new ModelAndView(model, "live.ftl");
     };
     public static TemplateViewRoute getServer = (request, response) -> {
@@ -131,8 +129,9 @@ public class Controller {
         String domain = request.params("domain");
         Server server = ServerStore.INSTANCE.getServer(domain);
         if (server == null) {
-            halt(400, "ERROR: Results unavailable for " + domain);
-            return null;
+            model.put("error_code", 400);
+            model.put("error_msg", "Results unavailable for " + domain);
+            return new ModelAndView(model, "error.ftl");
         }
         List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
         List<String> failedTests = results.stream()
@@ -143,7 +142,7 @@ public class Controller {
         long passed = 0;
         for (Result result : results) {
             if (!result.getTest().informational()) {
-                if(result.isSuccess()) {
+                if (result.isSuccess()) {
                     passed++;
                 }
                 total++;

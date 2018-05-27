@@ -1,4 +1,4 @@
-CaaS (Compliance as a Service) for XMPP Servers
+[Work in Progress] CaaS (Compliance as a Service) for XMPP Servers
 ===============================================
 This is a work in progress web application for checking and visualising compliance status of various XMPP servers, made as a part of Google Summer of Code 2018 for Conversations.im by Rishi Raj.
 ## Why compliance?

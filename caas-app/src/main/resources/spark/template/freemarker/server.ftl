@@ -16,7 +16,7 @@
         }
 
         .stat_result {
-            color: #43A047;
+            color: ${page.green};
             font-size: 3em;
         }
 

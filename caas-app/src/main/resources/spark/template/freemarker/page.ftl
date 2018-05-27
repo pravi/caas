@@ -1,5 +1,10 @@
 <#assign project_name="CaaS">
 <#macro page>
+    <#assign nav_bar_height=80>
+    <#assign primary_color="#43a047">
+    <#assign background_color="#fafafa">
+    <#assign white="#ffffff">
+    <#assign green="#43a047">
 <html>
 <head>
     <style>
@@ -7,11 +12,11 @@
             color: rgba(0, 0, 0, 0.87);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             font-size: 13pt;
-            background-color: #fafafa;
+            background-color: ${background_color};
         }
 
         #content {
-            margin-top: 100px;
+            margin-top: ${1.1*nav_bar_height}px;
             text-align: center;
         }
 
@@ -21,16 +26,16 @@
             text-decoration: none;
             outline: none !important;
             border: none;
-            border-bottom: solid 2px #43A047;
+            border-bottom: solid 2px ${primary_color};
         }
 
         a {
-            color: #43A047;
+            color: ${primary_color};
         }
 
         .button, button {
             font-size: 0.95em;
-            background: #43A047;
+            background: ${primary_color};
             color: white;
             box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2);
             border: none;
@@ -46,8 +51,8 @@
         }
 
         .button:hover, button:hover {
-            background: #FFFFFF;
-            color: #43A047;
+            background: ${white};
+            color: ${primary_color};
             box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2);
             -webkit-transition: all 0.3s;
             -transition: all 0.3s;
@@ -59,14 +64,14 @@
         .card {
             padding: 20px;
             margin: 15px 10px;
-            background: #ffffff;
+            background: ${white};
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         .chip {
             display: inline-flex;
             padding: 10px;
-            background: #ffffff;
+            background: ${white};
             border-radius: 10px;
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
             margin: 10px;
@@ -90,41 +95,57 @@
         /*
             Begin navbar CSS
         */
+        #nav_bar a {
+            text-decoration: none;
+        }
+
         #nav_bar {
             position: absolute;
             top: 0px;
             right: 0px;
-            background: #43A047;
             left: 0px;
+            background: ${primary_color};
             z-index: 200;
-            height: 80px;
+            height: ${nav_bar_height}px;
         }
 
         #nav_bar * {
-            color: #FFFFFF;
+            color: ${white};
         }
 
         #brand {
             float: left;
             margin: 0px;
             margin-left: 20px;
-            height: 80px;
+            height: ${nav_bar_height}px;
         }
 
         #nav_list_menu {
             float: right;
-            margin: 0px;
-            padding-top: 30px;
-            padding-bottom: 30px;
-            height: 20px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-inline-box;
+            display: -ms-inline-flexbox;
+            display: inline-flex;
+            height: ${nav_bar_height}px;
         }
 
         #nav_list_menu a {
-            margin: 0px;
-            padding: 0px;
-            font-size: 20px;
-            padding-right: 15px;
-            text-decoration: none;
+            padding: 15px;
+            margin: auto;
+            position: relative;
+            text-align: center;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 1.7em;
+            -webkit-transition: all 300ms ease-in-out;
+            transition: all 300ms ease-in-out;
+        }
+
+        #nav_list_menu a:hover {
+            background-color: ${background_color};
+            color: ${primary_color};
+            -webkit-transition: all 300ms ease-in-out;
+            transition: all 300ms ease-in-out;
         }
 
         #hamburger {
@@ -136,8 +157,7 @@
             -webkit-box-direction: normal;
             -ms-flex-direction: column;
             flex-direction: column;
-            display: none;
-            height: 110px;
+            height: ${nav_bar_height}px;
             padding: 5px;
             margin-right: 10px
         }
@@ -169,43 +189,34 @@
         }
 
         @media only screen and (max-width: 850px) {
+
             #nav_list_menu {
+                display: block;
+                visibility: hidden;
+                opacity: 0;
+                clear: both;
                 margin: 0px;
                 padding: 0px;
-                background-color: #43A047;
-                color: #656565;
+                background-color: ${primary_color};
+                color: ${background_color};
                 width: 100%;
-                -webkit-transform: translate(1000px, 0px);
-                transform: translate(1000px, 0px);
-                -webkit-transition: -webkit-transform 300ms;
-                transition: -webkit-transform 300ms;
-                transition: transform 300ms;
-                transition: transform 300ms, -webkit-transform 300ms;
+                transition: visibility 0s, opacity 0.3s ease-in-out;
                 height: auto;
             }
 
-            #nav_list_menu.expanded {
-                display: block;
-                -webkit-transform: translate(0px, 0px);
-                transform: translate(0px, 0px);
-            }
-
             #nav_list_menu a {
+                margin: 0px;
+                top: 0px;
+                padding: 10px 0px;
+                height: auto;
+                clear: both;
                 display: block;
-                text-align: center;
-                padding: 10px;
                 width: 100%;
-                -webkit-transition: height 300ms;
-                transition: height 300ms;
-                -webkit-transition: all 300ms ease-in;
-                transition: all 300ms ease-in;
             }
 
-            #nav_list_menu.expanded a:hover {
-                background-color: #fafafa;
-                color: #000000;
-                -webkit-transition: all 300ms ease-in-out;
-                transition: all 300ms ease-in-out;
+            #nav_list_menu.expanded {
+                opacity: 1;
+                visibility: visible;
             }
 
             #nav_list_menu.expanded a {
@@ -229,7 +240,7 @@
             #hamburger span {
                 display: block;
                 margin-bottom: 10px;
-                background-color: #ffffff;
+                background-color: ${white};
                 height: 10px;
                 width: 55px;
             }
@@ -244,7 +255,7 @@
 
         .loader {
             border: 9px solid #f3f3f3;
-            border-top: 9px solid #43a047;
+            border-top: 9px solid ${primary_color};
             border-radius: 50%;
             display: inline-block;
             width: 30px;
@@ -263,7 +274,7 @@
     </style>
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">
     <title>${title!"Check your XMPP server for compliance"}</title>
-    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:description" content="${description}">
     <meta property="og:locale" content="en_US">
     <meta charset="UTF-8">

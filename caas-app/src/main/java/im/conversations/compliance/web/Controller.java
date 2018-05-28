@@ -116,7 +116,7 @@ public class Controller {
                 .filter(it -> it.getDomain().equals(domain))
                 .findFirst().orElse(null);
         if (credential == null) {
-            model.put("error_code", 400);
+            model.put("error_code", 404);
             model.put("error_msg", "No credentials for " + domain + " found in database");
             return new ModelAndView(model, "error.ftl");
         }
@@ -129,7 +129,7 @@ public class Controller {
         String domain = request.params("domain");
         Server server = ServerStore.INSTANCE.getServer(domain);
         if (server == null) {
-            model.put("error_code", 400);
+            model.put("error_code", 404);
             model.put("error_msg", "Results unavailable for " + domain);
             return new ModelAndView(model, "error.ftl");
         }

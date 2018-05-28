@@ -136,7 +136,7 @@
             position: relative;
             text-align: center;
             font-family: 'Ubuntu', sans-serif;
-            font-size: 1.7em;
+            font-size: 1.3em;
             -webkit-transition: all 300ms ease-in-out;
             transition: all 300ms ease-in-out;
         }

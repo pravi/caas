@@ -77,6 +77,14 @@
             margin: 10px;
         }
 
+        .chip.clickable {
+            cursor: pointer;
+        }
+
+        .chip.clickable:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+        }
+
         code, .code {
             padding: 5px;
             font-size: 0.8em;

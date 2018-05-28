@@ -3,9 +3,9 @@ package im.conversations.compliance.pojo;
 import java.time.Instant;
 
 public class Iteration {
-    private int iterationNumber;
-    private Instant begin;
-    private Instant end;
+    private final int iterationNumber;
+    private final Instant begin;
+    private final Instant end;
 
     public Iteration(int iterationNumber, Instant begin, Instant end) {
         this.iterationNumber = iterationNumber;

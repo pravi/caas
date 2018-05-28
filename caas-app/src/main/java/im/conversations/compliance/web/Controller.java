@@ -72,10 +72,7 @@ public class Controller {
         }
         // If credentials are verified, and there was some old credential with the same jid, remove it
         else if (credentials != null) {
-            Credential oldCredential = credentials.stream().filter(jidMatches).findFirst().orElse(null);
-            if (oldCredential != null) {
-                ServerStore.INSTANCE.removeCredential(oldCredential);
-            }
+            credentials.stream().filter(jidMatches).findFirst().ifPresent(ServerStore.INSTANCE::removeCredential);
         }
 
         //Check if domain exists, if not add to domains table
@@ -150,9 +147,12 @@ public class Controller {
         }
         int percent = (int) (passed * 100 / total);
         ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
-        List<TestHelp> helps = serverHelp.getTestsHelp().stream()
-                .filter(th -> failedTests.contains(th.getName()))
-                .collect(Collectors.toList());
+        if(serverHelp != null) {
+            List<TestHelp> helps = serverHelp.getTestsHelp().stream()
+                    .filter(th -> failedTests.contains(th.getName()))
+                    .collect(Collectors.toList());
+            model.put("helps", helps);
+        }
         Instant lastRun = TestResultStore.INSTANCE.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);
@@ -164,7 +164,6 @@ public class Controller {
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
-        model.put("helps", helps);
         model.put("badgeCode", "<img src=\"https://compliance.conversations.im/badge/" + domain + "\">");
         return new ModelAndView(model, "server.ftl");
     };

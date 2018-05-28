@@ -1,0 +1,79 @@
+{
+    "softwareName": "metronome",
+    "testsHelp": [
+    {
+        "name": "xep0163",
+        "possible": true,
+        "since": "v1.2"
+    },
+    {
+        "name": "xep0115",
+        "possible": true,
+        "since": "v1.5"
+    },
+    {
+        "name": "xep0045",
+        "possible": true,
+        "since": "v1.25"
+    },
+    {
+        "name": "Roster_Versioning",
+        "possible": true,
+        "since": "v1.3"
+    },
+    {
+        "name": "xep0191",
+        "possible": true,
+        "since": "v1.3"
+    },
+    {
+        "name": "xep0198",
+        "possible": true,
+        "since": "v1.3"
+    },
+    {
+        "name": "xep0280",
+        "possible": true,
+        "since": "v0.9"
+    },
+    {
+        "name": "xep0352",
+        "possible": true,
+        "since": "v0.2.1"
+    },
+    {
+        "name": "xep0065",
+        "possible": true,
+        "since": "v1.8"
+    },
+    {
+        "name": "xep0313",
+        "possible": true,
+        "since": "v0.6.1"
+    },
+    {
+        "name": "xep0363",
+        "possible": true,
+        "since": "v0.6"
+    },
+    {
+        "name": "xep0357",
+        "possible": true,
+        "since": "v0.3.0"
+    },
+    {
+        "name": "xep0313: MUC",
+        "possible": true
+    },
+    {
+        "name": "xep0384",
+        "possible": true,
+        "since": "v3.7.22"
+    },
+    {
+        "name": "xep0368",
+        "possible": true,
+        "since": "v1.0"
+    }
+    ]
+}

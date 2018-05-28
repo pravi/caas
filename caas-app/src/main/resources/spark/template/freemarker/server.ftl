@@ -132,57 +132,59 @@
         <h3>
             Instructions on passing the failed tests
         </h3>
-        <div id="help_server">
-        <#list helps as help>
-            <#if help.isPossible()??>
-              <div class="help card" id="${help.getName()}">
-                  <h3>For <a href="/tests/${help.getName()}">${help.getName()}</a>:</h3>
-                  <ol>
+        <#if helps??>
+            <div id="help_server">
+            <#list helps as help>
+                      <#if help.isPossible()??>
+                      <div class="help card" id="${help.getName()}">
+                      <h3>For <a href="/tests/${help.getName()}">${help.getName()}</a>:</h3>
+                      <ol>
                       <#if help.getSince()??>
-                          <li>
-                              Make sure your server is at least ${help.getSince()}
-                          </li>
+                      <li>
+                      Make sure your server is at least ${help.getSince()}
+                      </li>
                       </#if>
                       <#if help.modulesRequired??>
-                          <li>
-                              Add the following modules to your configuration file:
-                              <div class="modules">
-                                  <br>
-                              <#list help.getModulesRequired() as module>
-                                  <div class="module">
-                                      <div class="module_name ${module.getType()}">
-                                          <#if module.getLink()??>
-                                              <a href="${module.getLink()}">
-                                                  ${module.getName()}
-                                              </a>
-                                          <#else>
-                                              ${module.getName()}
-                                          </#if>
+                      <li>
+                      Add the following modules to your configuration file:
+                      <div class="modules">
+                      <br>
+                      <#list help.getModulesRequired() as module>
+                      <div class="module">
+                      <div class="module_name ${module.getType()}">
+                      <#if module.getLink()??>
+                      <a href="${module.getLink()}">
+                      ${module.getName()}
+                      </a>
+                      <#else>
+                      ${module.getName()}
+                      </#if>
 
-                                          <#if module.getType() == "community_prosody">
-                                              <br>
-                                                  This module doesn't come with Prosody installation.
-                                              <br>
-                                              You will have to download it by following <a
-                                                  href="https://prosody.im/doc/installing_modules">these
-                                              instructions</a>
-                                          </#if>
-                                      </div>
-                                  </div>
-                              </#list>
-                              </div>
-                          </li>
+                      <#if module.getType() == "community_prosody">
+                      <br>
+                      This module doesn't come with Prosody installation.
+                      <br>
+                      You will have to download it by following <a
+                      href="https://prosody.im/doc/installing_modules">these
+                      instructions</a>
+                      </#if>
+                      </div>
+                      </div>
+                      </#list>
+                      </div>
+                      </li>
                       </#if>
                       <#if help.getInstructions()??>
-                          <div class="instructions">
-                              <li>
-                                  ${help.getInstructions()}
-                              </li>
-                          </div>
+                      <div class="instructions">
+                      <li>
+                      ${help.getInstructions()}
+                      </li>
+                      </div>
                       </#if>
-                  </ol>
-              </div>
-            </#if>
-        </#list>
-        </div>
+                      </ol>
+                      </div>
+                      </#if>
+                      </#list>
+            </div>
+        </#if>
 </@page.page>

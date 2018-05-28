@@ -3,10 +3,10 @@ package im.conversations.compliance.pojo;
 import rocks.xmpp.extensions.version.model.SoftwareVersion;
 
 public class Server {
-    private String domain;
+    private final String domain;
     private String softwareName;
     private String softwareVersion;
-    private boolean listed;
+    private final boolean listed;
 
     public Server(String domain, String softwareName, String softwareVersion, boolean listed) {
         this.domain = domain;

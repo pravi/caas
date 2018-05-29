@@ -3,39 +3,46 @@ package im.conversations.compliance.pojo;
 import im.conversations.compliance.utils.JsonReader;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Optional;
 
 public class Help {
+    public static String folderName = "test_help";
     private static Help INSTANCE;
     private ArrayList<ServerHelp> serverHelps;
 
     private Help() {
     }
 
-    public static Help getInstance() {
+    public static Help getInstance(String helpFolder) {
         if (INSTANCE == null) {
+            folderName = helpFolder;
             try {
                 init();
             } catch (HelpNotFoundException e) {
                 e.printStackTrace();
                 INSTANCE = new Help();
             }
+        } else if (!helpFolder.equals(folderName)) {
+            throw new IllegalStateException("Unable to set new help folder after instance has been created");
         }
         return INSTANCE;
     }
 
-    private static void init() throws HelpNotFoundException{
+    public static Help getInstance() {
+        return getInstance(folderName);
+    }
+
+    private static void init() throws HelpNotFoundException {
         if (INSTANCE == null) {
-            File folder = new File("test_help");
+            File folder = new File(folderName);
             INSTANCE = new Help();
             INSTANCE.serverHelps = new ArrayList<>();
-            if(folder.exists() && folder.isDirectory()) {
-                if(folder.listFiles() == null) {
+            if (folder.exists() && folder.isDirectory()) {
+                if (folder.listFiles() == null) {
                     throw new HelpNotFoundException("No test help files found in " + folder.getName());
                 }
-                for(File file: folder.listFiles()) {
+                for (File file : folder.listFiles()) {
                     INSTANCE.serverHelps.add(new JsonReader<>(ServerHelp.class).read(file));
                 }
             } else {
@@ -46,7 +53,7 @@ public class Help {
 
     public Optional<ServerHelp> getHelpFor(String software) {
         final String softwareName = software.toLowerCase().trim();
-        if(serverHelps == null) {
+        if (serverHelps == null) {
             return Optional.empty();
         }
         return serverHelps.

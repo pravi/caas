@@ -1,193 +1,197 @@
 {
-    "softwareName": "prosody",
-    "testsHelp": [
+  "softwareName": "prosody",
+  "testsHelp": [
     {
-        "name": "xep0163",
-        "possible": true,
-        "since": "v0.5",
-        "modulesRequired": [
+      "name": "xep0163",
+      "possible": true,
+      "since": "v0.5",
+      "modulesRequired": [
         {
-            "name": "pep",
-            "type": "core"
+          "name": "pep",
+          "type": "core"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0115",
-        "possible": true,
-        "modulesRequired": [
+      "name": "xep0115",
+      "possible": true,
+      "modulesRequired": [
         {
-            "name": "caps",
-            "type": "core"
+          "name": "caps",
+          "type": "core"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0045",
-        "possible": true,
-        "since": "v0.3",
-        "instructions": "https://prosody.im/doc/chatrooms"
+      "name": "xep0045",
+      "possible": true,
+      "since": "v0.3",
+      "instructions": "https://prosody.im/doc/chatrooms"
     },
+    {
+      "name": "xep0160",
+      "possible": true
+    },
+    {
+      "name": "xep0077",
+      "possible": true,
+      "since": "v0.1",
+      "modulesRequired": [
         {
-        "name": "xep0077",
-        "possible": true,
-        "since": "v0.1",
-        "modulesRequired": [
-        {
-            "name": "register",
-            "type": "core"
+          "name": "register",
+          "type": "core"
         }
-        ],
-        "instructions": "Set allow_registration = true in your configuration file"
+      ],
+      "instructions": "Set allow_registration = true in your configuration file"
     },
     {
-        "name": "xep0157",
-        "possible": true,
-        "since": "v0.9",
-        "modulesRequired": [
+      "name": "xep0157",
+      "possible": true,
+      "since": "v0.9",
+      "modulesRequired": [
         {
-            "name": "server_contact_info",
-            "type": "community_prosody",
-            "link": "https://modules.prosody.im/mod_server_contact_info.html"
+          "name": "server_contact_info",
+          "type": "community_prosody",
+          "link": "https://modules.prosody.im/mod_server_contact_info.html"
         }
-        ]
+      ]
     },
     {
-        "name": "Roster_Versioning",
-        "possible": true,
-        "since": "v0.4",
-        "modulesRequired": [
+      "name": "roster_versioning",
+      "possible": true,
+      "since": "v0.4",
+      "modulesRequired": [
         {
-            "name": "roster",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_roster"
+          "name": "roster",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_roster"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0191",
-        "possible": true,
-        "since": "v0.7",
-        "modulesRequired": [
+      "name": "xep0191",
+      "possible": true,
+      "since": "v0.7",
+      "modulesRequired": [
         {
-            "name": "blocking",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_blocking.html"
+          "name": "blocking",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_blocking.html"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0198",
-        "possible": true,
-        "since": "v0.8",
-        "modulesRequired": [
+      "name": "xep0198",
+      "possible": true,
+      "since": "v0.8",
+      "modulesRequired": [
         {
-            "name": "smacks",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_smacks"
+          "name": "smacks",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_smacks"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0280",
-        "possible": true,
-        "since": "v0.10",
-        "modulesRequired": [
+      "name": "xep0280",
+      "possible": true,
+      "since": "v0.10",
+      "modulesRequired": [
         {
-            "name": "carbons",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_carbons"
+          "name": "carbons",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_carbons"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0352",
-        "possible": true,
-        "since": "v0.9",
-        "modulesRequired": [
+      "name": "xep0352",
+      "possible": true,
+      "since": "v0.9",
+      "modulesRequired": [
         {
-            "name": "csi",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_csi"
+          "name": "csi",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_csi"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0065",
-        "possible": true,
-        "since": "v0.7",
-        "modulesRequired": [
+      "name": "xep0065",
+      "possible": true,
+      "since": "v0.7",
+      "modulesRequired": [
         {
-            "name": "proxy65",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_proxy65"
+          "name": "proxy65",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_proxy65"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0313",
-        "possible": true,
-        "since": "v0.10",
-        "modulesRequired": [
+      "name": "xep0313",
+      "possible": true,
+      "since": "v0.10",
+      "modulesRequired": [
         {
-            "name": "mam",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_mam"
+          "name": "mam",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_mam"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0363",
-        "possible": true,
-        "since": "v0.9",
-        "modulesRequired": [
+      "name": "xep0363",
+      "possible": true,
+      "since": "v0.9",
+      "modulesRequired": [
         {
-            "name": "http_upload",
-            "type": "core",
-            "link": "https://modules.prosody.im/mod_http_upload"
+          "name": "http_upload",
+          "type": "core",
+          "link": "https://modules.prosody.im/mod_http_upload"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0357",
-        "possible": true,
-        "since": "v0.9",
-        "modulesRequired": [
+      "name": "xep0357",
+      "possible": true,
+      "since": "v0.9",
+      "modulesRequired": [
         {
-            "name": "mod_cloud_notify",
-            "type": "community_prosody",
-            "link": "https://modules.prosody.im/mod_cloud_notify"
+          "name": "mod_cloud_notify",
+          "type": "community_prosody",
+          "link": "https://modules.prosody.im/mod_cloud_notify"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0313: MUC",
-        "possible": true,
-        "since": "v0.10",
-        "modulesRequired": [
+      "name": "xep0313muc",
+      "possible": true,
+      "since": "v0.10",
+      "modulesRequired": [
         {
-            "name": "mam_muc",
-            "type": "community_prosody",
-            "link": "https://modules.prosody.im/mod_mam_muc"
+          "name": "mam_muc",
+          "type": "community_prosody",
+          "link": "https://modules.prosody.im/mod_mam_muc"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0384",
-        "possible": true,
-        "since": "v0.10",
-        "modulesRequired": [
+      "name": "xep0384",
+      "possible": true,
+      "since": "v0.10",
+      "modulesRequired": [
         {
-            "name": "omemo_all_access",
-            "type": "community_prosody",
-            "link": "https://modules.prosody.im/mod_omemo_all_access"
+          "name": "omemo_all_access",
+          "type": "community_prosody",
+          "link": "https://modules.prosody.im/mod_omemo_all_access"
         }
-        ]
+      ]
     },
     {
-        "name": "xep0368",
-        "possible": true,
-        "instructions": "TODO: Write instructions"
+      "name": "xep0368",
+      "possible": true,
+      "instructions": "TODO: Write instructions"
     }
-    ]
+  ]
 }

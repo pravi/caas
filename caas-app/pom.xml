@@ -30,13 +30,6 @@
                     <generatedSourcesDirectory>
                         ${project.build.directory}/generated-sources/
                     </generatedSourcesDirectory>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>caas-annotations</artifactId>
-                            <version>0.0.1</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -154,7 +147,7 @@
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
-            <version>1.0-rc2</version>
+            <version>${auto-service.version}</version>
         </dependency>
 
         <dependency>
@@ -162,7 +155,16 @@
             <artifactId>caas-annotations</artifactId>
             <version>0.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
+    <properties>
+        <auto-service.version>1.0-rc4</auto-service.version>
+    </properties>
 
 </project>

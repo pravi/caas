@@ -172,9 +172,6 @@
             </div>
         </div>
 
-        <h3>
-            Instructions on passing the failed tests
-        </h3>
         <#if helps??>
             <div id="help_container">
                 <#list helps as help>
@@ -185,7 +182,8 @@
                           <ol>
                       <#if help.getSince()??>
                       <li>
-                          Make sure your server is at least ${help.getSince()} (currently <#if softwareVersion??>${softwareVersion}</#if>)
+                          Make sure your server is at least ${help.getSince()}
+                          (currently <#if softwareVersion??>${softwareVersion}</#if>)
                       </li>
                       </#if>
                       <#if help.modulesRequired??>
@@ -221,7 +219,7 @@
                       <#if help.getInstructions()??>
                       <div class="instructions">
                           <li>
-                              ${help.getInstructions()}
+                              ${help.getInstructions()?no_esc}
                           </li>
                       </div>
                       </#if>

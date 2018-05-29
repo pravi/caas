@@ -63,7 +63,7 @@
         </div>
         <div>
             <label for="password" class="input_label_add">Password</label>
-            <input name="password" class="input_add" id="pass" type="password"/>
+            <input name="password" class="input_add" id="password" type="password"/>
         </div>
         <div id="input_error_msg" class="error_message"></div>
         <div id="loading_add" class="loading_status">
@@ -95,7 +95,7 @@
                     return false;
                 }
                 jid = $("#jid").val();
-                pass = $("#pass").val();
+                pass = $("#password").val();
                 if (!jidregex.test(jid)) {
                     $('#input_error_msg').text("Invalid JID");
                     $('#button_add').prop('disabled', true);
@@ -113,7 +113,7 @@
 
             $('#jid').keyup(canRequestBeSent);
 
-            $('#pass').keyup(canRequestBeSent);
+            $('#password').keyup(canRequestBeSent);
 
             $('#listed').click(function () {
                 listedServer = !listedServer;

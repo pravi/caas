@@ -86,6 +86,7 @@
         }
 
         code, .code {
+            overflow: auto;
             padding: 5px;
             font-size: 0.8em;
             text-align: left;
@@ -229,10 +230,6 @@
 
             #nav_list_menu.expanded a {
                 display: block;
-            }
-
-            #hamburger {
-                display: visible;
             }
 
             #hamburger {

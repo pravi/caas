@@ -7,7 +7,6 @@
         #server_stats {
             display: flex;
             justify-content: space-around;
-            justify-content: space-around;
         }
 
         .server_stat {
@@ -56,13 +55,14 @@
             top: 0;
             width: 100%;
             height: 100%;
-            padding-top: ${page.nav_bar_height};
-            overflow: auto;
             background-color: rgb(0, 0, 0);
             background-color: rgba(0, 0, 0, 0.4);
         }
 
         .help {
+            margin-top: ${page.nav_bar_height};
+            overflow: auto;
+            display: none;
             text-align: left;
         }
 
@@ -74,7 +74,7 @@
             cursor: pointer;
         }
 
-        @media only screen and (max-width: 8px) {
+        @media only screen and (max-width: 850px) {
             #additional_server {
                 display: block;
             }
@@ -86,29 +86,23 @@
             e.stopPropagation(); // this stops the event from bubbling up to the doucment
         };
         $(function () {
-            var helpContainer = $("#help_container");
-            var help = $(".help");
-            helpContainer.css("visibility", "visible");
-            help.hide();
-            helpContainer.hide();
-
             //Close modal on clicking anywhere
             $("#content").click(close_modal);
             //Prevent closing of modal when clicking inside help card or chip
-            help.click(preventModalClosing);
+            $(".help").click(preventModalClosing);
             $(".chip").click(preventModalClosing);
         });
 
         function showHelp(name) {
             shown = $('#' + name);
-            shown.show();
-            $('#help_container').show();
+            shown.css("display","block");
+            $('#help_container').css("visibility","visible");
             $(".close").click(close_modal);
         }
 
         function close_modal() {
-            $('#help_container').hide();
-            shown.hide();
+            shown.css("display","none");
+            $('#help_container').css("visibility","hidden");
         }
 
     </script>

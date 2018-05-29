@@ -7,46 +7,40 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class Help {
-    public static String folderName = "test_help";
+    private static final String folderName = "test_help";
     private static Help INSTANCE;
     private ArrayList<ServerHelp> serverHelps;
 
     private Help() {
     }
 
-    public static Help getInstance(String helpFolder) {
+    public static Help getInstance() {
         if (INSTANCE == null) {
-            folderName = helpFolder;
             try {
                 init();
             } catch (HelpNotFoundException e) {
                 e.printStackTrace();
                 INSTANCE = new Help();
             }
-        } else if (!helpFolder.equals(folderName)) {
-            throw new IllegalStateException("Unable to set new help folder after instance has been created");
         }
         return INSTANCE;
     }
 
-    public static Help getInstance() {
-        return getInstance(folderName);
-    }
-
     private static void init() throws HelpNotFoundException {
         if (INSTANCE == null) {
-            File folder = new File(folderName);
             INSTANCE = new Help();
             INSTANCE.serverHelps = new ArrayList<>();
-            if (folder.exists() && folder.isDirectory()) {
+            try {
+                ClassLoader classLoader = INSTANCE.getClass().getClassLoader();
+                File folder = new File(classLoader.getResource(folderName).getFile());
                 if (folder.listFiles() == null) {
                     throw new HelpNotFoundException("No test help files found in " + folder.getName());
                 }
                 for (File file : folder.listFiles()) {
                     INSTANCE.serverHelps.add(new JsonReader<>(ServerHelp.class).read(file));
                 }
-            } else {
-                throw new HelpNotFoundException("Folder " + folder.getName() + " not found. Can't provide test help");
+            } catch (NullPointerException ex) {
+                throw new HelpNotFoundException("Folder " + folderName + " not found. Can't provide test help");
             }
         }
     }
@@ -67,4 +61,5 @@ public class Help {
             super(s);
         }
     }
+
 }

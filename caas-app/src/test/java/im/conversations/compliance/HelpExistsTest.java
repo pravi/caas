@@ -17,7 +17,6 @@ public class HelpExistsTest {
 
     @Before
     public void initHelp() {
-        Help.getInstance("../test_help");
         tests = Tests.getTests()
                 .stream()
                 .map(test -> test.getAnnotation(ComplianceTest.class).short_name())

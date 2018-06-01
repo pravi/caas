@@ -164,6 +164,7 @@ public class Controller {
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
+        model.put("timestamp", lastRun);
         model.put("badgeCode", "<img src=\"https://compliance.conversations.im/badge/" + domain + "\">");
         return new ModelAndView(model, "server.ftl");
     };

@@ -81,6 +81,30 @@
         }
     </style>
     <script>
+        var print_report = function () {
+            var printWindow = window.open('', 'PRINT', 'height=400,width=600');
+            printWindow.document.write('<html><head><title>' + document.title + '</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write(".server_passed::before { color: green; content: 'PASSED: '; }");
+            printWindow.document.write(".server_failed::before { color: red; content: 'FAILED: '; }");
+            printWindow.document.write("h1,h2,h3 { text-align: center; }");
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head>');
+            printWindow.document.write('<body>');
+            printWindow.document.write('<h1>' + document.title + '</h1>');
+            printWindow.document.write('<h2>' + 'Tests ran on ${timestamp}' + '</h2>');
+            printWindow.document.write('<h3>' + 'Server is running ${softwareName} ${softwareVersion}' + '</h3>');
+            printWindow.document.write('<h2>' + 'Test results' + '</h2>');
+
+            $("#server_results").each(function (i, obj) {
+                printWindow.document.write(obj.innerHTML);
+            });
+
+            printWindow.print();
+            printWindow.close();
+
+            return true;
+        };
         var shown;
         var preventModalClosing = function (e) {
             e.stopPropagation(); // this stops the event from bubbling up to the doucment
@@ -101,7 +125,9 @@
         }
 
         function close_modal() {
-            shown.css("display", "none");
+            if (shown) {
+                shown.css("display", "none");
+            }
             $('#help_container').css("visibility", "hidden");
         }
 
@@ -122,7 +148,7 @@
         </#list>
     </div>
 
-    <button id="download_report" href="#">Download report</button>
+    <button id="download_report" onclick="print_report()">Download report</button>
     <br><br>
     Server is running ${softwareName} ${softwareVersion}
     <br><br>

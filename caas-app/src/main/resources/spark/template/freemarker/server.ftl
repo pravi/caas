@@ -60,7 +60,7 @@
         }
 
         .help {
-            margin-top: ${page.nav_bar_height};
+            margin-top: ${1.3*page.nav_bar_height}px;
             overflow: auto;
             display: none;
             text-align: left;
@@ -95,14 +95,14 @@
 
         function showHelp(name) {
             shown = $('#' + name);
-            shown.css("display","block");
-            $('#help_container').css("visibility","visible");
+            shown.css("display", "block");
+            $('#help_container').css("visibility", "visible");
             $(".close").click(close_modal);
         }
 
         function close_modal() {
-            shown.css("display","none");
-            $('#help_container').css("visibility","hidden");
+            shown.css("display", "none");
+            $('#help_container').css("visibility", "hidden");
         }
 
     </script>
@@ -173,51 +173,50 @@
                       <div class="help card" id="${help.getName()}">
                           <div class="close">&times;</div>
                           <h3>For <a href="/tests/${help.getName()}">${help.getName()}</a>:</h3>
-                          <ol>
-                      <#if help.getSince()??>
-                      <li>
-                          Make sure your server is at least ${help.getSince()}
-                          (currently <#if softwareVersion??>${softwareVersion}</#if>)
-                      </li>
-                      </#if>
-                      <#if help.modulesRequired??>
-                      <li>
-                          Add the following modules to your configuration file:
-                          <div class="modules">
-                              <br>
-                      <#list help.getModulesRequired() as module>
-                      <div class="module">
-                          <div class="module_name ${module.getType()}">
-                      <#if module.getLink()??>
-                      <a href="${module.getLink()}">
-                          ${module.getName()}
-                      </a>
-                      <#else>
-                          ${module.getName()}
-                      </#if>
+                          <ul>
+                              <#if help.getSince()??>
+                                  <li>
+                                      Make sure your server is at least ${help.getSince()}
+                                      (currently <#if softwareVersion??>${softwareVersion}</#if>)
+                                  </li>
+                              </#if>
+                              <#if help.modulesRequired??>
+                                  <li>
+                                      Add the following modules to your configuration file:
+                                      <div class="modules">
+                                         <#list help.getModulesRequired() as module>
+                                             <div class="module">
+                                                 <div class="module_name ${module.getType()}">
+                                                     <#if module.getLink()??>
+                                                         <a href="${module.getLink()}">
+                                                             ${module.getName()}
+                                                         </a>
+                                                     <#else>
+                                                         ${module.getName()}
+                                                     </#if>
 
-                      <#if module.getType() == "community_prosody">
-                      <br>
-                      This module doesn't come with Prosody installation.
-                      <br>
-                      You will have to download it by following <a
-                              href="https://prosody.im/doc/installing_modules">these
-                          instructions</a>
-                      </#if>
-                          </div>
-                      </div>
-                      </#list>
-                          </div>
-                      </li>
-                      </#if>
-                      <#if help.getInstructions()??>
-                      <div class="instructions">
-                          <li>
-                              ${help.getInstructions()?no_esc}
-                          </li>
-                      </div>
-                      </#if>
-                          </ol>
+                                                     <#if module.getType() == "community_prosody">
+                                                         <br><br>
+                                                         This module doesn't come with Prosody installation.
+                                                         You will have to download it by following
+                                                         <a href="https://prosody.im/doc/installing_modules">
+                                                             these instructions
+                                                         </a>
+                                                     </#if>
+                                                 </div>
+                                             </div>
+                                         </#list>
+                                      </div>
+                                  </li>
+                              </#if>
+                              <#if help.getInstructions()??>
+                                  <div class="instructions">
+                                      <li>
+                                          ${help.getInstructions()?no_esc}
+                                      </li>
+                                  </div>
+                              </#if>
+                          </ul>
                       </div>
                     </#if>
                 </#list>

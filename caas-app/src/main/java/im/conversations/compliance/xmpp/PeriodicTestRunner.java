@@ -79,9 +79,7 @@ public class PeriodicTestRunner implements Runnable {
         TestResultStore.INSTANCE.putPeriodicTestResults(rdpList, lastIteration);
 
         //Remove invalid credential
-        credentialsMarkedForRemoval.forEach(credential -> {
-            ServerStore.INSTANCE.removeCredential(credential);
-        });
+        credentialsMarkedForRemoval.forEach(ServerStore.INSTANCE::removeCredential);
 
         System.out.printf("Ended running periodic tests #%d at %s%n", lastIteration.getIterationNumber(), endTime);
     }

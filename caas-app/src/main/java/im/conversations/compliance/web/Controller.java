@@ -147,7 +147,7 @@ public class Controller {
         }
         int percent = (int) (passed * 100 / total);
         ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
-        if(serverHelp != null) {
+        if (serverHelp != null) {
             List<TestHelp> helps = serverHelp.getTestsHelp().stream()
                     .filter(th -> failedTests.contains(th.getName()))
                     .collect(Collectors.toList());

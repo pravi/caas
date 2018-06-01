@@ -123,8 +123,7 @@
       "modulesRequired": [
         {
           "name": "proxy65",
-          "type": "core",
-          "link": "https://modules.prosody.im/mod_proxy65"
+          "type": "core"
         }
       ]
     },

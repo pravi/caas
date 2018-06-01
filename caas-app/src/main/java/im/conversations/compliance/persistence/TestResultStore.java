@@ -71,10 +71,8 @@ public class TestResultStore {
         Iteration lastIteration = null;
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
-                String query = "select max(iteration_number) from periodic_test_iterations";
-                int iterationNumber = con.createQuery(query).executeScalar(Integer.class);
-                query = "select iteration_number,begin_time,end_time from periodic_test_iterations " +
-                        "where iteration_number = " + iterationNumber;
+                String query = "select iteration_number,begin_time,end_time from periodic_test_iterations " +
+                        "where iteration_number = (select max(iteration_number) from periodic_test_iterations)";
                 List<Iteration> iterations = con.createQuery(query)
                         .addColumnMapping("iteration_number", "iterationNumber")
                         .addColumnMapping("begin_time", "begin")
@@ -94,11 +92,11 @@ public class TestResultStore {
 
     public boolean putPeriodicTestResults(List<PeriodicTestRunner.ResultDomainPair> rdpList, Iteration iteration) {
         //Add to periodic results
-        addToPeriodicResults(rdpList, iteration);
+        boolean status = addToPeriodicResults(rdpList, iteration);
 
         //Add to current results
         rdpList.forEach(rdp -> addToCurrentResults(rdp.getDomain(), rdp.getResults()));
-        return true;
+        return status;
     }
 
     private boolean addToCurrentResults(String domain, List<Result> results) {
@@ -106,14 +104,14 @@ public class TestResultStore {
         synchronized (this.database) {
             try (Connection con = this.database.beginTransaction(java.sql.Connection.TRANSACTION_SERIALIZABLE)) {
                 Query query = con.createQuery("insert or replace into current_tests(domain,test,success,timestamp) values(:domain,:test,:success,:timestamp)");
-                results.forEach(result -> {
-                    query
-                            .addParameter("test", result.getTest().short_name())
-                            .addParameter("success", result.isSuccess())
-                            .addParameter("domain", domain)
-                            .addParameter("timestamp", timestamp)
-                            .addToBatch();
-                });
+                results.forEach(
+                        result -> query
+                                .addParameter("test", result.getTest().short_name())
+                                .addParameter("success", result.isSuccess())
+                                .addParameter("domain", domain)
+                                .addParameter("timestamp", timestamp)
+                                .addToBatch()
+                );
                 query.executeBatch();
                 con.commit();
                 serverResults.put(domain, results);
@@ -131,14 +129,13 @@ public class TestResultStore {
                 Query resultInsertQuery = con.createQuery("insert or replace into periodic_tests(domain,test,success,iteration_number) values(:domain,:test,:success,:iteration)");
                 rdpList.forEach(rdp -> {
                     String domain = rdp.getDomain();
-                    rdp.getResults().forEach(result -> {
-                        resultInsertQuery
+                    rdp.getResults().forEach(
+                            result -> resultInsertQuery
                                 .addParameter("test", result.getTest().short_name())
                                 .addParameter("success", result.isSuccess())
                                 .addParameter("domain", domain)
                                 .addParameter("iteration", iteration.getIterationNumber())
-                                .addToBatch();
-                    });
+                                .addToBatch());
                 });
 
                 //Insert periodic results
@@ -153,6 +150,7 @@ public class TestResultStore {
                         .executeUpdate();
 
                 con.commit();
+                return true;
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

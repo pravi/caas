@@ -2,12 +2,12 @@ package im.conversations.compliance.pojo;
 
 import im.conversations.compliance.utils.JsonReader;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
 public class Help {
-    private static final String folderName = "test_help";
+    private static final String helpFilesLocationFolder = "test_help/servers.txt";
     private static Help INSTANCE;
     private ArrayList<ServerHelp> serverHelps;
 
@@ -32,15 +32,19 @@ public class Help {
             INSTANCE.serverHelps = new ArrayList<>();
             try {
                 ClassLoader classLoader = INSTANCE.getClass().getClassLoader();
-                File folder = new File(classLoader.getResource(folderName).getFile());
-                if (folder.listFiles() == null) {
-                    throw new HelpNotFoundException("No test help files found in " + folder.getName());
+                InputStream helpLocationStream = classLoader.getResourceAsStream(helpFilesLocationFolder);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(helpLocationStream));
+                String fileName;
+                while((fileName = reader.readLine()) != null) {
+                    classLoader.getResourceAsStream(fileName);
+                    INSTANCE.serverHelps.add(new JsonReader<>(ServerHelp.class)
+                            .read(classLoader.getResourceAsStream(fileName))
+                    );
+                    System.out.println("Added help from " + fileName);
                 }
-                for (File file : folder.listFiles()) {
-                    INSTANCE.serverHelps.add(new JsonReader<>(ServerHelp.class).read(file));
-                }
-            } catch (NullPointerException ex) {
-                throw new HelpNotFoundException("Folder " + folderName + " not found. Can't provide test help");
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new HelpNotFoundException(e.getMessage());
             }
         }
     }

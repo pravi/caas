@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 
 public class JsonReader<T> {
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
@@ -31,5 +29,9 @@ public class JsonReader<T> {
         } catch (JsonSyntaxException e) {
             throw new RuntimeException("Invalid syntax in " + file.getName());
         }
+    }
+    public T read(InputStream inputStream) {
+        System.out.println("Reading json file from inputstream");
+        return gson.fromJson(new InputStreamReader(inputStream),typeClass);
     }
 }

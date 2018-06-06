@@ -1,52 +1,69 @@
 package im.conversations.compliance.pojo;
 
-import im.conversations.compliance.utils.JsonReader;
+import com.google.gson.Gson;
 
-import java.io.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class Help {
-    private static final String helpFilesLocationFolder = "test_help/servers.txt";
-    private static Help INSTANCE;
-    private ArrayList<ServerHelp> serverHelps;
+    private static final String HELP_RESOURCES_DIRECTORY = "help";
+    private static final Help INSTANCE = new Help();
+    private final List<ServerHelp> serverHelps;
 
     private Help() {
+        this.serverHelps = load(getClass().getClassLoader());
     }
 
-    public static Help getInstance() {
-        if (INSTANCE == null) {
-            try {
-                init();
-            } catch (HelpNotFoundException e) {
-                e.printStackTrace();
-                INSTANCE = new Help();
+    private static List<ServerHelp> load(ClassLoader classLoader) {
+        try {
+            final URL resources = classLoader.getResource(HELP_RESOURCES_DIRECTORY);
+            if (resources == null) {
+                return Collections.emptyList();
             }
-        }
-        return INSTANCE;
-    }
-
-    private static void init() throws HelpNotFoundException {
-        if (INSTANCE == null) {
-            INSTANCE = new Help();
-            INSTANCE.serverHelps = new ArrayList<>();
-            try {
-                ClassLoader classLoader = INSTANCE.getClass().getClassLoader();
-                InputStream helpLocationStream = classLoader.getResourceAsStream(helpFilesLocationFolder);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(helpLocationStream));
-                String fileName;
-                while((fileName = reader.readLine()) != null) {
-                    classLoader.getResourceAsStream(fileName);
-                    INSTANCE.serverHelps.add(new JsonReader<>(ServerHelp.class)
-                            .read(classLoader.getResourceAsStream(fileName))
-                    );
-                    System.out.println("Added help from " + fileName);
+            final URI uri = resources.toURI();
+            if (uri.getScheme().equals("jar")) {
+                FileSystem fileSystem;
+                try {
+                    fileSystem = FileSystems.getFileSystem(uri);
+                } catch (FileSystemNotFoundException e) {
+                    fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new HelpNotFoundException(e.getMessage());
+                final Path root = fileSystem.getPath(HELP_RESOURCES_DIRECTORY);
+                final List<ServerHelp> serverHelps = load(root);
+                fileSystem.close();
+                return serverHelps;
+            } else {
+                return load(Paths.get(uri));
             }
+
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
+    }
+
+    private static List<ServerHelp> load(Path root) throws IOException {
+        final List<ServerHelp> serverHelps = new ArrayList<>();
+        final Gson gson = new Gson();
+        Files.walk(root, 1).filter(Files::isRegularFile).forEach(path -> {
+            try {
+                serverHelps.add(gson.fromJson(Files.newBufferedReader(path), ServerHelp.class));
+            } catch (IOException e) {
+                //continue
+            }
+        });
+        return serverHelps;
+    }
+
+    public static synchronized Help getInstance() {
+        return INSTANCE;
     }
 
     public Optional<ServerHelp> getHelpFor(String software) {
@@ -58,12 +75,6 @@ public class Help {
                 stream().
                 filter(it -> it.getSoftwareName().equals(softwareName)).
                 findFirst();
-    }
-
-    private static class HelpNotFoundException extends Exception {
-        public HelpNotFoundException(String s) {
-            super(s);
-        }
     }
 
 }

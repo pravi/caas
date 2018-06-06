@@ -1,3 +1,0 @@
-test_help/prosody.json
-test_help/ejabberd.json
-test_help/metronome.json

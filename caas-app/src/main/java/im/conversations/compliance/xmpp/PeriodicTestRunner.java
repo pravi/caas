@@ -6,7 +6,6 @@ import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Iteration;
 import im.conversations.compliance.pojo.Result;
-import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
@@ -22,16 +21,17 @@ import java.util.stream.Collectors;
 public class PeriodicTestRunner implements Runnable {
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-    private Iteration lastIteration;
+    private List<Credential> credentialsMarkedForRemoval;
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-        lastIteration = TestResultStore.INSTANCE.getLastIteration();
-        if (lastIteration == null) {
-            lastIteration = new Iteration(-1, Instant.MIN, Instant.MIN);
+        List<Iteration> iterations = TestResultStore.INSTANCE.getIterations();
+        long minutes = Configuration.getInstance().getTestRunInterval();
+        if(iterations.size() > 0) {
+            Iteration lastIteration= iterations.get(iterations.size() - 1);
+            Duration between = Duration.between(lastIteration.getBegin(), Instant.now());
+            minutes = between.toMinutes();
         }
-        Duration between = Duration.between(lastIteration.getBegin(), Instant.now());
-        long minutes = between.toMinutes();
         long minutesLeft = Configuration.getInstance().getTestRunInterval() - minutes;
         if (minutesLeft > 0)
             System.out.println("Next test scheduled " + minutesLeft + " minutes from now");
@@ -48,9 +48,9 @@ public class PeriodicTestRunner implements Runnable {
         List<Credential> credentials = ServerStore.INSTANCE.getCredentials();
         if (credentials.isEmpty())
             return;
-        final List<Credential> credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
+        credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Instant beginTime = Instant.now();
-        System.out.printf("Started running periodic tests #%d at %s%n", lastIteration.getIterationNumber() + 1, beginTime);
+        System.out.printf("Started running periodic tests #%d at %s%n", TestResultStore.INSTANCE.getIterations().size(), beginTime);
 
         List<ResultDomainPair> rdpList = credentials.parallelStream()
                 .map(credential -> {
@@ -64,7 +64,7 @@ public class PeriodicTestRunner implements Runnable {
                             credentialsMarkedForRemoval.add(credential);
                         }
                         ex.printStackTrace();
-                    } catch (XmppException ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                     return rdp;
@@ -73,15 +73,18 @@ public class PeriodicTestRunner implements Runnable {
                 .collect(Collectors.toList());
 
         Instant endTime = Instant.now();
-        lastIteration = new Iteration(lastIteration.getIterationNumber() + 1, beginTime, endTime);
+        Iteration iteration = new Iteration(TestResultStore.INSTANCE.getIterations().size(), beginTime, endTime);
 
         //Add results to database
-        TestResultStore.INSTANCE.putPeriodicTestResults(rdpList, lastIteration);
+        TestResultStore.INSTANCE.putPeriodicTestResults(rdpList, iteration);
 
+        System.out.printf("Ended running periodic tests #%d at %s%n", iteration.getIterationNumber(), endTime);
+        postTestsRun();
+    }
+
+    private void postTestsRun() {
         //Remove invalid credential
         credentialsMarkedForRemoval.forEach(ServerStore.INSTANCE::removeCredential);
-
-        System.out.printf("Ended running periodic tests #%d at %s%n", lastIteration.getIterationNumber(), endTime);
     }
 
     public class ResultDomainPair {

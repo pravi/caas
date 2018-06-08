@@ -77,6 +77,14 @@ public class ServerStore {
         return true;
     }
 
+    public List<String> getServerNames() {
+        synchronized (this.database) {
+            try(Connection con = this.database.open()) {
+                return con.createQuery("select domain from servers").executeAndFetch(String.class);
+            }
+        }
+    }
+
     public Server getServer(String domainName) {
         synchronized (this.database) {
             try (Connection con = this.database.open()) {

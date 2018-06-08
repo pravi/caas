@@ -164,6 +164,7 @@ public class Controller {
         Instant lastRun = TestResultStore.INSTANCE.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);
+        model.put("historic_data", gson.toJson(TestResultStore.INSTANCE.getHistoricalSnapshotsForServer(domain)));
         model.put("stats", new HashMap<String, String>() {
             {
                 put("Specifications compliant", percent + "%");

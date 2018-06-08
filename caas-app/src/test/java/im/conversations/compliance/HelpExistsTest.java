@@ -32,6 +32,7 @@ public class HelpExistsTest {
     @Test
     public void helpExistsForProsody() {
         checkHelpFile("prosody");
+        checkHelpFile("Prosody");
     }
 
     void checkHelpFile(String server) {

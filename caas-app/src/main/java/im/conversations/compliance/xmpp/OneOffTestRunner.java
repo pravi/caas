@@ -4,7 +4,6 @@ import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.utils.ExceptionUtils;
-import rocks.xmpp.core.XmppException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +62,7 @@ public class OneOffTestRunner {
                 testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(true, "OK"));
                 testRunningFor.remove(credential.getDomain());
             }
-        } catch (XmppException | TestFactory.TestCreationException ex) {
+        } catch (Exception ex) {
             String msg = ExceptionUtils.getRootCause(ex).getMessage();
             synchronized (testRunningFor) {
                 testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(false, msg));

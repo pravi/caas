@@ -21,10 +21,6 @@ public class AbuseContactTest extends AbstractTest {
         super(client);
     }
 
-    public static void main(String[] args) {
-        System.out.println("Hoo");
-    }
-
     @Override
     public boolean run() {
         Jid target = Jid.of(client.getConnectedResource().getDomain());

@@ -33,6 +33,9 @@
             color: ${primary_color};
         }
 
+        li {
+            text-align: left;
+        }
         .button, button {
             font-size: 0.95em;
             background: ${primary_color};

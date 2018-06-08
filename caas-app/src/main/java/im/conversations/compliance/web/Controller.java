@@ -121,16 +121,24 @@ public class Controller {
         model.put("domain", domain);
         return new ModelAndView(model, "live.ftl");
     };
+
     public static TemplateViewRoute getServer = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
         Server server = ServerStore.INSTANCE.getServer(domain);
         if (server == null) {
             model.put("error_code", 404);
-            model.put("error_msg", "Results unavailable for " + domain);
+            model.put("error_msg", "Credentials unavailable for " + domain);
             return new ModelAndView(model, "error.ftl");
         }
-        List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
+        List<Result> results;
+        try {
+            results = TestResultStore.INSTANCE.getResultsFor(domain);
+        } catch (Exception ex) {
+            model.put("error_code", 404);
+            model.put("error_msg", "Results unavailable for " + domain + ". Tests might still be running");
+            return new ModelAndView(model, "error.ftl");
+        }
         List<String> failedTests = results.stream()
                 .filter(result -> !result.isSuccess())
                 .map(result -> result.getTest().short_name())
@@ -165,7 +173,7 @@ public class Controller {
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
         model.put("timestamp", lastRun);
-        model.put("badgeCode", "<img src=\"https://compliance.conversations.im/badge/" + domain + "\">");
+        model.put("badgeCode", "<img src='https://compliance.conversations.im/badge/" + domain + "'>");
         return new ModelAndView(model, "server.ftl");
     };
 }

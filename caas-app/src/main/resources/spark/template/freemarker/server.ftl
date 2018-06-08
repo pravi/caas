@@ -93,7 +93,11 @@
             printWindow.document.write('<body>');
             printWindow.document.write('<h1>' + document.title + '</h1>');
             printWindow.document.write('<h2>' + 'Tests ran on ${timestamp}' + '</h2>');
-            printWindow.document.write('<h3>' + 'Server is running ${softwareName} ${softwareVersion}' + '</h3>');
+            <#if softwareVersion??>
+                printWindow.document.write('<h3>' + 'Server is running ${softwareName?no_esc} ${softwareVersion?no_esc}' + '</h3>');
+                <#else>
+                    printWindow.document.write('<h3>' + 'Server is running unknown software' + '</h3>');
+            </#if>
             printWindow.document.write('<h2>' + 'Test results' + '</h2>');
 
             $("#server_results").each(function (i, obj) {
@@ -150,7 +154,11 @@
 
     <button id="download_report" onclick="print_report()">Download report</button>
     <br><br>
-    Server is running ${softwareName} ${softwareVersion}
+    <#if softwareVersion??>
+        Server is running ${softwareName} ${softwareVersion}
+    <#else>
+        Server is running unknown software
+    </#if>
     <br><br>
 
     <div id="server_results">

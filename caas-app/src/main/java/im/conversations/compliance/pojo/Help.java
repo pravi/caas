@@ -68,6 +68,9 @@ public class Help {
     }
 
     public Optional<ServerHelp> getHelpFor(String software) {
+        if(software == null) {
+            return Optional.empty();
+        }
         software = software.trim().toLowerCase();
         return Optional.ofNullable(serverHelps.get(software));
     }

@@ -377,8 +377,8 @@
             printWindow.document.write('<body>');
             printWindow.document.write('<h1>' + document.title + '</h1>');
             printWindow.document.write('<h2>' + 'Tests ran on ${timestamp}' + '</h2>');
-            <#if softwareVersion??>
-                printWindow.document.write('<h3>' + 'Server is running ${softwareName?no_esc} ${softwareVersion?no_esc}' + '</h3>');
+            <#if softwareName??>
+                printWindow.document.write('<h3>' + 'Server is running ${softwareName} ${softwareVersion!}' + '</h3>');
             <#else>
                 printWindow.document.write('<h3>' + 'Server is running unknown software' + '</h3>');
             </#if>
@@ -438,8 +438,8 @@
 
     <button id="download_report" onclick="print_report()">Download report</button>
     <br><br>
-    <#if softwareVersion??>
-        Server is running ${softwareName} ${softwareVersion}
+    <#if softwareName??>
+        Server is running ${softwareName} ${softwareVersion!}
     <#else>
         Server is running unknown software
     </#if>
@@ -502,7 +502,7 @@
                               <#if help.getSince()??>
                                   <li>
                                       Make sure your server is at least ${help.getSince()}
-                                      (currently <#if softwareVersion??>${softwareVersion}</#if>)
+                                      <#if softwareVersion??>(currently ${softwareVersion})</#if>
                                   </li>
                               </#if>
                               <#if help.modulesRequired??>

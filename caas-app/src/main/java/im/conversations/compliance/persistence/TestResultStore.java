@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 public class TestResultStore {
     public static final TestResultStore INSTANCE = new TestResultStore();
     private final HashMap<String, List<Result>> serverResults = new HashMap<>();
-    private final List<Iteration> iterations;
     private final Sql2o database;
+    private List<Iteration> iterations;
     private HashMap<String, List<HistoricalSnapshot>> serverHistoricSnapshots;
 
     private TestResultStore() {
@@ -51,6 +51,16 @@ public class TestResultStore {
                         "end_time integer)"
                 ).executeUpdate();
 
+            }
+        }
+        fetchIterations();
+        fetchResults();
+        fetchServerHistoricalSnapshots();
+    }
+
+    private void fetchIterations() {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
                 //Add iteration lists to an object
                 iterations = con.createQuery("select iteration_number, begin_time, end_time from periodic_test_iterations")
                         .addColumnMapping("iteration_number", "iterationNumber")
@@ -58,16 +68,13 @@ public class TestResultStore {
                         .addColumnMapping("end_time", "end")
                         .executeAndFetch(Iteration.class);
                 iterations.sort(Comparator.comparingInt(Iteration::getIterationNumber));
-
-                // Get current results
+                if(iterations.size() == 0) return;
+                int last = iterations.size() - 1;
+                if(iterations.get(last).getIterationNumber() != iterations.size() - 1) {
+                    throw new IllegalStateException("Iterations size unequal in both the tables");
+                }
             }
         }
-        fetchResults();
-        fetchServerHistoricalSnapshots();
-    }
-
-    private void fetchCurrentResults(Connection con) {
-
     }
 
     public List<Iteration> getIterations() {
@@ -79,7 +86,7 @@ public class TestResultStore {
     }
 
     public List<HistoricalSnapshot> getHistoricalSnapshotsForServer(String domain) {
-        if(serverHistoricSnapshots.get(domain) == null) {
+        if (serverHistoricSnapshots.get(domain) == null) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(serverHistoricSnapshots.get(domain));
@@ -102,8 +109,6 @@ public class TestResultStore {
         //Add to current results
         rdpList.forEach(rdp -> addToCurrentResults(rdp.getDomain(), rdp.getResults()));
 
-        //Add to iterations
-        iterations.add(iteration);
         return status;
     }
 
@@ -173,13 +178,17 @@ public class TestResultStore {
                         .executeUpdate();
 
                 con.commit();
-                fetchServerHistoricalSnapshots();
-                return true;
             } catch (Exception ex) {
                 ex.printStackTrace();
+                return false;
             }
         }
-        return false;
+        //Get iterations
+        fetchIterations();
+
+        //Get historical snapshots
+        fetchServerHistoricalSnapshots();
+        return true;
     }
 
     private void fetchServerHistoricalSnapshots() {
@@ -213,8 +222,8 @@ public class TestResultStore {
                                 lastResult = success;
                             }
                             //Add the last point on graph (if there are more than 1 points)
-                            else if(len > 1 && i == (len - 1)) {
-                                 if (testResultChanges.get(iterationNumber) == null) {
+                            else if (len > 1 && i == (len - 1)) {
+                                if (testResultChanges.get(iterationNumber) == null) {
                                     testResultChanges.put(iterationNumber, new HistoricalSnapshot.Change());
                                 }
                             }
@@ -224,19 +233,19 @@ public class TestResultStore {
                     for (int iterationNumber : testResultChanges.keySet()) {
                         List<Integer> results = connection.createQuery("select success from periodic_tests where iteration_number = :it and domain=:domain and test in (:tests)")
                                 .addParameter("it", iterationNumber)
-                                .addParameter("tests",TestUtils.getTestNames())
+                                .addParameter("tests", TestUtils.getTestNames())
                                 .addParameter("domain", domain)
                                 .executeScalarList(Integer.class);
                         int total = 0;
                         int pass = 0;
-                        for(int result: results) {
+                        for (int result : results) {
                             pass += result;
                             total++;
                         }
                         String timestamp = connection.createQuery("select begin_time from periodic_test_iterations where iteration_number = :it")
                                 .addParameter("it", iterationNumber)
                                 .executeScalar(String.class);
-                        historicalSnapshots.add(new HistoricalSnapshot(iterationNumber,timestamp, pass, total, testResultChanges.get(iterationNumber)));
+                        historicalSnapshots.add(new HistoricalSnapshot(iterationNumber, timestamp, pass, total, testResultChanges.get(iterationNumber)));
                     }
                     historicalSnapshots.sort(Comparator.comparingInt(HistoricalSnapshot::getIteration));
                     serverHistoricSnapshots.put(domain, historicalSnapshots);
@@ -247,7 +256,7 @@ public class TestResultStore {
 
     private void fetchResults() {
         synchronized (this.database) {
-            try(Connection con = this.database.open()) {
+            try (Connection con = this.database.open()) {
                 List<String> domains = con.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
                 domains.forEach(domain -> {
                     Table table = con.createQuery("select test,success from current_tests where domain=:domain")

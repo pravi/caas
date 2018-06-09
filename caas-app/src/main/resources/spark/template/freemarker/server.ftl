@@ -67,7 +67,13 @@
                 }
                 html += "<p>Time: " + utils.formatDate(d.timestamp) + "</p>";
                 if ("change" in d) {
-                    html += "<p>Changes in results:</p>";
+                    if ("pass" in d.change && d.change.pass.length !== 0) {
+                        html += "<p>Changes in results:</p>";
+                    }
+                    else if("fail" in d.change && d.change.fail.length !== 0) {
+                        html += "<p>Changes in results:</p>";
+                    }
+
                     if ("pass" in d.change && d.change.pass.length !== 0) {
                         html += "<div class='chart_tests_pass'>Passing in :<br><ul>"
                         for (var i in d.change.pass) {

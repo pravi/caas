@@ -26,6 +26,7 @@ public class Main {
         post("/add/", Controller.postAdd);
         get("/live/:domain/", Controller.getLive, templateEngine);
         get("/server/:domain/", Controller.getServer, templateEngine);
+        get("/about/", Controller.getAbout, templateEngine);
         PeriodicTestRunner.getInstance();
     }
 }

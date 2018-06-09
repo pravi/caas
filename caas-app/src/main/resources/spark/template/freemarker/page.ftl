@@ -8,6 +8,11 @@
 <html>
 <head>
     <style>
+        .sub_heading {
+            font-weight: bold;
+            color: ${green};
+        }
+
         body, #content {
             color: rgba(0, 0, 0, 0.87);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -36,6 +41,7 @@
         li {
             text-align: left;
         }
+
         .button, button {
             font-size: 0.95em;
             background: ${primary_color};
@@ -325,7 +331,7 @@
         <a href="#">
             Tests
         </a>
-        <a href="#">
+        <a href="/about/">
             About
         </a>
     </div>

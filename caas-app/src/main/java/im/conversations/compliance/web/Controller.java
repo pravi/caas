@@ -177,4 +177,7 @@ public class Controller {
         model.put("badgeCode", "<img src='https://compliance.conversations.im/badge/" + domain + "'>");
         return new ModelAndView(model, "server.ftl");
     };
+    public static TemplateViewRoute getAbout = (request, response) -> {
+        return new ModelAndView(null, "about.ftl");
+    };
 }

@@ -7,6 +7,18 @@
     .card > p {
         text-align: left;
     }
+
+    #content {
+        max-width: 900px;
+        margin: auto;
+        margin-top: ${1.1*page.nav_bar_height}px;
+        padding: auto;
+        text-align: center;
+    }
+
+    body {
+        text-align: center;
+    }
 </style>
     <h2>
         About Compliance as a Service (CaaS)
@@ -23,7 +35,7 @@
          <h3>Why compliance?</h3>
          <p>
              XMPP is an extensible and living standard. Requirments shift over time and thus new extensions (called
-             XEPs) get developed.<br>
+             XEPs) get developed.
              While server implementors usually react quite fast and are able to cater to those needs it's the server
              operators who don't upgrade to the latest version or don't enable certain features.
          </p>
@@ -40,11 +52,9 @@
          <p>
              Picking the right extensions to implement or enable isn't always easy. For this reason the XSF has
              published <a href="https://xmpp.org/extensions/xep-0387.html">XEP-0387 XMPP Compliance Suites 2018</a>
-             listing the
-             most important extensions to date.
+             listing the most important extensions to date.
              This app won't just help you to assess if your server supports those compliance profiles(and more), but
-             also give you
-             some instructions on how to implement the profiles which are currently not supported.
+             also give you some instructions on how to implement the profiles which are currently not supported.
          </p>
      </div>
 

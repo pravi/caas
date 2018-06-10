@@ -29,7 +29,7 @@
                     var day = date.getDate();
                     var monthIndex = date.getMonth();
                     var year = date.getFullYear();
-                    return day + ' ' + monthNames[monthIndex] + ' ' + year + ',  ' + hour + ':' + min + 'UTC';
+                    return day + ' ' + monthNames[monthIndex] + ' ' + year + ',  ' + hour + ':' + min;
                 },
                 "getPointRadius": function (hovered) {
                     var r;

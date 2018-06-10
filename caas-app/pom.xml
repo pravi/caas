@@ -162,6 +162,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
     <properties>
         <auto-service.version>1.0-rc4</auto-service.version>

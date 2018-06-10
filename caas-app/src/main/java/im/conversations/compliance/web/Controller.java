@@ -1,6 +1,7 @@
 package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.persistence.ServerStore;
 import im.conversations.compliance.persistence.TestResultStore;
 import im.conversations.compliance.pojo.*;
@@ -8,6 +9,7 @@ import im.conversations.compliance.utils.JsonReader;
 import im.conversations.compliance.utils.TimeUtils;
 import im.conversations.compliance.xmpp.CredentialVerifier;
 import im.conversations.compliance.xmpp.OneOffTestRunner;
+import im.conversations.compliance.xmpp.utils.TestUtils;
 import spark.ModelAndView;
 import spark.Route;
 import spark.TemplateViewRoute;
@@ -21,6 +23,18 @@ import java.util.stream.Collectors;
 public class Controller {
 
     private static final Gson gson = JsonReader.gson;
+
+    public static TemplateViewRoute getRoot = (request, response) -> {
+        return new ModelAndView(null, "root.ftl");
+    };
+
+    public static TemplateViewRoute getTests = (request, response) -> {
+        return new ModelAndView(null, "tests.ftl");
+    };
+
+    public static TemplateViewRoute getAbout = (request, response) -> {
+        return new ModelAndView(null, "about.ftl");
+    };
 
     public static TemplateViewRoute getAdd = ((request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
@@ -177,7 +191,18 @@ public class Controller {
         model.put("badgeCode", "<img src='https://compliance.conversations.im/badge/" + domain + "'>");
         return new ModelAndView(model, "server.ftl");
     };
-    public static TemplateViewRoute getAbout = (request, response) -> {
-        return new ModelAndView(null, "about.ftl");
+
+    public static TemplateViewRoute getTest = (request, response) -> {
+        ComplianceTest test = TestUtils.getTestFrom(request.params("test"));
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("test", test);
+        return new ModelAndView(model, "test.ftl");
+    };
+
+    public static TemplateViewRoute getHistoric = (request, response) -> {
+        String domain = request.params("domain");
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("domain", domain);
+        return new ModelAndView(model, "historic.ftl");
     };
 }

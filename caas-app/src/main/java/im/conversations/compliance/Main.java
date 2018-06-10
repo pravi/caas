@@ -22,11 +22,15 @@ public class Main {
                 response.redirect(request.pathInfo() + "/");
             }
         });
+        get("/", Controller.getRoot, templateEngine);
+        get("/tests/", Controller.getTests, templateEngine);
+        get("/about/", Controller.getAbout, templateEngine);
         get("/add/", Controller.getAdd, templateEngine);
         post("/add/", Controller.postAdd);
         get("/live/:domain/", Controller.getLive, templateEngine);
         get("/server/:domain/", Controller.getServer, templateEngine);
-        get("/about/", Controller.getAbout, templateEngine);
+        get("/test/:test/", Controller.getTest, templateEngine);
+        get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoric, templateEngine);
         PeriodicTestRunner.getInstance();
     }
 }

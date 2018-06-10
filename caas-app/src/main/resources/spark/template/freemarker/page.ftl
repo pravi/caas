@@ -313,8 +313,10 @@
             }
         }
     </script>
-    <div id="brand" href="#">
-        <h1 id="brand_name">${project_name}</h1>
+    <div id="brand">
+        <a href="/">
+            <h1 id="brand_name">${project_name}</h1>
+        </a>
     </div>
     <div id="hamburger" onclick="menu_toggle()">
         <span></span>
@@ -325,10 +327,10 @@
         <a href="/add">
             Test your server
         </a>
-        <a href="#">
+        <a href="/">
             Servers
         </a>
-        <a href="#">
+        <a href="/tests/">
             Tests
         </a>
         <a href="/about/">

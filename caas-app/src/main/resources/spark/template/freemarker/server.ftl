@@ -503,7 +503,7 @@
                     <#if help.isPossible()??>
                       <div class="help card" id="${help.getName()}">
                           <div class="close">&times;</div>
-                          <h3>For <a href="/tests/${help.getName()}">${help.getName()}</a>:</h3>
+                          <h3>For <a href="/test/${help.getName()}">${help.getName()}</a>:</h3>
                           <ul>
                               <#if help.getSince()??>
                                   <li>

@@ -43,8 +43,8 @@
          <p class="sub_heading">For users:</p>
          <p>
              As a user, it is not easy to choose a good XMPP server for creating Jabber ID.
-             This web application helps such users in choosing a good server by showing
-             which servers have implemented the latest specifications and which servers have been
+             Using this web application you can choose a good quality server by comparing
+             the servers which have implemented the latest specifications and which servers have been
              fast at implementing new specifications historically.
          </p>
 

@@ -46,8 +46,10 @@ public class PeriodicTestRunner implements Runnable {
     @Override
     public void run() {
         List<Credential> credentials = ServerStore.INSTANCE.getCredentials();
-        if (credentials.isEmpty())
+        if (credentials.isEmpty()) {
+            System.out.println("No credentials found. Periodic tests skipped");
             return;
+        }
         credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Instant beginTime = Instant.now();
         System.out.printf("Started running periodic tests #%d at %s%n", TestResultStore.INSTANCE.getIterations().size(), beginTime);

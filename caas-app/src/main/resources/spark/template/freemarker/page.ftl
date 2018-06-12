@@ -47,6 +47,7 @@
             background: ${primary_color};
             color: white;
             box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2);
+            text-decoration: none;
             border: none;
             cursor: pointer;
             text-align: center;
@@ -92,6 +93,14 @@
 
         .chip.clickable:hover {
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .chip.failed::after {
+            content: url('/img/failed.svg');
+        }
+
+        .chip.passed:after {
+            content: url('/img/passed.svg');
         }
 
         code, .code {

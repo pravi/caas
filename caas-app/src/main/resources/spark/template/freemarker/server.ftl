@@ -13,14 +13,6 @@
             padding-bottom: 20px;
         }
 
-        .server_failed::after {
-            content: url('/img/failed.svg');
-        }
-
-        .server_passed::after {
-            content: url('/img/passed.svg');
-        }
-
         #server_run {
             padding: 30px;
         }
@@ -116,6 +108,7 @@
             }
             $('#help_container').css("visibility", "hidden");
         }
+
         $(function () {
             //Close modal on clicking anywhere
             $("#content").click(close_modal);
@@ -150,9 +143,9 @@
     <div id="server_results">
         <#list results as result>
             <#if result.success>
-                <div class="server_result chip server_passed">
+                <div class="chip passed">
             <#else>
-                <div class="server_result chip clickable server_failed"
+                <div class="chip clickable failed"
                      onclick="showHelp('${result.getTest().short_name()}')">
             </#if>
             ${result.getTest().full_name()}

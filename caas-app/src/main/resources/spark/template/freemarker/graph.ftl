@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<#assign height=500>
 <#macro graph>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <style>
@@ -34,6 +35,7 @@
 
         #chart_container {
             position: relative;
+            height: ${height + 20}px;
             margin: 5px;
             padding: 5px;
             overflow-x: scroll;
@@ -134,7 +136,6 @@
 
             var width = 5000;
             var ticks = 50;
-            var height = 500;
             var marginRL = 70;
             var marginUD = 30;
             var extent = d3.extent(times);
@@ -169,8 +170,8 @@
             }
             var svg = d3.select("#svg_container");
             svg.attr('width', width + 'px');
-            svg.attr('height', height + 'px');
-            var yScale = d3.scaleLinear().domain([0, 100]).range([(height - marginUD), marginUD]);
+            svg.attr('height', '${height}px');
+            var yScale = d3.scaleLinear().domain([0, 100]).range([(${height} - marginUD), marginUD]);
             var xScale = d3.scaleTime().domain(extent)
                     .range([marginRL, (width - marginRL)]);
 
@@ -200,7 +201,7 @@
                     .tickSize(-(width - 2 * marginRL), 0, 0);
 
             svg.append("g")
-                    .attr("transform", "translate(0," + ((height - marginUD)) + ")")
+                    .attr("transform", "translate(0," + ((${height} - marginUD)) + ")")
                     .call(xAxis);
             svg.append("g").attr("transform", "translate(" + marginRL + ",0)")
                     .call(yAxis);
@@ -218,7 +219,7 @@
             svg.append("text")
                     .attr("class", "axis_label")
                     .attr("text-anchor", "end")
-                    .attr("x", -(height - 2 * marginUD) / 2)
+                    .attr("x", -(${height} - 2 * marginUD) / 2)
                     .attr("y", marginRL / 4)
                     .attr("dy", ".75em")
                     .attr("transform", "rotate(-90)")

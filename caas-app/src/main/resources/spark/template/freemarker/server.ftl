@@ -5,7 +5,6 @@
 <#assign description="Server compliance result for ${domain}" in page>
 <#assign title="${page.project_name}: Compliance result for ${domain}" in page>
 <@page.page>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
 
         #server_results {
@@ -66,8 +65,8 @@
             var printWindow = window.open('', 'PRINT', 'height=400,width=600');
             printWindow.document.write('<html><head><title>' + document.title + '</title>');
             printWindow.document.write('<style>');
-            printWindow.document.write(".server_passed::before { color: green; content: 'PASSED: '; }");
-            printWindow.document.write(".server_failed::before { color: red; content: 'FAILED: '; }");
+            printWindow.document.write(".passed::before { color: green; content: 'PASSED: '; }");
+            printWindow.document.write(".failed::before { color: red; content: 'FAILED: '; }");
             printWindow.document.write("h1,h2,h3 { text-align: center; }");
             printWindow.document.write('</style>');
             printWindow.document.write('</head>');

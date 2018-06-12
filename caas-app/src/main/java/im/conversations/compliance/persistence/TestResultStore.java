@@ -18,10 +18,12 @@ import java.util.stream.Collectors;
 
 public class TestResultStore {
     public static final TestResultStore INSTANCE = new TestResultStore();
-    private final HashMap<String, List<Result>> serverResults = new HashMap<>();
+    private final HashMap<String, List<Result>> resultsByServer = new HashMap<>();
     private final Sql2o database;
     private List<Iteration> iterations;
-    private HashMap<String, List<HistoricalSnapshot>> serverHistoricSnapshots;
+    private HashMap<String, List<HistoricalSnapshot>> historicSnapshotsByServer;
+    private HashMap<String, List<HistoricalSnapshot>> historicSnapshotsByTest;
+    private HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
 
     private TestResultStore() {
         final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
@@ -55,7 +57,8 @@ public class TestResultStore {
         }
         fetchIterations();
         fetchResults();
-        fetchServerHistoricalSnapshots();
+        fetchHistoricalSnapshotsByServer();
+        fetchHistoricalSnapshotsByTest();
     }
 
     private void fetchIterations() {
@@ -68,9 +71,9 @@ public class TestResultStore {
                         .addColumnMapping("end_time", "end")
                         .executeAndFetch(Iteration.class);
                 iterations.sort(Comparator.comparingInt(Iteration::getIterationNumber));
-                if(iterations.size() == 0) return;
+                if (iterations.size() == 0) return;
                 int last = iterations.size() - 1;
-                if(iterations.get(last).getIterationNumber() != iterations.size() - 1) {
+                if (iterations.get(last).getIterationNumber() != iterations.size() - 1) {
                     throw new IllegalStateException("Iterations size unequal in both the tables");
                 }
             }
@@ -82,14 +85,25 @@ public class TestResultStore {
     }
 
     public List<Result> getResultsFor(String domain) {
-        return Collections.unmodifiableList(serverResults.get(domain));
+        return Collections.unmodifiableList(resultsByServer.get(domain));
+    }
+
+    public Map<String, Boolean> getServerResultHashMapFor(String test) {
+        return Collections.unmodifiableMap(resultsByTests.get(test));
     }
 
     public List<HistoricalSnapshot> getHistoricalSnapshotsForServer(String domain) {
-        if (serverHistoricSnapshots.get(domain) == null) {
+        if (historicSnapshotsByServer.get(domain) == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(serverHistoricSnapshots.get(domain));
+        return Collections.unmodifiableList(historicSnapshotsByServer.get(domain));
+    }
+
+    public List<HistoricalSnapshot> getHistoricalSnapshotsForTest(String test) {
+        if (historicSnapshotsByTest.get(test) == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(historicSnapshotsByTest.get(test));
     }
 
     public boolean putOneOffTestResults(String domain, List<Result> results) {
@@ -142,7 +156,7 @@ public class TestResultStore {
                 );
                 query.executeBatch();
                 con.commit();
-                serverResults.put(domain, results);
+                fetchResults();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return false;
@@ -187,12 +201,81 @@ public class TestResultStore {
         fetchIterations();
 
         //Get historical snapshots
-        fetchServerHistoricalSnapshots();
+        fetchHistoricalSnapshotsByServer();
+        fetchHistoricalSnapshotsByTest();
         return true;
     }
 
-    private void fetchServerHistoricalSnapshots() {
-        serverHistoricSnapshots = new HashMap<>();
+    private void fetchHistoricalSnapshotsByTest() {
+        historicSnapshotsByTest = new HashMap<>();
+        synchronized (this.database) {
+            try (Connection connection = this.database.open()) {
+                for (String test : TestUtils.getAllComplianceTestNames()) {
+                    HashMap<Integer, HistoricalSnapshot.Change> resultChanges = new HashMap<>();
+                    //TODO: Check if server's listed is set to true
+                    for (String domain : ServerStore.INSTANCE.getServerNames()) {
+                        Table table = connection.createQuery("select iteration_number,success from periodic_tests " +
+                                "where domain=:domain and test=:test")
+                                .addParameter("domain", domain)
+                                .addParameter("test", test)
+                                .executeAndFetchTable();
+                        addChanges(resultChanges, domain, table.rows());
+                    }
+                    List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
+                    for (int iterationNumber : resultChanges.keySet()) {
+                        List<Integer> results = connection.createQuery("select success from periodic_tests where iteration_number = :it and test=:test and domain in (:domains)")
+                                .addParameter("it", iterationNumber)
+                                .addParameter("test", test)
+                                .addParameter("domains", ServerStore.INSTANCE.getServerNames())
+                                .executeScalarList(Integer.class);
+                        int total = 0;
+                        int pass = 0;
+                        for (int result : results) {
+                            pass += result;
+                            total++;
+                        }
+                        String timestamp = connection.createQuery("select begin_time from periodic_test_iterations where iteration_number = :it")
+                                .addParameter("it", iterationNumber)
+                                .executeScalar(String.class);
+                        historicalSnapshots.add(new HistoricalSnapshot(iterationNumber, timestamp, pass, total, resultChanges.get(iterationNumber)));
+                    }
+                    historicalSnapshots.sort(Comparator.comparingInt(HistoricalSnapshot::getIteration));
+                    historicSnapshotsByTest.put(test, historicalSnapshots);
+                }
+            }
+        }
+    }
+
+    private void addChanges(HashMap<Integer, HistoricalSnapshot.Change> changes, String value, List<Row> iterationResultPairs) {
+        int lastResult = -1;
+        int len = iterationResultPairs.size();
+        for (int i = 0; i < len; i++) {
+            Row row = iterationResultPairs.get(i);
+            int iterationNumber = row.getInteger("iteration_number");
+            int success = row.getInteger("success");
+            // Only add to change if the new result is different than the older results
+            if (lastResult != success) {
+                if (changes.get(iterationNumber) == null) {
+                    changes.put(iterationNumber, new HistoricalSnapshot.Change());
+                }
+                if (success == 0) {
+                    changes.get(iterationNumber).getFail().add(value);
+                } else {
+                    changes.get(iterationNumber).getPass().add(value);
+                }
+                lastResult = success;
+            }
+            //Add the last point on graph (if there are more than 1 points)
+            else if (len > 1 && i == (len - 1)) {
+                if (changes.get(iterationNumber) == null) {
+                    changes.put(iterationNumber, new HistoricalSnapshot.Change());
+                }
+            }
+        }
+    }
+
+    private void fetchHistoricalSnapshotsByServer() {
+        historicSnapshotsByServer = new HashMap<>();
         synchronized (this.database) {
             try (Connection connection = this.database.open()) {
                 for (String domain : ServerStore.INSTANCE.getServerNames()) {
@@ -203,31 +286,7 @@ public class TestResultStore {
                                 .addParameter("domain", domain)
                                 .addParameter("test", test)
                                 .executeAndFetchTable();
-                        int lastResult = -1;
-                        int len = table.rows().size();
-                        for (int i = 0; i < len; i++) {
-                            Row row = table.rows().get(i);
-                            int iterationNumber = row.getInteger("iteration_number");
-                            int success = row.getInteger("success");
-                            // Only add to change if the new result is different than the older results
-                            if (lastResult != success) {
-                                if (testResultChanges.get(iterationNumber) == null) {
-                                    testResultChanges.put(iterationNumber, new HistoricalSnapshot.Change());
-                                }
-                                if (success == 0) {
-                                    testResultChanges.get(iterationNumber).getFail().add(test);
-                                } else {
-                                    testResultChanges.get(iterationNumber).getPass().add(test);
-                                }
-                                lastResult = success;
-                            }
-                            //Add the last point on graph (if there are more than 1 points)
-                            else if (len > 1 && i == (len - 1)) {
-                                if (testResultChanges.get(iterationNumber) == null) {
-                                    testResultChanges.put(iterationNumber, new HistoricalSnapshot.Change());
-                                }
-                            }
-                        }
+                        addChanges(testResultChanges, test, table.rows());
                     }
                     List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
                     for (int iterationNumber : testResultChanges.keySet()) {
@@ -248,7 +307,7 @@ public class TestResultStore {
                         historicalSnapshots.add(new HistoricalSnapshot(iterationNumber, timestamp, pass, total, testResultChanges.get(iterationNumber)));
                     }
                     historicalSnapshots.sort(Comparator.comparingInt(HistoricalSnapshot::getIteration));
-                    serverHistoricSnapshots.put(domain, historicalSnapshots);
+                    historicSnapshotsByServer.put(domain, historicalSnapshots);
                 }
             }
         }
@@ -267,11 +326,24 @@ public class TestResultStore {
                                     TestUtils.getTestFrom(row.getString("test")),
                                     (row.getInteger("success") == 1)))
                             .collect(Collectors.toCollection(ArrayList::new));
-                    serverResults.put(domain, r);
+                    resultsByServer.put(domain, r);
+                });
+                TestUtils.getAllComplianceTestNames().forEach(test -> {
+                    Table table = con.createQuery("select domain,success from current_tests where test=:test")
+                            .addParameter("test", test)
+                            .executeAndFetchTable();
+                    HashMap<String, Boolean> testResults = new HashMap<>();
+                    table.rows().stream().forEach(
+                            row -> {
+                                testResults.put(
+                                        row.getString("domain"),
+                                        row.getBoolean("success")
+                                );
+                            }
+                    );
+                    resultsByTests.put(test, testResults);
                 });
             }
         }
-
     }
-
 }

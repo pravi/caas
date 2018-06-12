@@ -17,6 +17,7 @@ import spark.TemplateViewRoute;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -195,7 +196,35 @@ public class Controller {
     public static TemplateViewRoute getTest = (request, response) -> {
         ComplianceTest test = TestUtils.getTestFrom(request.params("test"));
         HashMap<String, Object> model = new HashMap<>();
+        if (test == null) {
+            model.put("error_code", 404);
+            model.put("error_msg", "Test " + request.params("test") + " not found");
+            return new ModelAndView(model, "error.ftl");
+        }
         model.put("test", test);
+        Map<String, Boolean> results;
+        try {
+            results = TestResultStore.INSTANCE.getServerResultHashMapFor(test.short_name());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            model.put("error_code", 404);
+            model.put("error_msg", "Error getting results for " + test.full_name());
+            return new ModelAndView(model, "error.ftl");
+        }
+        if (!results.isEmpty()) {
+            int passed = results.entrySet().stream()
+                    .map(it -> it.getValue() ? 1 : 0)
+                    .reduce((it, ac) -> ac + it)
+                    .get();
+            int percent = (int) (passed * 100 / results.size());
+            model.put("stats", new HashMap<String, String>() {
+                {
+                    put("Servers compliant", percent + "%");
+                }
+            });
+        }
+        model.put("results", results);
+        model.put("historic_data", gson.toJson(TestResultStore.INSTANCE.getHistoricalSnapshotsForTest(test.short_name())));
         return new ModelAndView(model, "test.ftl");
     };
 

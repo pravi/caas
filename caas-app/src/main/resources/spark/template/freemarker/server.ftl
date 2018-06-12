@@ -1,26 +1,12 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
 <#import "graph.ftl" as graph>
+<#import "stat.ftl" as stat>
 <#assign description="Server compliance result for ${domain}" in page>
 <#assign title="${page.project_name}: Compliance result for ${domain}" in page>
 <@page.page>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
-
-        #server_stats {
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .server_stat {
-            display: inline-flex;
-            flex-direction: column;
-        }
-
-        .stat_result {
-            color: ${page.green};
-            font-size: 3em;
-        }
 
         #server_results {
             padding-top: 20px;
@@ -137,25 +123,18 @@
             $(".help").click(preventModalClosing);
             $(".chip").click(preventModalClosing);
             var data = JSON.parse('${historic_data?no_esc}');
-            drawGraph(data);
+            drawGraph(data, function gotoHistoric(d) {
+                var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/historic/server/${domain}/iteration/" + d.iteration;
+                window.location = url;
+            })
         });
     </script>
 
     <h2> Compliance status for ${domain}</h2>
-    <div id="server_stats">
-        <#list stats as stat,value>
-            <div class="server_stat">
-                <div class="stat_result">
-                    ${value}
-                </div>
-                <div class="stat_info">
-                    ${stat}
-                </div>
-            </div>
-        </#list>
-    </div>
 
-    <button id="download_report" onclick="print_report()">Download report</button>
+    <@stat.stat></@stat.stat>
+
+   <button id="download_report" onclick="print_report()">Download report</button>
     <br><br>
     <#if softwareName??>
         Server is running ${softwareName} ${softwareVersion!}

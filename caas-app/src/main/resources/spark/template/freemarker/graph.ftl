@@ -40,8 +40,13 @@
         }
     </style>
     <script>
-        var drawGraph = function (data) {
-
+        /**
+         *
+         * @param data
+         * @param onPointClick Called when a point on the graph is clicked with its first argument having the
+         * data object associated with the clicked point
+         */
+        var drawGraph = function (data, onPointClick) {
             var utils = {
                 "isMobile": function () {
                     var check = false;
@@ -96,7 +101,7 @@
                 var d = data[i];
                 var html = "<b>" + d.passed + "/" + d.total + " (" + (d.passed / d.total * 100).toFixed(2) + "%) tests passed</b>";
                 if (utils.isMobile()) {
-                    html += "<button>See report</button>";
+                    html += "<button>More details</button>";
                 }
                 html += "<p>Time: " + utils.formatDate(d.timestamp) + "</p>";
                 if ("change" in d) {
@@ -207,10 +212,6 @@
                     .attr("stroke-width", 3)
                     .attr("fill", "none");
 
-            function gotoHistoric(domain, iteration) {
-                var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/historic/server/" + domain + "/iteration/" + iteration;
-                window.location = url;
-            }
 
             svg.append("g").attr("id", "historical_graph");
 
@@ -261,11 +262,11 @@
                             var it = d.iteration;
                             tooltip.select("button")
                                     .on("click", function () {
-                                        gotoHistoric("${domain}", d.iteration);
+                                        onPointClick(d);
                                     });
                         }
                         else {
-                            gotoHistoric("${domain}", d.iteration);
+                            onPointClick(d);
                         }
                     })
                     .on("mousemove", function (d, i) {

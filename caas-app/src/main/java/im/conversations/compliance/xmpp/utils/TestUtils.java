@@ -45,10 +45,15 @@ public class TestUtils {
      * Get short names of all the tests irrespective of whether they are informational in nature
      * @return list of short names of tests
      */
-    public static List<String> getAllComplianceTestNames() {
+    public static List<String> getAllTestNames() {
         return Collections.unmodifiableList(allComplianceTestNames);
     }
 
+    /**
+     * Get the {@link ComplianceTest} with the given short name, or null if none exists
+     * @param shortName
+     * @return
+     */
     public static ComplianceTest getTestFrom(String shortName) {
         return complianceTestMap.get(shortName);
     }

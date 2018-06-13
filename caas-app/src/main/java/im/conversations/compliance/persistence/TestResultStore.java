@@ -84,6 +84,11 @@ public class TestResultStore {
         return Collections.unmodifiableList(iterations);
     }
 
+    /**
+     * Get results for a given domain. If no results exist for that domain, a {@link NullPointerException} is thrown
+     * @param domain
+     * @return
+     */
     public List<Result> getResultsFor(String domain) {
         return Collections.unmodifiableList(resultsByServer.get(domain));
     }
@@ -210,7 +215,7 @@ public class TestResultStore {
         historicSnapshotsByTest = new HashMap<>();
         synchronized (this.database) {
             try (Connection connection = this.database.open()) {
-                for (String test : TestUtils.getAllComplianceTestNames()) {
+                for (String test : TestUtils.getAllTestNames()) {
                     HashMap<Integer, HistoricalSnapshot.Change> resultChanges = new HashMap<>();
                     //TODO: Check if server's listed is set to true
                     for (String domain : ServerStore.INSTANCE.getServerNames()) {
@@ -328,7 +333,7 @@ public class TestResultStore {
                             .collect(Collectors.toCollection(ArrayList::new));
                     resultsByServer.put(domain, r);
                 });
-                TestUtils.getAllComplianceTestNames().forEach(test -> {
+                TestUtils.getAllTestNames().forEach(test -> {
                     Table table = con.createQuery("select domain,success from current_tests where test=:test")
                             .addParameter("test", test)
                             .executeAndFetchTable();

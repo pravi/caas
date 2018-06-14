@@ -172,6 +172,8 @@
             </div>
             <div class="card" id="embed_server">
                 <h3>Add badge to your website</h3>
+                ${badgeCode?no_esc}
+                <br><br>
                 <div class="code">
                     ${badgeCode}
                 </div>

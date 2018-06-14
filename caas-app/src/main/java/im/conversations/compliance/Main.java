@@ -29,6 +29,7 @@ public class Main {
         post("/add/", Controller.postAdd);
         get("/live/:domain/", Controller.getLive, templateEngine);
         get("/server/:domain/", Controller.getServer, templateEngine);
+        get("/badge/:domain/", Controller.getBadge, templateEngine);
         get("/test/:test/", Controller.getTest, templateEngine);
         get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoric, templateEngine);
         PeriodicTestRunner.getInstance();

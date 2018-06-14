@@ -158,17 +158,9 @@ public class Controller {
                 .filter(result -> !result.isSuccess())
                 .map(result -> result.getTest().short_name())
                 .collect(Collectors.toList());
-        long total = 0;
-        long passed = 0;
-        for (Result result : results) {
-            if (!result.getTest().informational()) {
-                if (result.isSuccess()) {
-                    passed++;
-                }
-                total++;
-            }
-        }
-        int percent = (int) (passed * 100 / total);
+
+        WebUtils.addResultStats(model,results);
+
         ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
         if (serverHelp != null) {
             List<TestHelp> helps = serverHelp.getTestsHelp().stream()
@@ -180,16 +172,12 @@ public class Controller {
         model.put("domain", domain);
         model.put("results", results);
         model.put("historic_data", gson.toJson(TestResultStore.INSTANCE.getHistoricalSnapshotsForServer(domain)));
-        model.put("stats", new HashMap<String, String>() {
-            {
-                put("Specifications compliant", percent + "%");
-            }
-        });
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
         model.put("timestamp", lastRun);
-        model.put("badgeCode", "<img src='https://compliance.conversations.im/badge/" + domain + "'>");
+        String imageUrl = WebUtils.getRootUrlFrom(request) + "/badge/" + domain;
+        model.put("badgeCode", "<a href='"+ request.url() + "'><img src='" + imageUrl + "'></a>");
         return new ModelAndView(model, "server.ftl");
     };
 
@@ -226,6 +214,21 @@ public class Controller {
         model.put("results", results);
         model.put("historic_data", gson.toJson(TestResultStore.INSTANCE.getHistoricalSnapshotsForTest(test.short_name())));
         return new ModelAndView(model, "test.ftl");
+    };
+
+    public static TemplateViewRoute getBadge = (request, response) -> {
+        response.type("image/svg+xml");
+        HashMap<String, Object> model = new HashMap<>();
+        String domain = request.params("domain");
+        try {
+            List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
+            WebUtils.addResultStats(model,results);
+            String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
+            model.put("domain",domain);
+            model.put("resultLink",resultLink);
+        } catch (Exception ex) {
+        }
+        return new ModelAndView(model, "badge.ftl");
     };
 
     public static TemplateViewRoute getHistoric = (request, response) -> {

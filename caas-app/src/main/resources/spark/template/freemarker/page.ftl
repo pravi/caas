@@ -104,11 +104,18 @@
         }
 
         code, .code {
-            overflow: auto;
-            padding: 5px;
+            word-break: break-all;
+            word-wrap: break-word;
+            padding: 10px;
             font-size: 0.8em;
             text-align: left;
             font-family: monospace;
+        }
+
+        .code {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         footer {

@@ -2,27 +2,12 @@
 <#import "page.ftl" as page>
 <#assign description="Get detailed report for your XMPP servers' compliance test results, periodic reports." in page>
 <#assign title="${page.project_name}: Test your XMPP server for compliance" in page>
+<#assign stylesheets=["/css/about.css"] in page>
 <@page.page>
-<style>
-    .card > p {
-        text-align: left;
-    }
-
-    #content {
-        max-width: 900px;
-        margin: auto;
-        margin-top: ${1.1*page.nav_bar_height}px;
-        padding: auto;
-        text-align: center;
-    }
-
-    body {
-        text-align: center;
-    }
-</style>
     <h2>
         About Compliance as a Service (CaaS)
     </h2>
+    <link rel="stylesheet" href="/css/about.css">
 
         <p>
             This is a work in progress web application based off

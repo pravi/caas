@@ -1,0 +1,14 @@
+#server_stats {
+    display: flex;
+    justify-content: space-around;
+}
+
+.stat {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.stat_result {
+    color: #43a047;
+    font-size: 3em;
+}

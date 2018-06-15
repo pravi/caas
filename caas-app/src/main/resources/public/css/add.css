@@ -1,0 +1,48 @@
+#form_add * {
+    font-size: 0.9em;
+}
+
+#form_add > div {
+    margin: 5px;
+    padding: 5px;
+}
+
+.input_label_add {
+    display: inline-block;
+    width: 120px;
+    margin-right: 10px;
+    text-align: right;
+}
+
+.input_add {
+    width: 340px;
+}
+
+#button_add {
+    width: 150px;
+    border-radius: 101px;
+}
+
+.error_message {
+    color: red;
+    margin: auto;
+    padding: 10px;
+    text-align: center;
+}
+
+@media only screen and (max-width: 500px) {
+    .input_add {
+        width: 200px;
+        font-size: 0.85em;
+    }
+
+    .input_label_add {
+        width: 65px;
+        font-size: 0.85em;
+        margin-right: 5px;
+    }
+
+    .form_button_server_add {
+        margin-left: 50px;
+    }
+}

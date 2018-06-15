@@ -1,24 +1,6 @@
 <#ftl output_format="HTML">
 <#macro stat>
-    <style>
-
-        #server_stats {
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .stat {
-            display: inline-flex;
-            flex-direction: column;
-        }
-
-        .stat_result {
-            color: ${page.green};
-            font-size: 3em;
-        }
-
-    </style>
-        <div id="stats">
+    <div id="stats">
         <#list stats as stat,value>
             <div class="server_stat">
                 <div class="stat_result">
@@ -29,5 +11,5 @@
                 </div>
             </div>
         </#list>
-        </div>
+    </div>
 </#macro>

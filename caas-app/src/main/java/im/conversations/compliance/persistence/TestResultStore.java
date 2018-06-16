@@ -61,38 +61,40 @@ public class TestResultStore {
         fetchHistoricalSnapshotsByTest();
     }
 
-    private void fetchIterations() {
-        synchronized (this.database) {
-            try (Connection con = this.database.open()) {
-                //Add iteration lists to an object
-                iterations = con.createQuery("select iteration_number, begin_time, end_time from periodic_test_iterations")
-                        .addColumnMapping("iteration_number", "iterationNumber")
-                        .addColumnMapping("begin_time", "begin")
-                        .addColumnMapping("end_time", "end")
-                        .executeAndFetch(Iteration.class);
-                iterations.sort(Comparator.comparingInt(Iteration::getIterationNumber));
-                if (iterations.size() == 0) return;
-                int last = iterations.size() - 1;
-                if (iterations.get(last).getIterationNumber() != iterations.size() - 1) {
-                    throw new IllegalStateException("Iterations size unequal in both the tables");
-                }
-            }
-        }
-    }
-
     public List<Iteration> getIterations() {
         return Collections.unmodifiableList(iterations);
     }
 
+    public Instant getLastRunFor(String domain) {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                Instant lastRun = con.createQuery("select timestamp from current_tests where domain=:domain limit 1;")
+                        .addParameter("domain", domain)
+                        .executeScalar(Instant.class);
+                return lastRun;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return Instant.now();
+            }
+        }
+    }
+
     /**
-     * Get results for a given domain. If no results exist for that domain, a {@link NullPointerException} is thrown
-     * @param domain
-     * @return
+     * Get results for a given server. If no results exist for that domain, a {@link NullPointerException} is thrown
+     *
+     * @param domain The domain of server whose results are to be found
+     * @return List of current results for the given domain
      */
     public List<Result> getResultsFor(String domain) {
         return Collections.unmodifiableList(resultsByServer.get(domain));
     }
 
+    /**
+     * Get results for a given test. If no results exist for that server, a {@link NullPointerException} is thrown
+     *
+     * @param test The test for which we need to get results for different servers
+     * @return A hashmap of results where the keys are the domains of servers and value is the result
+     */
     public Map<String, Boolean> getServerResultHashMapFor(String test) {
         return Collections.unmodifiableMap(resultsByTests.get(test));
     }
@@ -129,21 +131,6 @@ public class TestResultStore {
         rdpList.forEach(rdp -> addToCurrentResults(rdp.getDomain(), rdp.getResults()));
 
         return status;
-    }
-
-
-    public Instant getLastRunFor(String domain) {
-        synchronized (this.database) {
-            try (Connection con = this.database.open()) {
-                Instant lastRun = con.createQuery("select timestamp from current_tests where domain=:domain limit 1;")
-                        .addParameter("domain", domain)
-                        .executeScalar(Instant.class);
-                return lastRun;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return Instant.now();
-            }
-        }
     }
 
     private boolean addToCurrentResults(String domain, List<Result> results) {
@@ -211,46 +198,6 @@ public class TestResultStore {
         return true;
     }
 
-    private void fetchHistoricalSnapshotsByTest() {
-        historicSnapshotsByTest = new HashMap<>();
-        synchronized (this.database) {
-            try (Connection connection = this.database.open()) {
-                for (String test : TestUtils.getAllTestNames()) {
-                    HashMap<Integer, HistoricalSnapshot.Change> resultChanges = new HashMap<>();
-                    //TODO: Check if server's listed is set to true
-                    for (String domain : ServerStore.INSTANCE.getServerNames()) {
-                        Table table = connection.createQuery("select iteration_number,success from periodic_tests " +
-                                "where domain=:domain and test=:test")
-                                .addParameter("domain", domain)
-                                .addParameter("test", test)
-                                .executeAndFetchTable();
-                        addChanges(resultChanges, domain, table.rows());
-                    }
-                    List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
-                    for (int iterationNumber : resultChanges.keySet()) {
-                        List<Integer> results = connection.createQuery("select success from periodic_tests where iteration_number = :it and test=:test and domain in (:domains)")
-                                .addParameter("it", iterationNumber)
-                                .addParameter("test", test)
-                                .addParameter("domains", ServerStore.INSTANCE.getServerNames())
-                                .executeScalarList(Integer.class);
-                        int total = 0;
-                        int pass = 0;
-                        for (int result : results) {
-                            pass += result;
-                            total++;
-                        }
-                        String timestamp = connection.createQuery("select begin_time from periodic_test_iterations where iteration_number = :it")
-                                .addParameter("it", iterationNumber)
-                                .executeScalar(String.class);
-                        historicalSnapshots.add(new HistoricalSnapshot(iterationNumber, timestamp, pass, total, resultChanges.get(iterationNumber)));
-                    }
-                    historicalSnapshots.sort(Comparator.comparingInt(HistoricalSnapshot::getIteration));
-                    historicSnapshotsByTest.put(test, historicalSnapshots);
-                }
-            }
-        }
-    }
-
     private void addChanges(HashMap<Integer, HistoricalSnapshot.Change> changes, String value, List<Row> iterationResultPairs) {
         int lastResult = -1;
         int len = iterationResultPairs.size();
@@ -275,6 +222,59 @@ public class TestResultStore {
                 if (changes.get(iterationNumber) == null) {
                     changes.put(iterationNumber, new HistoricalSnapshot.Change());
                 }
+            }
+        }
+    }
+
+    private void fetchIterations() {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                //Add iteration lists to an object
+                iterations = con.createQuery("select iteration_number, begin_time, end_time from periodic_test_iterations")
+                        .addColumnMapping("iteration_number", "iterationNumber")
+                        .addColumnMapping("begin_time", "begin")
+                        .addColumnMapping("end_time", "end")
+                        .executeAndFetch(Iteration.class);
+                iterations.sort(Comparator.comparingInt(Iteration::getIterationNumber));
+                if (iterations.size() == 0) return;
+                int last = iterations.size() - 1;
+                if (iterations.get(last).getIterationNumber() != iterations.size() - 1) {
+                    throw new IllegalStateException("Iterations size unequal in both the tables");
+                }
+            }
+        }
+    }
+
+    private void fetchResults() {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                List<String> domains = con.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
+                domains.forEach(domain -> {
+                    Table table = con.createQuery("select test,success from current_tests where domain=:domain")
+                            .addParameter("domain", domain)
+                            .executeAndFetchTable();
+                    ArrayList<Result> r = table.rows().stream()
+                            .map(row -> new Result(
+                                    TestUtils.getTestFrom(row.getString("test")),
+                                    (row.getInteger("success") == 1)))
+                            .collect(Collectors.toCollection(ArrayList::new));
+                    resultsByServer.put(domain, r);
+                });
+                TestUtils.getAllTestNames().forEach(test -> {
+                    Table table = con.createQuery("select domain,success from current_tests where test=:test")
+                            .addParameter("test", test)
+                            .executeAndFetchTable();
+                    HashMap<String, Boolean> testResults = new HashMap<>();
+                    table.rows().stream().forEach(
+                            row -> {
+                                testResults.put(
+                                        row.getString("domain"),
+                                        row.getBoolean("success")
+                                );
+                            }
+                    );
+                    resultsByTests.put(test, testResults);
+                });
             }
         }
     }
@@ -318,37 +318,44 @@ public class TestResultStore {
         }
     }
 
-    private void fetchResults() {
+    private void fetchHistoricalSnapshotsByTest() {
+        historicSnapshotsByTest = new HashMap<>();
         synchronized (this.database) {
-            try (Connection con = this.database.open()) {
-                List<String> domains = con.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
-                domains.forEach(domain -> {
-                    Table table = con.createQuery("select test,success from current_tests where domain=:domain")
-                            .addParameter("domain", domain)
-                            .executeAndFetchTable();
-                    ArrayList<Result> r = table.rows().stream()
-                            .map(row -> new Result(
-                                    TestUtils.getTestFrom(row.getString("test")),
-                                    (row.getInteger("success") == 1)))
-                            .collect(Collectors.toCollection(ArrayList::new));
-                    resultsByServer.put(domain, r);
-                });
-                TestUtils.getAllTestNames().forEach(test -> {
-                    Table table = con.createQuery("select domain,success from current_tests where test=:test")
-                            .addParameter("test", test)
-                            .executeAndFetchTable();
-                    HashMap<String, Boolean> testResults = new HashMap<>();
-                    table.rows().stream().forEach(
-                            row -> {
-                                testResults.put(
-                                        row.getString("domain"),
-                                        row.getBoolean("success")
-                                );
-                            }
-                    );
-                    resultsByTests.put(test, testResults);
-                });
+            try (Connection connection = this.database.open()) {
+                for (String test : TestUtils.getAllTestNames()) {
+                    HashMap<Integer, HistoricalSnapshot.Change> resultChanges = new HashMap<>();
+                    //TODO: Check if server's listed is set to true
+                    for (String domain : ServerStore.INSTANCE.getServerNames()) {
+                        Table table = connection.createQuery("select iteration_number,success from periodic_tests " +
+                                "where domain=:domain and test=:test")
+                                .addParameter("domain", domain)
+                                .addParameter("test", test)
+                                .executeAndFetchTable();
+                        addChanges(resultChanges, domain, table.rows());
+                    }
+                    List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
+                    for (int iterationNumber : resultChanges.keySet()) {
+                        List<Integer> results = connection.createQuery("select success from periodic_tests where iteration_number = :it and test=:test and domain in (:domains)")
+                                .addParameter("it", iterationNumber)
+                                .addParameter("test", test)
+                                .addParameter("domains", ServerStore.INSTANCE.getServerNames())
+                                .executeScalarList(Integer.class);
+                        int total = 0;
+                        int pass = 0;
+                        for (int result : results) {
+                            pass += result;
+                            total++;
+                        }
+                        String timestamp = connection.createQuery("select begin_time from periodic_test_iterations where iteration_number = :it")
+                                .addParameter("it", iterationNumber)
+                                .executeScalar(String.class);
+                        historicalSnapshots.add(new HistoricalSnapshot(iterationNumber, timestamp, pass, total, resultChanges.get(iterationNumber)));
+                    }
+                    historicalSnapshots.sort(Comparator.comparingInt(HistoricalSnapshot::getIteration));
+                    historicSnapshotsByTest.put(test, historicalSnapshots);
+                }
             }
         }
     }
+
 }

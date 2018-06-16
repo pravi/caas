@@ -15,6 +15,7 @@ public class TestUtils {
             Tests.getTests()
                     .stream()
                     .map(it -> it.getAnnotation(ComplianceTest.class).short_name())
+                    .sorted()
                     .collect(Collectors.toList());
 
     private static List<String> complianceTestNames =
@@ -23,6 +24,7 @@ public class TestUtils {
                     .map(it -> it.getAnnotation(ComplianceTest.class))
                     .filter(it -> !it.informational())
                     .map(ComplianceTest::short_name)
+                    .sorted()
                     .collect(Collectors.toList());
 
     private static Map<String, ComplianceTest> complianceTestMap =
@@ -35,6 +37,7 @@ public class TestUtils {
 
     /**
      * Get short names of tests which aren't informational in nature
+     *
      * @return list of short names of tests
      */
     public static List<String> getTestNames() {
@@ -43,6 +46,7 @@ public class TestUtils {
 
     /**
      * Get short names of all the tests irrespective of whether they are informational in nature
+     *
      * @return list of short names of tests
      */
     public static List<String> getAllTestNames() {
@@ -51,6 +55,7 @@ public class TestUtils {
 
     /**
      * Get the {@link ComplianceTest} with the given short name, or null if none exists
+     *
      * @param shortName
      * @return
      */

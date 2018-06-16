@@ -159,7 +159,7 @@ public class Controller {
                 .map(result -> result.getTest().short_name())
                 .collect(Collectors.toList());
 
-        WebUtils.addResultStats(model,results);
+        WebUtils.addResultStats(model, results);
 
         ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
         if (serverHelp != null) {
@@ -177,7 +177,7 @@ public class Controller {
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
         model.put("timestamp", lastRun);
         String imageUrl = WebUtils.getRootUrlFrom(request) + "/badge/" + domain;
-        model.put("badgeCode", "<a href='"+ request.url() + "'><img src='" + imageUrl + "'></a>");
+        model.put("badgeCode", "<a href='" + request.url() + "'><img src='" + imageUrl + "'></a>");
         return new ModelAndView(model, "server.ftl");
     };
 
@@ -222,10 +222,10 @@ public class Controller {
         String domain = request.params("domain");
         try {
             List<Result> results = TestResultStore.INSTANCE.getResultsFor(domain);
-            WebUtils.addResultStats(model,results);
+            WebUtils.addResultStats(model, results);
             String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
-            model.put("domain",domain);
-            model.put("resultLink",resultLink);
+            model.put("domain", domain);
+            model.put("resultLink", resultLink);
         } catch (Exception ex) {
         }
         return new ModelAndView(model, "badge.ftl");
@@ -233,8 +233,13 @@ public class Controller {
 
     public static TemplateViewRoute getHistoric = (request, response) -> {
         String domain = request.params("domain");
+        int iterationNumber = Integer.parseInt(request.params("iteration"));
         HashMap<String, Object> model = new HashMap<>();
         model.put("domain", domain);
+        Iteration iteration = TestResultStore.INSTANCE.getIterations().get(iterationNumber);
+        List<Result> results = TestResultStore.INSTANCE.getHistoricalResultsFor(domain, iterationNumber);
+        model.put("iteration", iteration);
+        model.put("results", results);
         return new ModelAndView(model, "historic.ftl");
     };
 }

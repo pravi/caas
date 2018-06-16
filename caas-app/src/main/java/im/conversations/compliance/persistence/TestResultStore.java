@@ -113,6 +113,22 @@ public class TestResultStore {
         return Collections.unmodifiableList(historicSnapshotsByTest.get(test));
     }
 
+    public List<Result> getHistoricalResultsFor(String domain,int iteration) {
+        synchronized (this.database) {
+            try (Connection con = this.database.open()) {
+                List<Result> results = con.createQuery("select test,success from periodic_tests " +
+                        "where domain = :domain and iteration_number = :iteration")
+                        .addParameter("iteration",iteration)
+                        .addParameter("domain",domain)
+                        .executeAndFetch(Result.class);
+                return results;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+    }
+
     public boolean putOneOffTestResults(String domain, List<Result> results) {
         return addToCurrentResults(domain, results);
     }

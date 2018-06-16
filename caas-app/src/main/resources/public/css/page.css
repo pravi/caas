@@ -10,6 +10,10 @@ body, #content {
     background-color: #fafafa;
 }
 
+noscript {
+    color: #f44;
+}
+
 input {
     font-size: 0.9em;
     background: none;
@@ -33,6 +37,7 @@ li {
     color: white;
     box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2);
     text-decoration: none;
+    outline: none !important;
     border: none;
     cursor: pointer;
     text-align: center;

@@ -61,6 +61,11 @@ public class ComplianceTestProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * Generates Tests class in {@link im.conversations.compliance.xmpp} package with a list of test classes, which
+     * can be used to run tests
+     * @throws Exception
+     */
     private void writeTestsFile() throws Exception {
         JavaFileObject testsFile = filer.createSourceFile("im.conversations.compliance.xmpp.Tests");
         try (PrintWriter out = new PrintWriter(testsFile.openWriter())) {

@@ -1,10 +1,9 @@
 package im.conversations.compliance;
 
-import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Help;
 import im.conversations.compliance.pojo.ServerHelp;
 import im.conversations.compliance.pojo.TestHelp;
-import im.conversations.compliance.xmpp.Tests;
+import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,25 +11,21 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HelpExistsTest {
+public class HelpsTest {
     List<String> tests;
 
     @Before
     public void initHelp() {
-        tests = Tests.getTests()
-                .stream()
-                .map(test -> test.getAnnotation(ComplianceTest.class).short_name())
-                .sorted()
-                .collect(Collectors.toList());
+        tests = TestUtils.getAllTestNames();
     }
 
     @Test
-    public void helpExistsForEjabberd() {
+    public void validHelpExistsForEjabberd() {
         checkHelpFile("ejabberd");
     }
 
     @Test
-    public void helpExistsForProsody() {
+    public void validHelpExistsForProsody() {
         checkHelpFile("prosody");
         checkHelpFile("Prosody");
     }
@@ -44,4 +39,5 @@ public class HelpExistsTest {
                 .collect(Collectors.toList());
         Assert.assertEquals(tests, testsForWhichHelpAvailable);
     }
+
 }

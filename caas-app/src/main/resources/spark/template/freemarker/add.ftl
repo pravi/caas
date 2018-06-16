@@ -5,6 +5,7 @@
 <#assign stylesheets=["/css/add.css"] in page>
 <#assign scripts=["/js/add.js"] in page>
 <@page.page>
+ <noscript>Enable javascript and reload this page</noscript>
  <h2>Add/update credentials for an XMPP server to test</h2>
     <form id="form_add" action="/add/" method="post">
         <div>

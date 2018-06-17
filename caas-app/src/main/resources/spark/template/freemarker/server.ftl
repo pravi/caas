@@ -2,6 +2,7 @@
 <#import "page.ftl" as page>
 <#import "graph.ftl" as graph>
 <#import "stat.ftl" as stat>
+<#import "result.ftl" as result>
 <#assign description="Server compliance result for ${domain}" in page>
 <#assign title="${page.project_name}: Compliance result for ${domain}" in page>
 <#assign stylesheets=["/css/server.css","/css/graph.css","/css/stat.css"] in page>
@@ -19,7 +20,8 @@
 
     <@stat.stat></@stat.stat>
 
-   <button id="download_report" onclick="print_report('${softwareName!}','${softwareVersion!}')">Download report</button>
+   <button id="download_report" onclick="print_report('${softwareName!}','${softwareVersion!}')">Download report
+   </button>
     <br><br>
 
     <#if softwareName??>
@@ -33,18 +35,8 @@
     <@graph.graph>
     </@graph.graph>
 
-    <div id="server_results">
-        <#list results as result>
-            <#if result.success>
-                <div class="chip passed">
-            <#else>
-                <div class="chip clickable failed"
-                     onclick="showHelp('${result.getTest().short_name()}')">
-            </#if>
-            ${result.getTest().full_name()}
-        </div>
-        </#list>
-    </div>
+    <@result.result>
+    </@result.result>
 
         <div id="server_run">
             Tests last ran ${timeSince}<br>

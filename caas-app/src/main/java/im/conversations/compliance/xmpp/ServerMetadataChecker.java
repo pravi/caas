@@ -22,7 +22,7 @@ public class ServerMetadataChecker {
     }
 
     public static boolean updateServerMetadataFor(XmppClient xmppClient, Credential credential) {
-        return addOrUpdateServer(xmppClient, ServerStore.INSTANCE.getServer(credential.getDomain()), credential);
+        return addOrUpdateServer(xmppClient, ServerStore.getInstance().getServer(credential.getDomain()), credential);
     }
 
     public static boolean addServerMetadataFor(XmppClient xmppClient, Credential credential, boolean listed) {
@@ -34,7 +34,7 @@ public class ServerMetadataChecker {
         try {
             SoftwareVersion softwareVersion = softwareVersionManager.getSoftwareVersion(xmppClient.getDomain()).getResult();
             if (softwareVersion == null) {
-                ServerStore.INSTANCE.addOrUpdateServer(server);
+                ServerStore.getInstance().addOrUpdateServer(server);
                 return true;
             }
             Server newServer = new Server(
@@ -43,7 +43,7 @@ public class ServerMetadataChecker {
                     softwareVersion.getVersion(),
                     server.isListed()
             );
-            ServerStore.INSTANCE.addOrUpdateServer(newServer);
+            ServerStore.getInstance().addOrUpdateServer(newServer);
             return true;
         } catch (XmppException e) {
             e.printStackTrace();

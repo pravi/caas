@@ -17,17 +17,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestResultStore {
-    public static final TestResultStore INSTANCE = new TestResultStore();
+    private static TestResultStore INSTANCE;
     private final HashMap<String, List<Result>> resultsByServer = new HashMap<>();
     private final Sql2o database;
+    private static String dbUrl;
     private List<Iteration> iterations;
     private HashMap<String, List<HistoricalSnapshot>> historicSnapshotsByServer;
     private HashMap<String, List<HistoricalSnapshot>> historicSnapshotsByTest;
     private HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
 
     private TestResultStore() {
-        final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
-        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null);
+        if (dbUrl == null) {
+            final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
+            dbUrl = "jdbc:sqlite:" + dbFilename;
+        }
+        this.database = new Sql2o(dbUrl, null, null);
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 // Create all the tables, if they don't exist
@@ -59,6 +63,21 @@ public class TestResultStore {
         fetchResults();
         fetchHistoricalSnapshotsByServer();
         fetchHistoricalSnapshotsByTest();
+    }
+
+    public static void setDbUrl(String url) {
+        if (INSTANCE == null) {
+            dbUrl = url;
+        } else {
+            throw new IllegalStateException("DB URL can't be set once instance has been initialised");
+        }
+    }
+
+    public static TestResultStore getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new TestResultStore();
+        }
+        return INSTANCE;
     }
 
     public List<Iteration> getIterations() {
@@ -304,7 +323,7 @@ public class TestResultStore {
         historicSnapshotsByServer = new HashMap<>();
         synchronized (this.database) {
             try (Connection connection = this.database.open()) {
-                for (String domain : ServerStore.INSTANCE.getServerNames()) {
+                for (String domain : ServerStore.getInstance().getServerNames()) {
                     HashMap<Integer, HistoricalSnapshot.Change> testResultChanges = new HashMap<>();
                     for (String test : TestUtils.getTestNames()) {
                         Table table = connection.createQuery("select iteration_number,success from periodic_tests " +
@@ -346,7 +365,7 @@ public class TestResultStore {
                 for (String test : TestUtils.getAllTestNames()) {
                     HashMap<Integer, HistoricalSnapshot.Change> resultChanges = new HashMap<>();
                     //TODO: Check if server's listed is set to true
-                    for (String domain : ServerStore.INSTANCE.getServerNames()) {
+                    for (String domain : ServerStore.getInstance().getServerNames()) {
                         Table table = connection.createQuery("select iteration_number,success from periodic_tests " +
                                 "where domain=:domain and test=:test")
                                 .addParameter("domain", domain)
@@ -359,7 +378,7 @@ public class TestResultStore {
                         List<Integer> results = connection.createQuery("select success from periodic_tests where iteration_number = :it and test=:test and domain in (:domains)")
                                 .addParameter("it", iterationNumber)
                                 .addParameter("test", test)
-                                .addParameter("domains", ServerStore.INSTANCE.getServerNames())
+                                .addParameter("domains", ServerStore.getInstance().getServerNames())
                                 .executeScalarList(Integer.class);
                         int total = 0;
                         int pass = 0;

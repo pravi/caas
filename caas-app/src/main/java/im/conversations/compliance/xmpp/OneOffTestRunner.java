@@ -57,7 +57,7 @@ public class OneOffTestRunner {
         List<Result> results;
         try {
             results = TestExecutor.executeTestsFor(credential);
-            TestResultStore.INSTANCE.putOneOffTestResults(credential.getDomain(), results);
+            TestResultStore.getInstance().putOneOffTestResults(credential.getDomain(), results);
             synchronized (testRunningFor) {
                 testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(true, "OK"));
                 testRunningFor.remove(credential.getDomain());

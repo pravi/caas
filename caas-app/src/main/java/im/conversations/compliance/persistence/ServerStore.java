@@ -12,13 +12,17 @@ import java.util.Locale;
 
 
 public class ServerStore {
-    public static final ServerStore INSTANCE = new ServerStore();
+    private static ServerStore INSTANCE;
+    private static String dbUrl;
     private final Sql2o database;
     private List<Credential> credentials;
 
     private ServerStore() {
-        final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
-        this.database = new Sql2o("jdbc:sqlite:" + dbFilename, null, null);
+        if (dbUrl == null) {
+            final String dbFilename = Configuration.getInstance().getStoragePath() + getClass().getSimpleName().toLowerCase(Locale.US) + ".db";
+            dbUrl = "jdbc:sqlite:" + dbFilename;
+        }
+        this.database = new Sql2o(dbUrl, null, null);
         synchronized (this.database) {
             try (Connection con = this.database.open()) {
                 con.createQuery("create table if not exists credentials(domain text,jid text primary key,password text)").executeUpdate();
@@ -27,6 +31,21 @@ public class ServerStore {
                 con.createQuery("create index if not exists servers_index on credentials(domain)").executeUpdate();
             }
         }
+    }
+
+    public static void setDbUrl(String url) {
+        if (INSTANCE == null) {
+            dbUrl = url;
+        } else {
+            throw new IllegalStateException("DB URL can't be set once instance has been initialised");
+        }
+    }
+
+    public static ServerStore getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new ServerStore();
+        }
+        return INSTANCE;
     }
 
     public boolean addCredential(Credential credential) {
@@ -79,7 +98,7 @@ public class ServerStore {
 
     public List<String> getServerNames() {
         synchronized (this.database) {
-            try(Connection con = this.database.open()) {
+            try (Connection con = this.database.open()) {
                 return con.createQuery("select domain from servers").executeAndFetch(String.class);
             }
         }

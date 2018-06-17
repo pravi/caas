@@ -25,7 +25,7 @@ public class PeriodicTestRunner implements Runnable {
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-        List<Iteration> iterations = TestResultStore.INSTANCE.getIterations();
+        List<Iteration> iterations = TestResultStore.getInstance().getIterations();
         long minutes = Configuration.getInstance().getTestRunInterval();
         if(iterations.size() > 0) {
             Iteration lastIteration= iterations.get(iterations.size() - 1);
@@ -45,14 +45,14 @@ public class PeriodicTestRunner implements Runnable {
 
     @Override
     public void run() {
-        List<Credential> credentials = ServerStore.INSTANCE.getCredentials();
+        List<Credential> credentials = ServerStore.getInstance().getCredentials();
         if (credentials.isEmpty()) {
             System.out.println("No credentials found. Periodic tests skipped");
             return;
         }
         credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Instant beginTime = Instant.now();
-        System.out.printf("Started running periodic tests #%d at %s%n", TestResultStore.INSTANCE.getIterations().size(), beginTime);
+        System.out.printf("Started running periodic tests #%d at %s%n", TestResultStore.getInstance().getIterations().size(), beginTime);
 
         List<ResultDomainPair> rdpList = credentials.parallelStream()
                 .map(credential -> {
@@ -75,10 +75,10 @@ public class PeriodicTestRunner implements Runnable {
                 .collect(Collectors.toList());
 
         Instant endTime = Instant.now();
-        Iteration iteration = new Iteration(TestResultStore.INSTANCE.getIterations().size(), beginTime, endTime);
+        Iteration iteration = new Iteration(TestResultStore.getInstance().getIterations().size(), beginTime, endTime);
 
         //Add results to database
-        TestResultStore.INSTANCE.putPeriodicTestResults(rdpList, iteration);
+        TestResultStore.getInstance().putPeriodicTestResults(rdpList, iteration);
 
         System.out.printf("Ended running periodic tests #%d at %s%n", iteration.getIterationNumber(), endTime);
         postTestsRun();
@@ -86,7 +86,7 @@ public class PeriodicTestRunner implements Runnable {
 
     private void postTestsRun() {
         //Remove invalid credential
-        credentialsMarkedForRemoval.forEach(ServerStore.INSTANCE::removeCredential);
+        credentialsMarkedForRemoval.forEach(ServerStore.getInstance()::removeCredential);
     }
 
     public class ResultDomainPair {

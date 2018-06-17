@@ -236,7 +236,14 @@ public class Controller {
         int iterationNumber = Integer.parseInt(request.params("iteration"));
         HashMap<String, Object> model = new HashMap<>();
         model.put("domain", domain);
-        Iteration iteration = TestResultStore.INSTANCE.getIterations().get(iterationNumber);
+        Iteration iteration;
+        try {
+            iteration = TestResultStore.INSTANCE.getIterations().get(iterationNumber);
+        } catch (IndexOutOfBoundsException ex) {
+            model.put("error_code", 404);
+            model.put("error_msg", "ERROR: Invalid historical point requested");
+            return new ModelAndView(model, "error.ftl");
+        }
         List<Result> results = TestResultStore.INSTANCE.getHistoricalResultsFor(domain, iterationNumber);
         model.put("iteration", iteration);
         model.put("results", results);

@@ -10,8 +10,10 @@ body, #content {
     background-color: #fafafa;
 }
 
-noscript {
+.error_message, noscript {
     color: #f44;
+    margin: auto;
+    padding: 10px;
 }
 
 input {

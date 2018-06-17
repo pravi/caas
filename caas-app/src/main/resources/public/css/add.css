@@ -23,12 +23,6 @@
     border-radius: 101px;
 }
 
-.error_message {
-    color: red;
-    margin: auto;
-    padding: 10px;
-    text-align: center;
-}
 
 @media only screen and (max-width: 500px) {
     .input_add {

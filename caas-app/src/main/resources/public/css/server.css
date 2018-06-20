@@ -39,6 +39,7 @@
 }
 
 .close {
+    text-decoration: none !important;
     color: #f44;
     float: right;
     font-size: 40px;

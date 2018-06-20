@@ -72,7 +72,7 @@
             <#list helps as help>
                 <#if help.isPossible()??>
                   <div class="help card" id="${help.getName()}">
-                      <div class="close">&times;</div>
+                      <a class="close" href="#${help.getName()}">&times;</a>
                       <h3>For <a href="/test/${help.getName()}">${help.getName()}</a>:</h3>
                       <ul>
                                                            <#if help.getSince()??>

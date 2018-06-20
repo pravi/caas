@@ -12,7 +12,12 @@
             <p>${test.description()}</p>
             <a href="/test/${test.short_name()}">
                 <button class="floating_button">
-                    +
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="40" width="40">
+                        <g id="layer1">
+                            <rect class="info_component" ry="1.0" y="7" x="7.1" height="6" width="1.8"/>
+                            <ellipse class="info_component" ry="1" rx="1" cy="4.5" cx="8"/>
+                        </g>
+                    </svg>
                 </button>
             </a>
         </div>

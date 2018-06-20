@@ -30,7 +30,9 @@ public class Controller {
     };
 
     public static TemplateViewRoute getTests = (request, response) -> {
-        return new ModelAndView(null, "tests.ftl");
+        HashMap<String,Object> model = new HashMap<>();
+        model.put("tests",TestUtils.getAllComplianceTests());
+        return new ModelAndView(model, "tests.ftl");
     };
 
     public static TemplateViewRoute getAbout = (request, response) -> {

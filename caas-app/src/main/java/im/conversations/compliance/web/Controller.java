@@ -2,8 +2,7 @@ package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
 import im.conversations.compliance.annotations.ComplianceTest;
-import im.conversations.compliance.persistence.ServerStore;
-import im.conversations.compliance.persistence.TestResultStore;
+import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.utils.JsonReader;
 import im.conversations.compliance.utils.TimeUtils;
@@ -30,8 +29,8 @@ public class Controller {
     };
 
     public static TemplateViewRoute getTests = (request, response) -> {
-        HashMap<String,Object> model = new HashMap<>();
-        model.put("tests",TestUtils.getAllComplianceTests());
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("tests", TestUtils.getAllComplianceTests());
         return new ModelAndView(model, "tests.ftl");
     };
 
@@ -60,7 +59,7 @@ public class Controller {
             return gson.toJson(postResponse);
         }
 
-        List<Credential> credentials = ServerStore.getInstance().getCredentials();
+        List<Credential> credentials = DBOperations.getCredentials();
         Predicate<Credential> jidMatches = it -> it.getJid().toString().equals(credential.getJid().toString());
         Predicate<Credential> passwordMatches = it -> it.getPassword().equals(credential.getPassword());
         if (credentials != null && credentials.stream().filter(jidMatches).anyMatch(passwordMatches)) {
@@ -89,22 +88,27 @@ public class Controller {
         }
         // If credentials are verified, and there was some old credential with the same jid, remove it
         else if (credentials != null) {
-            credentials.stream().filter(jidMatches).findFirst().ifPresent(ServerStore.getInstance()::removeCredential);
+            credentials.stream()
+                    .filter(jidMatches)
+                    .findFirst()
+                    .ifPresent(DBOperations::removeCredential);
         }
 
         //Check if domain exists, if not add to domains table
-        boolean domainAdded = ServerStore.getInstance().addOrUpdateServer(new Server(credential.getDomain(), listedServer));
-        if (!domainAdded) {
-            postResponse = new ServerResponse(
-                    false,
-                    "ERROR: Could not add/update domain to the database",
-                    null
-            );
-            return gson.toJson(postResponse);
+        if(!DBOperations.getServer(credential.getDomain()).isPresent()) {
+            boolean domainAdded = DBOperations.addServer(new Server(credential.getDomain(), listedServer));
+            if (!domainAdded) {
+                postResponse = new ServerResponse(
+                        false,
+                        "ERROR: Could not add/update domain to the database",
+                        null
+                );
+                return gson.toJson(postResponse);
+            }
         }
 
         // Add credentials to database
-        boolean dbAdded = ServerStore.getInstance().addCredential(credential);
+        boolean dbAdded = DBOperations.addCredential(credential);
         if (!dbAdded) {
             postResponse = new ServerResponse(
                     false,
@@ -125,10 +129,12 @@ public class Controller {
     public static TemplateViewRoute getLive = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        Credential credential = ServerStore.getInstance().getCredentials()
+        Credential credential = DBOperations.getCredentials()
                 .stream()
                 .filter(it -> it.getDomain().equals(domain))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
+
         if (credential == null) {
             model.put("error_code", 404);
             model.put("error_msg", "No credentials for " + domain + " found in database");
@@ -142,7 +148,7 @@ public class Controller {
     public static TemplateViewRoute getServer = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        Server server = ServerStore.getInstance().getServer(domain);
+        Server server = DBOperations.getServer(domain).orElse(null);
         if (server == null) {
             model.put("error_code", 404);
             model.put("error_msg", "Credentials unavailable for " + domain);
@@ -150,7 +156,7 @@ public class Controller {
         }
         List<Result> results;
         try {
-            results = TestResultStore.getInstance().getResultsFor(domain);
+            results = DBOperations.getCurrentResultsByServer().get(domain);
         } catch (Exception ex) {
             model.put("error_code", 404);
             model.put("error_msg", "Results unavailable for " + domain + ". Tests might still be running");
@@ -170,10 +176,10 @@ public class Controller {
                     .collect(Collectors.toList());
             model.put("helps", helps);
         }
-        Instant lastRun = TestResultStore.getInstance().getLastRunFor(domain);
+        Instant lastRun = DBOperations.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);
-        model.put("historic_data", gson.toJson(TestResultStore.getInstance().getHistoricalSnapshotsForServer(domain)));
+        model.put("historic_data", gson.toJson(DBOperations.getHistoricResultsGroupedByServer().get(domain)));
         model.put("softwareName", server.getSoftwareName());
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
@@ -194,7 +200,7 @@ public class Controller {
         model.put("test", test);
         Map<String, Boolean> results;
         try {
-            results = TestResultStore.getInstance().getServerResultHashMapFor(test.short_name());
+            results = DBOperations.getCurrentResultsByTest().get(test.short_name());
         } catch (Exception ex) {
             ex.printStackTrace();
             model.put("error_code", 404);
@@ -206,7 +212,7 @@ public class Controller {
                     .map(it -> it.getValue() ? 1 : 0)
                     .reduce((it, ac) -> ac + it)
                     .get();
-            int percent = (int) (passed * 100 / results.size());
+            int percent = passed * 100 / results.size();
             model.put("stats", new HashMap<String, String>() {
                 {
                     put("Servers compliant", percent + "%");
@@ -214,7 +220,10 @@ public class Controller {
             });
         }
         model.put("results", results);
-        model.put("historic_data", gson.toJson(TestResultStore.getInstance().getHistoricalSnapshotsForTest(test.short_name())));
+        model.put("historic_data", gson.toJson(
+                DBOperations.getHistoricResultsGroupedByTest()
+                        .get(test.short_name())
+        ));
         return new ModelAndView(model, "test.ftl");
     };
 
@@ -223,7 +232,7 @@ public class Controller {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
         try {
-            List<Result> results = TestResultStore.getInstance().getResultsFor(domain);
+            List<Result> results = DBOperations.getCurrentResultsByServer().get(domain);
             WebUtils.addResultStats(model, results);
             String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
             model.put("domain", domain);
@@ -240,13 +249,13 @@ public class Controller {
         model.put("domain", domain);
         Iteration iteration;
         try {
-            iteration = TestResultStore.getInstance().getIterations().get(iterationNumber);
+            iteration = DBOperations.getIteration(iterationNumber);
         } catch (IndexOutOfBoundsException ex) {
             model.put("error_code", 404);
             model.put("error_msg", "ERROR: Invalid historical point requested");
             return new ModelAndView(model, "error.ftl");
         }
-        List<Result> results = TestResultStore.getInstance().getHistoricalResultsFor(domain, iterationNumber);
+        List<Result> results = DBOperations.getHistoricalResultsFor(domain, iterationNumber);
         model.put("iteration", iteration);
         model.put("results", results);
         return new ModelAndView(model, "historic.ftl");

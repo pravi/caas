@@ -1,19 +1,16 @@
 package im.conversations.compliance.xmpp;
 
-import im.conversations.compliance.persistence.ServerStore;
-import im.conversations.compliance.persistence.TestResultStore;
+import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Iteration;
 import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.web.WebUtils;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -25,16 +22,15 @@ public class PeriodicTestRunner implements Runnable {
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-        List<Iteration> iterations = TestResultStore.getInstance().getIterations();
-        long minutes = Configuration.getInstance().getTestRunInterval();
-        if(iterations.size() > 0) {
-            Iteration lastIteration= iterations.get(iterations.size() - 1);
+        Iteration lastIteration = DBOperations.getLatestIteration().orElse(null);
+        long minutesLeft = 0;
+        if (lastIteration != null) {
             Duration between = Duration.between(lastIteration.getBegin(), Instant.now());
-            minutes = between.toMinutes();
+            minutesLeft = Configuration.getInstance().getTestRunInterval() - between.toMinutes();
         }
-        long minutesLeft = Configuration.getInstance().getTestRunInterval() - minutes;
-        if (minutesLeft > 0)
+        if (minutesLeft > 0) {
             System.out.println("Next test scheduled " + minutesLeft + " minutes from now");
+        }
         // Run on start
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this, minutesLeft, Configuration.getInstance().getTestRunInterval(), TimeUnit.MINUTES);
     }
@@ -43,16 +39,27 @@ public class PeriodicTestRunner implements Runnable {
         return INSTANCE;
     }
 
+
     @Override
     public void run() {
-        List<Credential> credentials = ServerStore.getInstance().getCredentials();
+        if(!WebUtils.isConnected()) {
+            System.out.println("Internet connection not available. Retrying in 5 minutes");
+            scheduledThreadPoolExecutor.schedule(this,5, TimeUnit.MINUTES);
+            return;
+        }
+        List<Credential> credentials = DBOperations.getCredentials();
         if (credentials.isEmpty()) {
-            System.out.println("No credentials found. Periodic tests skipped");
+            System.out.println("No credentials found. Periodic test skipped");
             return;
         }
         credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
+        Iteration iteration = DBOperations.getLatestIteration().orElse(null);
+        int iterationNumber = -1;
+        if(iteration != null) {
+            iterationNumber = iteration.getIterationNumber();
+        }
         Instant beginTime = Instant.now();
-        System.out.printf("Started running periodic tests #%d at %s%n", TestResultStore.getInstance().getIterations().size(), beginTime);
+        System.out.printf("Started running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
 
         List<ResultDomainPair> rdpList = credentials.parallelStream()
                 .map(credential -> {
@@ -75,18 +82,16 @@ public class PeriodicTestRunner implements Runnable {
                 .collect(Collectors.toList());
 
         Instant endTime = Instant.now();
-        Iteration iteration = new Iteration(TestResultStore.getInstance().getIterations().size(), beginTime, endTime);
-
         //Add results to database
-        TestResultStore.getInstance().putPeriodicTestResults(rdpList, iteration);
+        DBOperations.addPeriodicResults(rdpList, beginTime, endTime);
 
-        System.out.printf("Ended running periodic tests #%d at %s%n", iteration.getIterationNumber(), endTime);
+        System.out.printf("Ended running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
         postTestsRun();
     }
 
     private void postTestsRun() {
         //Remove invalid credential
-        credentialsMarkedForRemoval.forEach(ServerStore.getInstance()::removeCredential);
+        credentialsMarkedForRemoval.forEach(DBOperations::removeCredential);
     }
 
     public class ResultDomainPair {

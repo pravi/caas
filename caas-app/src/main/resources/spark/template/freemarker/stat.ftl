@@ -1,6 +1,7 @@
 <#ftl output_format="HTML">
 <#macro stat>
     <div id="stats">
+        <#if stats?has_content>
         <#list stats as stat,value>
             <div class="server_stat">
                 <div class="stat_result">
@@ -11,5 +12,6 @@
                 </div>
             </div>
         </#list>
+        </#if>
     </div>
 </#macro>

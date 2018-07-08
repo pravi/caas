@@ -1,10 +1,11 @@
 package im.conversations.compliance.xmpp;
 
-import im.conversations.compliance.persistence.TestResultStore;
+import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.utils.ExceptionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,7 +58,11 @@ public class OneOffTestRunner {
         List<Result> results;
         try {
             results = TestExecutor.executeTestsFor(credential);
-            TestResultStore.getInstance().putOneOffTestResults(credential.getDomain(), results);
+            DBOperations.addCurrentResults(
+                    credential.getDomain(),
+                    results,
+                    Instant.now()
+            );
             synchronized (testRunningFor) {
                 testRunningFor.get(credential.getDomain()).forEach(it -> it.onResult(true, "OK"));
                 testRunningFor.remove(credential.getDomain());

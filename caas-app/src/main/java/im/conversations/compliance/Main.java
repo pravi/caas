@@ -1,6 +1,8 @@
 package im.conversations.compliance;
 
 
+import im.conversations.compliance.persistence.DBConnections;
+import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.web.Controller;
 import im.conversations.compliance.web.TestLiveWebsocket;
@@ -32,6 +34,8 @@ public class Main {
         get("/badge/:domain/", Controller.getBadge, templateEngine);
         get("/test/:test/", Controller.getTest, templateEngine);
         get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoric, templateEngine);
+        DBConnections.init();
+        DBOperations.init();
         PeriodicTestRunner.getInstance();
     }
 }

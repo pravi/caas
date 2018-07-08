@@ -3,6 +3,7 @@ package im.conversations.compliance.pojo;
 import im.conversations.compliance.utils.JsonReader;
 
 import java.io.File;
+import java.util.Optional;
 
 public class Configuration {
 
@@ -12,7 +13,8 @@ public class Configuration {
     private String ip = "127.0.0.1";
     private int port = 4567;
     private int testRunInterval = 24 * 60;
-    private String storagePath = "." + File.separator;
+    private int dbConnections = 1;
+    private String dbUrl = "jdbc:sqlite:data.db";
 
     private Configuration() {
 
@@ -40,15 +42,15 @@ public class Configuration {
         return port;
     }
 
-    public String getStoragePath() {
-        if (storagePath.endsWith(File.separator)) {
-            return storagePath;
-        } else {
-            return storagePath + File.separator;
-        }
-    }
-
     public int getTestRunInterval() {
         return testRunInterval;
+    }
+
+    public Optional<String> getDBUrl() {
+        return Optional.ofNullable(dbUrl);
+    }
+
+    public int getDBConnections() {
+        return dbConnections;
     }
 }

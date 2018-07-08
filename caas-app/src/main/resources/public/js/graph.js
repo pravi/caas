@@ -44,7 +44,7 @@ var drawGraph = function (data, onPointClick) {
         }
     };
 
-    if (data.length < 2) {
+    if (data == null || data.length < 2) {
         d3.select("#chart_container").html("<h2>We donot have enough data to show historical view</h2>");
     }
     var times = [];
@@ -71,7 +71,7 @@ var drawGraph = function (data, onPointClick) {
             }
 
             if ("pass" in d.change && d.change.pass.length !== 0) {
-                html += "<div class='chart_tests_pass'>Passing in :<br><ul>"
+                html += "<div class='chart_tests_pass'>Passing in :<br><ul>";
                 for (var i in d.change.pass) {
                     var a = d.change.pass[i];
                     html += "<li>" + a + "</li>";
@@ -79,7 +79,7 @@ var drawGraph = function (data, onPointClick) {
                 html += "</ul></div>"
             }
             if ("fail" in d.change && d.change.fail.length !== 0) {
-                html += "<div class='chart_tests_fail'>Failing in :<ul>"
+                html += "<div class='chart_tests_fail'>Failing in :<ul>";
                 for (var i in d.change.fail) {
                     var a = d.change.fail[i];
                     html += "<li>" + a + "</li>";

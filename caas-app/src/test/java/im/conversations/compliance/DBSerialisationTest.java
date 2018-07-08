@@ -1,6 +1,7 @@
 package im.conversations.compliance;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
@@ -10,12 +11,22 @@ import java.time.Instant;
 
 public class DBSerialisationTest {
 
-    private static final String JDBC_URL = "jdbc:h2:mem:";
-    private static final String CREATE_JID_TABLE = "CREATE table jids (jid varchar)";
-    private static final String CREATE_INSTANTS_TABLE = "CREATE table instants (instant varchar)";
+    private static final String JDBC_URL = "jdbc:derby:memory:myDb;create=true";
+    private static final String CREATE_JID_TABLE = "CREATE table jids (jid text)";
+    private static final String CREATE_INSTANTS_TABLE = "CREATE table instants (instant text)";
     private static final Jid JID_ONE = Jid.of("test@domain.com");
-    private Sql2o database = new Sql2o(JDBC_URL, null, null);
     private Instant INSTANT_ONE = Instant.MIN;
+    private Sql2o database;
+
+    @Before
+    public void init() {
+        try {
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            database = new Sql2o(JDBC_URL, null, null);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void checkJIDSerialisation() {

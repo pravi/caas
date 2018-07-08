@@ -18,4 +18,14 @@ public class Result {
     public boolean isSuccess() {
         return success;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Result) {
+            Result result = (Result) object;
+            return result.isSuccess() == success &&
+                    result.getTest().short_name().equals(test.short_name());
+        }
+        return false;
+    }
 }

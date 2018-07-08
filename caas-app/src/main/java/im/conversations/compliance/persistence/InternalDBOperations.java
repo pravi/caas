@@ -1,7 +1,6 @@
 package im.conversations.compliance.persistence;
 
 import im.conversations.compliance.pojo.*;
-import im.conversations.compliance.xmpp.PeriodicTestRunner;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.sql2o.Connection;
 import org.sql2o.Query;
@@ -12,9 +11,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class InternalDBOperations {
+public class InternalDBOperations {
 
-    static void init(Connection connection) {
+    public static void init(Connection connection) {
         connection.createQuery("create table if not exists credentials(" +
                 "domain text," +
                 "jid text primary key," +
@@ -60,13 +59,13 @@ class InternalDBOperations {
 
     // Methods related to servers
 
-    static boolean addServer(Connection connection, Server server) {
+    public static boolean addServer(Connection connection, Server server) {
         String query = "insert into servers(domain,listed,software_name,software_version) values(:domain,:listed,:softwareName,:softwareVersion)";
         connection.createQuery(query).bind(server).executeUpdate();
         return true;
     }
 
-    static boolean updateServer(Connection connection, Server newServer) {
+    public static boolean updateServer(Connection connection, Server newServer) {
         String query = "update servers set" +
                 " domain=:domain," +
                 " listed=:listed," +
@@ -79,7 +78,7 @@ class InternalDBOperations {
         return true;
     }
 
-    static List<Server> getServers(Connection connection) {
+    public static List<Server> getServers(Connection connection) {
         String query = "select domain,software_name,software_version,listed from servers";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
@@ -87,7 +86,7 @@ class InternalDBOperations {
                 .executeAndFetch(Server.class);
     }
 
-    static Server getServer(Connection connection, String domain) {
+    public static Server getServer(Connection connection, String domain) {
         String query = "select domain,software_name,software_version,listed from servers where domain = :domain";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
@@ -96,7 +95,7 @@ class InternalDBOperations {
                 .executeAndFetchFirst(Server.class);
     }
 
-    static boolean removeServer(Connection connection, Server server) {
+    public static boolean removeServer(Connection connection, Server server) {
         String query = "remove from servers where domain=:domain";
         connection.createQuery(query).bind(server).executeUpdate();
         return true;
@@ -111,7 +110,7 @@ class InternalDBOperations {
      * @param iterationNumber The iteration numbers for which the corresponding iteration is to be found
      * @return A list of iterations
      */
-    static Iteration getIteration(Connection connection, int iterationNumber) {
+    public static Iteration getIteration(Connection connection, int iterationNumber) {
         String query = "select iteration_number, begin_time, end_time from periodic_test_iterations" +
                 " where iteration_number = (:iteration)";
         return connection.createQuery(query)
@@ -129,7 +128,7 @@ class InternalDBOperations {
      * @param connection
      * @return
      */
-    static Iteration getLatestIteration(Connection connection) {
+    public static Iteration getLatestIteration(Connection connection) {
         int iterationNumber = getNextIterationNumber(connection) - 1;
         if (iterationNumber < 0) {
             return null;
@@ -168,7 +167,7 @@ class InternalDBOperations {
     }
 
     // Methods related to historical snapshots
-    static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer(Connection connection, List<String> tests, List<String> domains) {
+    public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer(Connection connection, List<String> tests, List<String> domains) {
         HashMap<String, List<HistoricalSnapshot>> historicalSnapshotsByServer = new HashMap<>();
         for (String domain : domains) {
             List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
@@ -207,7 +206,7 @@ class InternalDBOperations {
         return historicalSnapshotsByServer;
     }
 
-    static HashMap<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByTest(Connection connection, List<String> tests, List<String> domains) {
+    public static HashMap<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByTest(Connection connection, List<String> tests, List<String> domains) {
         HashMap<String, List<HistoricalSnapshot>> historicalSnapshotsByTest = new HashMap<>();
         for (String test : tests) {
             List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
@@ -253,7 +252,7 @@ class InternalDBOperations {
      * @param endTime
      * @return
      */
-    static boolean addPeriodicResults(Connection connection, List<PeriodicTestRunner.ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
+    public static boolean addPeriodicResults(Connection connection, List<ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
         //Add the iteration to iterations list
         String query = "insert or replace into periodic_tests(domain,test,success,iteration_number)" +
                 "values(:domain,:test,:success,:iteration)";
@@ -271,6 +270,9 @@ class InternalDBOperations {
                             .addToBatch());
         });
         resultInsertQuery.executeBatch();
+        for(ResultDomainPair rdp: rdpList) {
+            addCurrentResults(connection, rdp.getDomain(), rdp.getResults(), beginTime);
+        }
         return true;
     }
 
@@ -308,25 +310,25 @@ class InternalDBOperations {
         }
     }
 
-    static boolean addCredential(Connection connection, Credential credential) {
+    public static boolean addCredential(Connection connection, Credential credential) {
         String query = "insert into credentials(domain,jid,password) values(:domain,:jid,:password)";
         connection.createQuery(query).bind(credential).executeUpdate();
         return true;
     }
 
-    static List<Credential> getCredentials(Connection connection) {
+    public static List<Credential> getCredentials(Connection connection) {
         String query = "select domain,jid,password from credentials";
         return connection.createQuery(query).executeAndFetch(Credential.class);
     }
 
-    static Credential getCredentialFor(Connection connection, String domain) {
+    public static Credential getCredentialFor(Connection connection, String domain) {
         String query = "select domain,jid,password from credentials where domain=:domain";
         return connection.createQuery(query)
                 .addParameter("domain", domain)
                 .executeAndFetchFirst(Credential.class);
     }
 
-    static boolean removeCredential(Connection connection, Credential credential) {
+    public static boolean removeCredential(Connection connection, Credential credential) {
         String query = "delete from credentials where jid=:jid and password=:password";
         connection.createQuery(query).bind(credential).executeUpdate();
         return true;
@@ -339,7 +341,7 @@ class InternalDBOperations {
      * @param timestamp
      * @return
      */
-    static boolean addCurrentResults(Connection connection, String domain, List<Result> results, Instant timestamp) {
+    public static boolean addCurrentResults(Connection connection, String domain, List<Result> results, Instant timestamp) {
         String queryText = "insert or replace into current_tests(domain,test,success,timestamp) " +
                 "values(:domain,:test,:success,:timestamp)";
         Query query = connection.createQuery(queryText);
@@ -355,7 +357,7 @@ class InternalDBOperations {
         return true;
     }
 
-    static Map<String, List<Result>> getCurrentResultsByServer(Connection connection) {
+    public static Map<String, List<Result>> getCurrentResultsByServer(Connection connection) {
         HashMap<String, List<Result>> resultsByServer = new HashMap<>();
         List<String> domains = connection.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
         domains.forEach(domain -> {
@@ -372,7 +374,7 @@ class InternalDBOperations {
         return resultsByServer;
     }
 
-    static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
+    public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
         TestUtils.getAllTestNames().forEach(test -> {
             Table table = connection.createQuery("select domain,success from current_tests where test=:test")
@@ -392,14 +394,14 @@ class InternalDBOperations {
         return resultsByTests;
     }
 
-    static Instant getLastRunFor(Connection connection, String domain) {
+    public static Instant getLastRunFor(Connection connection, String domain) {
         Instant lastRun = connection.createQuery("select max(timestamp) from current_tests where domain=:domain")
                 .addParameter("domain", domain)
                 .executeScalar(Instant.class);
         return lastRun;
     }
 
-    static List<Result> getHistoricalResultsFor(Connection connection, String domain, int iteration) {
+    public static List<Result> getHistoricalResultsFor(Connection connection, String domain, int iteration) {
         Table table = connection.createQuery("select test,success from periodic_tests " +
                 "where domain=:domain and iteration_number = :iteration")
                 .addParameter("domain", domain)

@@ -1,7 +1,6 @@
 package im.conversations.compliance.persistence;
 
 import im.conversations.compliance.pojo.*;
-import im.conversations.compliance.xmpp.PeriodicTestRunner;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.sql2o.Connection;
 
@@ -145,12 +144,9 @@ public class DBOperations {
         }
     }
 
-    public static boolean addPeriodicResults(List<PeriodicTestRunner.ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
+    public static boolean addPeriodicResults(List<ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
         try (Connection connection = DBConnections.getInstance().getConnection(true)) {
             boolean success = InternalDBOperations.addPeriodicResults(connection, rdpList, beginTime, endTime);
-            for(PeriodicTestRunner.ResultDomainPair rdp: rdpList) {
-                success = InternalDBOperations.addCurrentResults(connection, rdp.getDomain(), rdp.getResults(), beginTime);
-            }
             if (success) {
                 reloadHistoricalSnapshots(connection);
             }

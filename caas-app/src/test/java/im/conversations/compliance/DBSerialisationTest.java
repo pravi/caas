@@ -11,7 +11,7 @@ import java.time.Instant;
 
 public class DBSerialisationTest {
 
-    private static final String JDBC_URL = "jdbc:derby:memory:myDb;create=true";
+    private static final String JDBC_URL = "jdbc:sqlite::memory:";
     private static final String CREATE_JID_TABLE = "CREATE table jids (jid text)";
     private static final String CREATE_INSTANTS_TABLE = "CREATE table instants (instant text)";
     private static final Jid JID_ONE = Jid.of("test@domain.com");
@@ -20,12 +20,7 @@ public class DBSerialisationTest {
 
     @Before
     public void init() {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            database = new Sql2o(JDBC_URL, null, null);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        database = new Sql2o(JDBC_URL, null, null);
     }
 
     @Test

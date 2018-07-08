@@ -4,13 +4,16 @@ import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Iteration;
-import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.pojo.ResultDomainPair;
 import im.conversations.compliance.web.WebUtils;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -42,9 +45,9 @@ public class PeriodicTestRunner implements Runnable {
 
     @Override
     public void run() {
-        if(!WebUtils.isConnected()) {
+        if (!WebUtils.isConnected()) {
             System.out.println("Internet connection not available. Retrying in 5 minutes");
-            scheduledThreadPoolExecutor.schedule(this,5, TimeUnit.MINUTES);
+            scheduledThreadPoolExecutor.schedule(this, 5, TimeUnit.MINUTES);
             return;
         }
         List<Credential> credentials = DBOperations.getCredentials();
@@ -55,7 +58,7 @@ public class PeriodicTestRunner implements Runnable {
         credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Iteration iteration = DBOperations.getLatestIteration().orElse(null);
         int iterationNumber = -1;
-        if(iteration != null) {
+        if (iteration != null) {
             iterationNumber = iteration.getIterationNumber();
         }
         Instant beginTime = Instant.now();
@@ -93,23 +96,4 @@ public class PeriodicTestRunner implements Runnable {
         //Remove invalid credential
         credentialsMarkedForRemoval.forEach(DBOperations::removeCredential);
     }
-
-    public class ResultDomainPair {
-        String domain;
-        List<Result> results;
-
-        public ResultDomainPair(String domain, List<Result> results) {
-            this.domain = domain;
-            this.results = results;
-        }
-
-        public String getDomain() {
-            return domain;
-        }
-
-        public List<Result> getResults() {
-            return results;
-        }
-    }
-
 }

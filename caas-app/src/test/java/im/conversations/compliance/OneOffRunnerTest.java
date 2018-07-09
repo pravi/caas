@@ -45,8 +45,8 @@ public class OneOffRunnerTest {
         for (ComplianceTest test : TestUtils.getAllComplianceTests()) {
             i++;
             Result result1 = new Result(test, (i % 2 != 0));
-            Result result2 = new Result(test, (i % 2 != 0));
-            Result result3 = new Result(test, (i % 2 != 0));
+            Result result2 = new Result(test, (i % 2 == 0));
+            Result result3 = new Result(test, (i % 3 != 0));
             results1.add(result1);
             results2.add(result2);
             results3.add(result3);

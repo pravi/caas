@@ -27,11 +27,7 @@
 
       <div id="server_results">
         <#list results as domain,passed>
-            <#if passed>
-                <div class="chip clickable passed" onclick="location.href='/server/${domain}'">
-            <#else>
-                <div class="chip clickable failed" onclick="location.href='/server/${domain}'">
-            </#if>
+            <div class="chip clickable ${passed?then("passed","failed")}" onclick="location.href='/server/${domain}'">
             ${domain}
         </div>
         </#list>

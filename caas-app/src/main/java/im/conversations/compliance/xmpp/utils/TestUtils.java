@@ -16,6 +16,14 @@ public class TestUtils {
                             .sorted(Comparator.comparing(ComplianceTest::short_name))
                             .collect(Collectors.toList()));
 
+    private static List<ComplianceTest> complianceTests =
+            Collections.unmodifiableList(
+                    allComplianceTests
+                            .stream()
+                            .filter(it -> !it.informational())
+                            .collect(Collectors.toList())
+            );
+
     private static List<String> allComplianceTestNames =
             Collections.unmodifiableList(
                     allComplianceTests
@@ -57,6 +65,15 @@ public class TestUtils {
     }
 
     /**
+     * Get compliance test object of non-informational tests
+     *
+     * @return A {@link List} of all {@link ComplianceTest}
+     */
+    public static List<ComplianceTest> getComplianceTests() {
+        return complianceTests;
+    }
+
+    /**
      * Get short names of all the tests irrespective of whether they are informational in nature
      *
      * @return list of short names of tests
@@ -83,4 +100,5 @@ public class TestUtils {
         }
         return false;
     }
+
 }

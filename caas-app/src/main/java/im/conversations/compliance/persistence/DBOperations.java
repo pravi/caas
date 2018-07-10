@@ -156,6 +156,12 @@ public class DBOperations {
         }
     }
 
+    public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer() {
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            return InternalDBOperations.getCurrentResultsHashMapByServer(connection);
+        }
+    }
+
     public static Map<String, List<Result>> getCurrentResultsByServer() {
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
             Map<String, List<Result>> results = InternalDBOperations.getCurrentResultsByServer(connection);

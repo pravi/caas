@@ -270,7 +270,7 @@ public class InternalDBOperations {
                             .addToBatch());
         });
         resultInsertQuery.executeBatch();
-        for(ResultDomainPair rdp: rdpList) {
+        for (ResultDomainPair rdp : rdpList) {
             addCurrentResults(connection, rdp.getDomain(), rdp.getResults(), beginTime);
         }
         return true;
@@ -370,6 +370,28 @@ public class InternalDBOperations {
                             (row.getInteger("success") == 1)))
                     .collect(Collectors.toCollection(ArrayList::new));
             resultsByServer.put(domain, r);
+        });
+        return resultsByServer;
+    }
+
+
+    public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer(Connection connection) {
+        HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
+        List<String> domains = connection.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
+        domains.forEach(domain -> {
+            Table table = connection.createQuery("select test,success from current_tests where domain=:domain")
+                    .addParameter("domain", domain)
+                    .executeAndFetchTable();
+            HashMap<String, Boolean> testResults = new HashMap<>();
+            table.rows().stream().forEach(
+                    row -> {
+                        testResults.put(
+                                row.getString("test"),
+                                (row.getInteger("success") == 1)
+                        );
+                    }
+            );
+            resultsByServer.put(domain, testResults);
         });
         return resultsByServer;
     }

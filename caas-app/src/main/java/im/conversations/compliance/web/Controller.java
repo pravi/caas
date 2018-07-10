@@ -25,7 +25,12 @@ public class Controller {
     private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getRoot = (request, response) -> {
-        return new ModelAndView(null, "root.ftl");
+        Map<String,HashMap<String,Boolean>> resultsByServer = DBOperations.getCurrentResultsHashMapByServer();
+        List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
+        HashMap<String,Object> model = new HashMap<>();
+        model.put("resultsByServer",resultsByServer);
+        model.put("tests",complianceTests);
+        return new ModelAndView(model, "root.ftl");
     };
 
     public static TemplateViewRoute getTests = (request, response) -> {

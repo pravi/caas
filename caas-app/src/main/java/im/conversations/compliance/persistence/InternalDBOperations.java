@@ -78,7 +78,15 @@ public class InternalDBOperations {
         return true;
     }
 
-    public static List<Server> getServers(Connection connection) {
+    public static List<Server> getPublicServers(Connection connection) {
+        String query = "select domain,software_name,software_version,listed from servers where listed=1";
+        return connection.createQuery(query)
+                .addColumnMapping("software_name", "softwareName")
+                .addColumnMapping("software_version", "softwareVersion")
+                .executeAndFetch(Server.class);
+    }
+
+    public static List<Server> getAllServers(Connection connection) {
         String query = "select domain,software_name,software_version,listed from servers";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
@@ -377,11 +385,19 @@ public class InternalDBOperations {
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
-        List<String> domains = connection.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
+        List<String> domains = getPublicServers(connection)
+                .stream()
+                .map(Server::getDomain)
+                .collect(Collectors.toList());
+
         domains.forEach(domain -> {
             Table table = connection.createQuery("select test,success from current_tests where domain=:domain")
                     .addParameter("domain", domain)
                     .executeAndFetchTable();
+            //Do not add to results, if result does not exist for the server
+            if (table.rows().size() == 0) {
+                return;
+            }
             HashMap<String, Boolean> testResults = new HashMap<>();
             table.rows().stream().forEach(
                     row -> {

@@ -1,0 +1,74 @@
+table a {
+    font-size: 12px;
+    line-height: 16px;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+tr:hover td {
+    background-color: #cccccc;
+}
+
+tr:hover td.not_found {
+    background-color: #888888;
+}
+
+tr:hover > td.passed {
+    background-color: #215023;
+}
+
+tr:hover > td.failed {
+    background-color: #bb1111;
+}
+
+.fixed-table-container {
+    width: 100%;
+    max-height: 70%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    margin-bottom: 40px;
+}
+
+.fixed-table-container table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.fixed-table-container th,
+.fixed-table-container td {
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+
+    /**
+      * Current implementation doesn't work when
+      * cells in a row have different heights
+      */
+    white-space: nowrap !important;
+}
+
+.fixed-table-container th {
+    background: #eee;
+    font-size: 12px;
+    line-height: 16px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.fixed-table-container td:first-child {
+    background: #eee;
+}
+
+.fixed-table-container tr:hover td:first-child {
+    background: #aaa;
+}
+
+.fixed-table-container tr:last-child td {
+    border-bottom: 0;
+}
+
+.fixed-table-container th:last-child,
+.fixed-table-container td:last-child {
+    border-right: 0;
+}

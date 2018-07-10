@@ -25,11 +25,11 @@ public class Controller {
     private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getRoot = (request, response) -> {
-        Map<String,HashMap<String,Boolean>> resultsByServer = DBOperations.getCurrentResultsHashMapByServer();
+        Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentPublicResultsHashMapByServer();
         List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
-        HashMap<String,Object> model = new HashMap<>();
-        model.put("resultsByServer",resultsByServer);
-        model.put("tests",complianceTests);
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("resultsByServer", resultsByServer);
+        model.put("tests", complianceTests);
         return new ModelAndView(model, "root.ftl");
     };
 
@@ -100,7 +100,7 @@ public class Controller {
         }
 
         //Check if domain exists, if not add to domains table
-        if(!DBOperations.getServer(credential.getDomain()).isPresent()) {
+        if (!DBOperations.getServer(credential.getDomain()).isPresent()) {
             boolean domainAdded = DBOperations.addServer(new Server(credential.getDomain(), listedServer));
             if (!domainAdded) {
                 postResponse = new ServerResponse(

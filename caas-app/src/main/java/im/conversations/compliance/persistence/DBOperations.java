@@ -24,12 +24,13 @@ public class DBOperations {
     }
 
     private static void reloadHistoricalSnapshots(Connection connection) {
-        List<Server> servers = InternalDBOperations.getServers(connection);
-        List<String> allDomains = servers
+        List<Server> allServers = InternalDBOperations.getAllServers(connection);
+        List<Server> publicServers = InternalDBOperations.getPublicServers(connection);
+        List<String> allDomains = allServers
                 .stream()
                 .map(it -> it.getDomain())
                 .collect(Collectors.toList());
-        List<String> publicDomains = servers
+        List<String> publicDomains = publicServers
                 .stream()
                 .map(it -> it.getDomain())
                 .collect(Collectors.toList());
@@ -58,45 +59,47 @@ public class DBOperations {
      * @return A list of servers
      */
     public static List<Server> getServers(boolean onlyPublic) {
+        List<Server> servers;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            List<Server> servers = InternalDBOperations.getServers(connection);
             if (onlyPublic) {
-                return servers
-                        .stream()
-                        .filter(Server::isListed)
-                        .collect(Collectors.toList());
+                servers = InternalDBOperations.getPublicServers(connection);
+            } else {
+                servers = InternalDBOperations.getAllServers(connection);
             }
-            return servers;
         }
+        return servers;
     }
 
     public static Optional<Server> getServer(String domain) {
+        Server server;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Server server = InternalDBOperations.getServer(connection, domain);
-            return Optional.ofNullable(server);
+            server = InternalDBOperations.getServer(connection, domain);
         }
+        return Optional.ofNullable(server);
     }
 
     public static boolean removeServer(Server server) {
+        boolean success;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            boolean success = InternalDBOperations.removeServer(connection, server);
-            return success;
+            success = InternalDBOperations.removeServer(connection, server);
         }
+        return success;
     }
 
     public static Iteration getIteration(int iterationNumber) {
+        Iteration iteration;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Iteration iteration = InternalDBOperations.getIteration(connection, iterationNumber);
-            return iteration;
+            iteration = InternalDBOperations.getIteration(connection, iterationNumber);
         }
+        return iteration;
     }
 
     public static Optional<Iteration> getLatestIteration() {
+        Iteration iteration;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Iteration iteration;
             iteration = InternalDBOperations.getLatestIteration(connection);
-            return Optional.ofNullable(iteration);
         }
+        return Optional.ofNullable(iteration);
     }
 
     public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer() {
@@ -108,86 +111,96 @@ public class DBOperations {
     }
 
     public static boolean addCredential(Credential credential) {
+        boolean success;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            boolean success = InternalDBOperations.addCredential(connection, credential);
-            return success;
+            success = InternalDBOperations.addCredential(connection, credential);
         }
+        return success;
     }
 
     public static Credential getCredentialFor(String domain) {
+        Credential credential;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Credential credential = InternalDBOperations.getCredentialFor(connection, domain);
-            return credential;
+            credential = InternalDBOperations.getCredentialFor(connection, domain);
         }
+        return credential;
     }
 
     public static List<Credential> getCredentials() {
+        List<Credential> credentials;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            List<Credential> credentials = InternalDBOperations.getCredentials(connection);
-            return credentials;
+            credentials = InternalDBOperations.getCredentials(connection);
         }
+        return credentials;
     }
 
     public static boolean removeCredential(Credential credential) {
+        boolean status;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            boolean status = InternalDBOperations.removeCredential(connection, credential);
-            return status;
+            status = InternalDBOperations.removeCredential(connection, credential);
         }
+        return status;
     }
 
     public static boolean addCurrentResults(String domain, List<Result> results, Instant timestamp) {
+        boolean success;
         try (Connection connection = DBConnections.getInstance().getConnection(true)) {
-            boolean success = InternalDBOperations.addCurrentResults(connection, domain, results, timestamp);
+            success = InternalDBOperations.addCurrentResults(connection, domain, results, timestamp);
             connection.commit();
-            connection.close();
-            return success;
         }
+        return success;
     }
 
     public static boolean addPeriodicResults(List<ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
+        boolean success;
         try (Connection connection = DBConnections.getInstance().getConnection(true)) {
-            boolean success = InternalDBOperations.addPeriodicResults(connection, rdpList, beginTime, endTime);
+            success = InternalDBOperations.addPeriodicResults(connection, rdpList, beginTime, endTime);
             if (success) {
                 reloadHistoricalSnapshots(connection);
             }
             connection.commit();
-            connection.close();
-            return success;
         }
+        return success;
     }
 
-    public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer() {
+    public static Map<String, HashMap<String, Boolean>> getCurrentPublicResultsHashMapByServer() {
+        Map<String, HashMap<String, Boolean>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            return InternalDBOperations.getCurrentResultsHashMapByServer(connection);
+            results = InternalDBOperations.getCurrentResultsHashMapByServer(connection);
         }
+        return results;
     }
 
     public static Map<String, List<Result>> getCurrentResultsByServer() {
+        Map<String, List<Result>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Map<String, List<Result>> results = InternalDBOperations.getCurrentResultsByServer(connection);
-            return results;
+            results = InternalDBOperations.getCurrentResultsByServer(connection);
         }
+        return results;
     }
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest() {
+        Map<String, HashMap<String, Boolean>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Map<String, HashMap<String, Boolean>> results = InternalDBOperations.getCurrentResultsByTest(connection);
-            return results;
+            results = InternalDBOperations.getCurrentResultsByTest(connection);
         }
+        return results;
     }
 
     public static Instant getLastRunFor(String domain) {
+        Instant instant;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            Instant instant = InternalDBOperations.getLastRunFor(connection, domain);
-            return instant;
+            instant = InternalDBOperations.getLastRunFor(connection, domain);
         }
+        return instant;
     }
 
     public static List<Result> getHistoricalResultsFor(String domain, int iterationNumber) {
+        List<Result> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            List<Result> results = InternalDBOperations.getHistoricalResultsFor(connection, domain, iterationNumber);
-            return results;
+            results = InternalDBOperations.getHistoricalResultsFor(connection, domain, iterationNumber);
         }
+        return results;
     }
 
 }

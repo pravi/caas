@@ -1,21 +1,27 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
 <#assign description="Check compliance status for XMPP servers" in page>
+<#assign scripts=["/js/table.js"] in page>
+<#assign stylesheets=["/css/table.css"] in page>
 <#assign title="${page.project_name}: Check compliance status for XMPP servers" in page>
 <@page.page>
     <h2>Compliance status</h2>
-<table>
-    <tr>
-        <th>Server</th>
-    <#list tests as test>
-    <th>
-        ${test.full_name()}
-    </th>
-    </#list>
-    </tr>
-    <div class="passed"></div>
-
+    <div id="results_table" class="fixed-table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Server</th>
+        <#list tests as test>
+                    <th>
+                        <a href="/test/${test.short_name()}">
+                            ${test.full_name()}
+                        </a>
+                    </th>
+        </#list>
+            </tr>
+            </thead>
         <#if resultsByServer??>
+        <tbody>
             <#list resultsByServer as domain,results>
             <tr>
                 <td>
@@ -34,11 +40,12 @@
                 </#list>
             </tr>
             </#list>
+        </tbody>
         <#else>
         <h3>
             No results found. Add credentials for some XMPP servers to get started
         </h3>
         </#if>
-</table>
-
+        </table>
+    </div>
 </@page.page>

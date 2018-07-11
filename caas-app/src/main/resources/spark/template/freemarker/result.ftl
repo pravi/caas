@@ -8,7 +8,7 @@
     </#if>
     <#list results as result>
         <#if result.success>
-        <div class="chip passed">
+        <div class="chip clickable passed" onclick="location.href='/test/${result.getTest().short_name()}'">
         <#else>
         <div class="chip clickable failed" onclick="showHelp('${result.getTest().short_name()}')">
         </#if>

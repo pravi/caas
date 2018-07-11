@@ -4,7 +4,12 @@
 <#assign title="${page.project_name}: Error ${error_code}" in page>
 <@page.page>
 <div class="card">
-    <h1>Error ${error_code}</h1>
+    <h1>
+        Error ${error_code}
+    </h1>
+    <h2>
+        ¯\_(⊙︿⊙)_/¯
+    </h2>
     <h3>${error_msg}</h3>
 </div>
 </@page.page>

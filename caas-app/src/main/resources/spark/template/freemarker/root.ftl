@@ -7,10 +7,11 @@
 <@page.page>
     <h2>Compliance status</h2>
     <div id="results_table" class="fixed-table-container">
-        <table>
-            <thead>
-            <tr>
-                <th>Server</th>
+        <#if resultsByServer?has_content>
+            <table>
+                <thead>
+                <tr>
+                    <th>Server</th>
         <#list tests as test>
                     <th>
                         <a href="/test/${test.short_name()}">
@@ -18,10 +19,9 @@
                         </a>
                     </th>
         </#list>
-            </tr>
-            </thead>
-        <#if resultsByServer??>
-        <tbody>
+                </tr>
+                </thead>
+                <tbody>
             <#list resultsByServer as domain,results>
             <tr>
                 <td>
@@ -40,12 +40,15 @@
                 </#list>
             </tr>
             </#list>
-        </tbody>
+                </tbody>
+            </table>
         <#else>
+        <h2>
+            ¯\_(⊙︿⊙)_/¯
+        </h2>
         <h3>
-            No results found. Add credentials for some XMPP servers to get started
+            No results found. <a href="/add">Add</a> credentials for some XMPP servers to get started
         </h3>
         </#if>
-        </table>
     </div>
 </@page.page>

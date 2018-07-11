@@ -49,10 +49,19 @@ public class InternalDBOperations {
                 "end_time integer)"
         ).executeUpdate();
 
+        connection.createQuery("create index if not exists current_results_index on current_tests(domain)")
+                .executeUpdate();
+
+        connection.createQuery("create index if not exists periodic_results_index on periodic_tests(iteration_number,domain)")
+                .executeUpdate();
+
+        connection.createQuery("create index if not exists periodic_iterations_index on periodic_test_iterations(iteration_number)")
+                .executeUpdate();
+
         connection.createQuery("create index if not exists credentials_index on credentials(domain)")
                 .executeUpdate();
 
-        connection.createQuery("create index if not exists servers_index on credentials(domain)")
+        connection.createQuery("create index if not exists servers_index on servers(domain)")
                 .executeUpdate();
 
     }
@@ -392,7 +401,7 @@ public class InternalDBOperations {
                 .collect(Collectors.toList());
 
         domains.forEach(domain -> {
-            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests)")
+            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests) order by domain")
                     .addParameter("domain", domain)
                     .addParameter("tests",tests)
                     .executeAndFetchTable();

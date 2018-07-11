@@ -12,13 +12,14 @@
                 <thead>
                 <tr>
                     <th>Server</th>
-        <#list tests as test>
+                    <th>Compliance percentage</th>
+            <#list tests as test>
                     <th>
                         <a href="/test/${test.short_name()}">
                             ${test.full_name()}
                         </a>
                     </th>
-        </#list>
+            </#list>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,6 +29,9 @@
                     <a href="/server/${domain}">
                         ${domain}
                     </a>
+                </td>
+                <td>
+                    ${percentByServer[domain]}
                 </td>
                 <#list tests as test>
                     <#if results[test.short_name()]??>

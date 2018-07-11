@@ -93,7 +93,6 @@ $(function () {
                 [].slice.call(tr.querySelectorAll('td'))
                     .forEach(function (td, j) {
                         td.style.width = thStyles[j].width + 'px';
-                        td.style.height = thStyles[0].boundingHeight - 6 + 'px';
                         if (j === 0) {
                             td.style.position = 'absolute';
                             td.style.left = '0';

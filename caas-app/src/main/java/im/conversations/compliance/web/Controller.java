@@ -26,8 +26,24 @@ public class Controller {
 
     public static TemplateViewRoute getRoot = (request, response) -> {
         Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentPublicResultsHashMapByServer();
+        HashMap<String,String> percentByServer = new HashMap<>();
+        resultsByServer.keySet().forEach(
+                domain ->
+                {
+                    int total = resultsByServer.get(domain).size();
+                    int success = resultsByServer.get(domain)
+                            .values()
+                            .stream()
+                            .map(it -> it ? 1 : 0)
+                            .reduce((it, val) -> it + val)
+                            .get();
+                    String percent = success + "/" + total + " (" + (success*100/total) + "% passed)";
+                    percentByServer.put(domain,percent);
+                }
+        );
         List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
         HashMap<String, Object> model = new HashMap<>();
+        model.put("percentByServer",percentByServer);
         model.put("resultsByServer", resultsByServer);
         model.put("tests", complianceTests);
         return new ModelAndView(model, "root.ftl");

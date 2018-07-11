@@ -385,14 +385,16 @@ public class InternalDBOperations {
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
+        List<String> tests = TestUtils.getTestNames();
         List<String> domains = getPublicServers(connection)
                 .stream()
                 .map(Server::getDomain)
                 .collect(Collectors.toList());
 
         domains.forEach(domain -> {
-            Table table = connection.createQuery("select test,success from current_tests where domain=:domain")
+            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests)")
                     .addParameter("domain", domain)
+                    .addParameter("tests",tests)
                     .executeAndFetchTable();
             //Do not add to results, if result does not exist for the server
             if (table.rows().size() == 0) {

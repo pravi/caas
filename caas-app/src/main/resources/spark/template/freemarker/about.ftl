@@ -14,7 +14,7 @@
             <a href="https://github.com/iNPUTmice/ComplianceTester">XMPP Compliance tester</a>
             for checking and visualising compliance status of various XMPP servers,
             made as a part of Google Summer of Code 2018 for Conversations.im by
-            <a href="https://rishiraj22.github.io">Rishi Raj</a>.
+            <a href="https://rishiraj.me">Rishi Raj</a>.
         </p>
      <div class="card">
          <h3>Why compliance?</h3>

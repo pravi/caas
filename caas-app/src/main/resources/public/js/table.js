@@ -141,6 +141,12 @@ $(function () {
         };
     }
 
+    //For IE/Edge, skip fixing the table as it does not seem to work
+    if (document.documentMode || /Edge/.test(navigator.userAgent)) {
+        $("h2").after( $("<p class='error_message'></p>").text("WARNING: Some features will not work in IE/Edge"));
+        return;
+    }
+
     var fixedTable = fixTable(document.getElementById("results_table"));
     fixedTable.relayout();
 });

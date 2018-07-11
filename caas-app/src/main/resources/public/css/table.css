@@ -1,3 +1,7 @@
+#results_table {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.5);
+}
+
 table a {
     font-size: 12px;
     line-height: 16px;
@@ -35,8 +39,8 @@ tr:hover > td.failed {
 
 .fixed-table-container th,
 .fixed-table-container td {
-    border-right: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
     padding: 8px;
     text-align: left;
     vertical-align: top;

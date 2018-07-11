@@ -1,4 +1,7 @@
-$(function() {
+/**
+ * This code for fixed table was taken from https://github.com/kevkan/fixed-table
+ */
+$(function () {
     function fixTable(container) {
         // Store references to table elements
         var thead = container.querySelector('thead');
@@ -24,18 +27,18 @@ $(function() {
             thead.style.top = '';
             thead.style.left = '';
             thead.style.zIndex = '';
-            ths.forEach(function(th) {
+            ths.forEach(function (th) {
                 th.style.display = '';
                 th.style.width = '';
                 th.style.position = '';
                 th.style.top = '';
                 th.style.left = '';
             });
-            tbodyTrs.forEach(function(tr) {
+            tbodyTrs.forEach(function (tr) {
                 tr.setAttribute('style', '');
             });
             [].slice.call(tbody.querySelectorAll('td'))
-                .forEach(function(td) {
+                .forEach(function (td) {
                     td.style.width = '';
                     td.style.position = '';
                     td.style.left = '';
@@ -45,7 +48,7 @@ $(function() {
              * Store width and height of each th
              * getBoundingClientRect()'s dimensions include paddings and borders
              */
-            var thStyles = ths.map(function(th) {
+            var thStyles = ths.map(function (th) {
                 var rect = th.getBoundingClientRect();
                 var style = document.defaultView.getComputedStyle(th, '');
                 return {
@@ -57,7 +60,7 @@ $(function() {
             });
 
             // Set widths of thead and tbody
-            var totalWidth = thStyles.reduce(function(sum, cur) {
+            var totalWidth = thStyles.reduce(function (sum, cur) {
                 return sum + cur.boundingWidth;
             }, 0);
             tbody.style.display = 'block';
@@ -71,7 +74,7 @@ $(function() {
             thead.style.zIndex = 10;
 
             // Set widths of the th elements in thead. For the fixed th, set its position
-            ths.forEach(function(th, i) {
+            ths.forEach(function (th, i) {
                 th.style.width = thStyles[i].width + 'px';
                 if (i === 0) {
                     th.style.position = 'absolute';
@@ -84,13 +87,13 @@ $(function() {
             tbody.style.marginTop = thStyles[0].boundingHeight + 'px';
 
             // Set widths of the td elements in tbody. For the fixed td, set its position
-            tbodyTrs.forEach(function(tr, i) {
+            tbodyTrs.forEach(function (tr, i) {
                 tr.style.display = 'block';
                 tr.style.paddingLeft = thStyles[0].boundingWidth + 'px';
                 [].slice.call(tr.querySelectorAll('td'))
-                    .forEach(function(td, j) {
+                    .forEach(function (td, j) {
                         td.style.width = thStyles[j].width + 'px';
-                        td.style.height = thStyles[j].boundingHeight - 6 + 'px';
+                        td.style.height = thStyles[0].boundingHeight - 6 + 'px';
                         if (j === 0) {
                             td.style.position = 'absolute';
                             td.style.left = '0';
@@ -105,9 +108,10 @@ $(function() {
         // Update table cell dimensions on resize
         window.addEventListener('resize', resizeThrottler, false);
         var resizeTimeout;
+
         function resizeThrottler() {
             if (!resizeTimeout) {
-                resizeTimeout = setTimeout(function() {
+                resizeTimeout = setTimeout(function () {
                     resizeTimeout = null;
                     relayout();
                 }, 500);
@@ -115,12 +119,12 @@ $(function() {
         }
 
         // Fix thead and first column on scroll
-        container.addEventListener('scroll', function() {
+        container.addEventListener('scroll', function () {
             thead.style.transform = 'translate3d(0,' + this.scrollTop + 'px,0)';
             var hTransform = 'translate3d(' + this.scrollLeft + 'px,0,0)';
             thead.querySelector('th').style.transform = hTransform;
             [].slice.call(tbody.querySelectorAll('tr > td:first-child'))
-                .forEach(function(td, i) {
+                .forEach(function (td, i) {
                     td.style.transform = hTransform;
                 });
         });
@@ -133,6 +137,7 @@ $(function() {
             relayout: relayout
         };
     }
+
     var fixedTable = fixTable(document.getElementById("results_table"));
     fixedTable.relayout();
 });

@@ -37,7 +37,7 @@ public class Controller {
                             .map(it -> it ? 1 : 0)
                             .reduce((it, val) -> it + val)
                             .get();
-                    String percent = success + "/" + total + " (" + (success*100/total) + "% passed)";
+                    String percent = (success * 100 / total) + "% (" + success + "/" + total + ")";
                     percentByServer.put(domain,percent);
                 }
         );

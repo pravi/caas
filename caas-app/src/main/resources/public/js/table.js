@@ -79,7 +79,11 @@ $(function () {
                 if (i === 0) {
                     th.style.position = 'absolute';
                     th.style.top = '0';
-                    th.style.left = -thStyles[0].boundingWidth + 'px';
+                    th.style.left = - thStyles[0].boundingWidth + 'px';
+                    var padding = 10;
+                    th.style.height = (thStyles[0].boundingHeight - 2 * padding) + 'px';
+                    th.style.margin = "0px 0px";
+                    th.style.padding = padding + "px 8px";
                 }
             });
 

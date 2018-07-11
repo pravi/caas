@@ -46,11 +46,9 @@ tr:hover > td.failed {
     padding: 8px;
     text-align: left;
     vertical-align: top;
+}
 
-    /**
-      * Current implementation doesn't work when
-      * cells in a row have different heights
-      */
+.fixed-table-container td.text {
     white-space: nowrap !important;
 }
 

@@ -74,6 +74,17 @@ public class InternalDBOperations {
         return true;
     }
 
+    public static boolean setListed(Connection connection, String domain, boolean listedServer) {
+        String query = "update servers set" +
+                " listed=:listed" +
+                " where domain=:domain";
+        connection.createQuery(query)
+                .addParameter("listed", listedServer)
+                .addParameter("domain", domain)
+                .executeUpdate();
+        return true;
+    }
+
     public static boolean updateServer(Connection connection, Server newServer) {
         String query = "update servers set" +
                 " domain=:domain," +
@@ -403,7 +414,7 @@ public class InternalDBOperations {
         domains.forEach(domain -> {
             Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests) order by domain")
                     .addParameter("domain", domain)
-                    .addParameter("tests",tests)
+                    .addParameter("tests", tests)
                     .executeAndFetchTable();
             //Do not add to results, if result does not exist for the server
             if (table.rows().size() == 0) {

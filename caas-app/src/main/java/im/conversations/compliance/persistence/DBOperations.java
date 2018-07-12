@@ -203,4 +203,11 @@ public class DBOperations {
         return results;
     }
 
+    public static boolean setListed(String domain, boolean listedServer) {
+        boolean status = false;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            status = InternalDBOperations.setListed(connection, domain, listedServer);
+        }
+        return status;
+    }
 }

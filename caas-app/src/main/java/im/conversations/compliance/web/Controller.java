@@ -26,7 +26,7 @@ public class Controller {
 
     public static TemplateViewRoute getRoot = (request, response) -> {
         Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentPublicResultsHashMapByServer();
-        HashMap<String,String> percentByServer = new HashMap<>();
+        HashMap<String, String> percentByServer = new HashMap<>();
         resultsByServer.keySet().forEach(
                 domain ->
                 {
@@ -38,12 +38,12 @@ public class Controller {
                             .reduce((it, val) -> it + val)
                             .get();
                     String percent = (success * 100 / total) + "% (" + success + "/" + total + ")";
-                    percentByServer.put(domain,percent);
+                    percentByServer.put(domain, percent);
                 }
         );
         List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
         HashMap<String, Object> model = new HashMap<>();
-        model.put("percentByServer",percentByServer);
+        model.put("percentByServer", percentByServer);
         model.put("resultsByServer", resultsByServer);
         model.put("tests", complianceTests);
         return new ModelAndView(model, "root.ftl");
@@ -84,6 +84,17 @@ public class Controller {
         Predicate<Credential> jidMatches = it -> it.getJid().toString().equals(credential.getJid().toString());
         Predicate<Credential> passwordMatches = it -> it.getPassword().equals(credential.getPassword());
         if (credentials != null && credentials.stream().filter(jidMatches).anyMatch(passwordMatches)) {
+            Server server = DBOperations.getServer(credential.getDomain()).orElse(null);
+            if (server != null) {
+                DBOperations.setListed(server.getDomain(), listedServer);
+                postResponse = new ServerResponse(
+                        false,
+                        "UPDATE: Server will now be " +
+                                (listedServer ? "included in" : "excluded from") +
+                                " the public lists and tables",
+                        null);
+                return gson.toJson(postResponse);
+            }
             postResponse = new ServerResponse(
                     false,
                     "ERROR: Credentials already exist in the database",
@@ -126,6 +137,10 @@ public class Controller {
                 );
                 return gson.toJson(postResponse);
             }
+        }
+        //Update server's listing for new credentials for an existing server
+        else {
+            DBOperations.setListed(credential.getDomain(), listedServer);
         }
 
         // Add credentials to database

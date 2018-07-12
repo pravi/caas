@@ -74,7 +74,7 @@
             <div class="help card" id="${help.getName()}">
 
                 <a class="close" href="#${help.getName()}">&times;</a>
-                <h3>For <a href="/test/${help.getName()}">${help.getName()}</a>:</h3>
+                <h3>For <a href="/test/${help.getName()}">${tests[help.getName()].full_name()}</a>:</h3>
                 <ul>
 
                     <#if help.getSince()??>

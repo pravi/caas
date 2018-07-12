@@ -220,6 +220,7 @@ public class Controller {
         model.put("softwareVersion", server.getSoftwareVersion());
         model.put("timeSince", TimeUtils.getTimeSince(lastRun));
         model.put("timestamp", lastRun);
+        model.put("tests",TestUtils.getComplianceTestMap());
         String imageUrl = WebUtils.getRootUrlFrom(request) + "/badge/" + domain;
         model.put("badgeCode", "<a href='" + request.url() + "'><img src='" + imageUrl + "'></a>");
         return new ModelAndView(model, "server.ftl");

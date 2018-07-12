@@ -101,4 +101,7 @@ public class TestUtils {
         return false;
     }
 
+    public static Map<String, ComplianceTest> getComplianceTestMap() {
+        return complianceTestMap;
+    }
 }

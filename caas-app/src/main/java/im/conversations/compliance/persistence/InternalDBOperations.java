@@ -436,9 +436,13 @@ public class InternalDBOperations {
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
+        List<String> domains = connection.createQuery("select domain from servers where listed = 1")
+                .executeAndFetch(String.class);
         TestUtils.getAllTestNames().forEach(test -> {
-            Table table = connection.createQuery("select domain,success from current_tests where test=:test")
+            Table table = connection.createQuery("select domain,success from current_tests" +
+                    " where test=:test and domain in (:domains)")
                     .addParameter("test", test)
+                    .addParameter("domains", domains)
                     .executeAndFetchTable();
             HashMap<String, Boolean> testResults = new HashMap<>();
             table.rows().stream().forEach(

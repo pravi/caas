@@ -10,6 +10,7 @@ import rocks.xmpp.extensions.muc.ChatRoom;
 import rocks.xmpp.extensions.muc.ChatService;
 import rocks.xmpp.extensions.muc.MultiUserChatManager;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -39,18 +40,20 @@ public class MamMuc extends AbstractTest {
             final ChatService chatService = chatServices.get(0);
             final ChatRoom room = chatService.createRoom(UUID.randomUUID().toString());
             room.enter("test");
+            boolean hasFormField = false;
             try {
-                final DataForm.Field mam = room.getConfigurationForm().get().findField("mam");
-                if (mam != null) {
-                    return true;
-                }
+                DataForm form = room.getConfigurationForm().get();
+                final DataForm.Field mam = room.getConfigurationForm().get().findField("mam"); //ejabberd community
+                final DataForm.Field roomConfigMam = form.findField("muc#roomconfig_mam"); //ejabberd SaaS
+                final DataForm.Field roomConfigEnable = form.findField("muc#roomconfig_enablearchiving");
+                hasFormField = mam != null || roomConfigMam != null || roomConfigEnable != null;
             } catch (ExecutionException | InterruptedException e) {
                 //ignore
             }
             final Set<String> features = serviceDiscoveryManager.discoverInformation(room.getAddress()).getResult().getFeatures();
-            final boolean mam = TestUtils.hasAnyone(MAM.NAMESPACES, features);
+            final boolean hasFeature = TestUtils.hasAnyone(MAM.NAMESPACES, features);
             room.destroy().getResult();
-            return mam;
+            return (hasFeature || hasFormField);
         } catch (XmppException e) {
             return false;
         }

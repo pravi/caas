@@ -208,6 +208,11 @@
       "name": "xep0368",
       "possible": true,
       "instructions": "TODO: Write instructions"
+    },
+    {
+      "name": "xep0398",
+      "possible": true,
+      "instructions": "Configure mod_avatar"
     }
   ]
 }

@@ -191,6 +191,11 @@
       "name": "xep0368",
       "possible": true,
       "instructions": "TODO: Write instructions"
+    },
+    {
+      "name": "xep0398",
+      "possible": true,
+      "instructions": "install mod_profile"
     }
   ]
 }

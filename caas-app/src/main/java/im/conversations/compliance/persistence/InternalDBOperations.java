@@ -1,5 +1,6 @@
 package im.conversations.compliance.persistence;
 
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.sql2o.Connection;
@@ -390,18 +391,21 @@ public class InternalDBOperations {
 
     public static Map<String, List<Result>> getCurrentResultsByServer(Connection connection) {
         HashMap<String, List<Result>> resultsByServer = new HashMap<>();
-        List<String> domains = connection.createQuery("select distinct domain from current_tests").executeAndFetch(String.class);
-        domains.forEach(domain -> {
-            Table table = connection.createQuery("select test,success from current_tests where domain=:domain")
-                    .addParameter("domain", domain)
-                    .executeAndFetchTable();
-            ArrayList<Result> r = table.rows().stream()
-                    .map(row -> new Result(
-                            TestUtils.getTestFrom(row.getString("test")),
-                            (row.getInteger("success") == 1)))
-                    .collect(Collectors.toCollection(ArrayList::new));
-            resultsByServer.put(domain, r);
-        });
+        List<String> tests = TestUtils.getAllTestNames();
+        Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
+                " inner join servers on servers.domain = current_tests.domain" +
+                " where test in (:tests)")
+                .addParameter("tests", tests)
+                .executeAndFetchTable();
+        table.rows().forEach(
+                row -> {
+                    String domain = row.getString("domain");
+                    ComplianceTest test = TestUtils.getTestFrom(row.getString("test"));
+                    boolean success = row.getInteger("success") == 1;
+                    resultsByServer.putIfAbsent(domain, new ArrayList<>());
+                    resultsByServer.get(domain).add(new Result(test, success));
+                }
+        );
         return resultsByServer;
     }
 
@@ -409,53 +413,40 @@ public class InternalDBOperations {
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
         List<String> tests = TestUtils.getTestNames();
-        List<String> domains = getPublicServers(connection)
-                .stream()
-                .map(Server::getDomain)
-                .collect(Collectors.toList());
-
-        domains.forEach(domain -> {
-            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests)")
-                    .addParameter("domain", domain)
-                    .addParameter("tests", tests)
-                    .executeAndFetchTable();
-            //Do not add to results, if result does not exist for the server
-            if (table.rows().size() == 0) {
-                return;
-            }
-            HashMap<String, Boolean> testResults = new HashMap<>();
-            table.rows().stream().forEach(
-                    row -> {
-                        testResults.put(
-                                row.getString("test"),
-                                (row.getInteger("success") == 1)
-                        );
-                    }
-            );
-            resultsByServer.put(domain, testResults);
-        });
+        Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
+                " inner join servers on servers.domain = current_tests.domain" +
+                " where test in (:tests) and listed = 1")
+                .addParameter("tests", tests)
+                .executeAndFetchTable();
+        table.rows().forEach(
+                row -> {
+                    String domain = row.getString("domain");
+                    String test = row.getString("test");
+                    boolean success = row.getBoolean("success");
+                    resultsByServer.putIfAbsent(domain, new HashMap<>());
+                    resultsByServer.get(domain).put(test, success);
+                }
+        );
         return resultsByServer;
     }
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
-        TestUtils.getAllTestNames().forEach(test -> {
-            Table table = connection.createQuery("select servers.domain,success from current_tests" +
-                    " inner join servers on servers.domain = current_tests.domain" +
-                    " where test=:test and listed=1")
-                    .addParameter("test", test)
-                    .executeAndFetchTable();
-            HashMap<String, Boolean> testResults = new HashMap<>();
-            table.rows().stream().forEach(
-                    row -> {
-                        testResults.put(
-                                row.getString("domain"),
-                                row.getBoolean("success")
-                        );
-                    }
-            );
-            resultsByTests.put(test, testResults);
-        });
+        List<String> tests = TestUtils.getAllTestNames();
+        Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
+                " inner join servers on servers.domain = current_tests.domain" +
+                " where test in (:tests) and listed=1 order by test")
+                .addParameter("tests", tests)
+                .executeAndFetchTable();
+        table.rows().forEach(
+                row -> {
+                    String domain = row.getString("domain");
+                    String test = row.getString("test");
+                    boolean success = row.getBoolean("success");
+                    resultsByTests.putIfAbsent(test, new HashMap<>());
+                    resultsByTests.get(test).put(domain, success);
+                }
+        );
         return resultsByTests;
     }
 

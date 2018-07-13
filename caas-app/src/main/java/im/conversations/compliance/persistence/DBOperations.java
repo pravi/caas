@@ -171,6 +171,10 @@ public class DBOperations {
         return results;
     }
 
+    /**
+     * Get a map of current results by server regardless of whether they are listed or not
+     * @return
+     */
     public static Map<String, List<Result>> getCurrentResultsByServer() {
         Map<String, List<Result>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {

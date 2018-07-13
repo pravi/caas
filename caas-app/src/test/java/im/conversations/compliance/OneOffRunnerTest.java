@@ -5,6 +5,7 @@ import im.conversations.compliance.persistence.InternalDBOperations;
 import im.conversations.compliance.pojo.Iteration;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.pojo.ResultDomainPair;
+import im.conversations.compliance.pojo.Server;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,6 +56,10 @@ public class OneOffRunnerTest {
         String domain2 = "periodictestdomain2.dshd";
         String domain3 = "periodictestdomain3.dshd";
 
+        InternalDBOperations.addServer(connection, new Server(domain1, true));
+        InternalDBOperations.addServer(connection, new Server(domain2, false));
+        InternalDBOperations.addServer(connection, new Server(domain3, true));
+
         resultDomainPairs.add(new ResultDomainPair(domain1, results1));
         resultDomainPairs.add(new ResultDomainPair(domain2, results2));
         resultDomainPairs.add(new ResultDomainPair(domain3, results3));
@@ -85,6 +90,7 @@ public class OneOffRunnerTest {
         }
         Instant now = Instant.now();
         String domain = "test";
+        InternalDBOperations.addServer(connection, new Server(domain, true));
         InternalDBOperations.addCurrentResults(connection, domain, results, now);
         List<Result> readResults = InternalDBOperations.getCurrentResultsByServer(connection).get(domain);
         Assert.assertEquals(results, readResults);

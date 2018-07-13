@@ -55,10 +55,12 @@ public class InternalDBOperations {
         connection.createQuery("create index if not exists periodic_results_index on periodic_tests(iteration_number,domain)")
                 .executeUpdate();
 
-        connection.createQuery("create index if not exists periodic_iterations_index on periodic_test_iterations(iteration_number)")
+        connection.createQuery("create index if not exists periodic_iterations_index" +
+                " on periodic_test_iterations(iteration_number)")
                 .executeUpdate();
 
-        connection.createQuery("create index if not exists credentials_index on credentials(domain)")
+        connection.createQuery("create index if not exists" +
+                " credentials_index on credentials(domain)")
                 .executeUpdate();
 
         connection.createQuery("create index if not exists servers_index on servers(domain)")
@@ -140,14 +142,13 @@ public class InternalDBOperations {
      */
     public static Iteration getIteration(Connection connection, int iterationNumber) {
         String query = "select iteration_number, begin_time, end_time from periodic_test_iterations" +
-                " where iteration_number = (:iteration)";
+                " where iteration_number = (:iteration) limit 1";
         return connection.createQuery(query)
                 .addParameter("iteration", iterationNumber)
                 .addColumnMapping("iteration_number", "iterationNumber")
                 .addColumnMapping("begin_time", "begin")
                 .addColumnMapping("end_time", "end")
-                .executeAndFetch(Iteration.class)
-                .get(0);
+                .executeAndFetchFirst(Iteration.class);
     }
 
     /**
@@ -157,20 +158,22 @@ public class InternalDBOperations {
      * @return
      */
     public static Iteration getLatestIteration(Connection connection) {
-        int iterationNumber = getNextIterationNumber(connection) - 1;
-        if (iterationNumber < 0) {
-            return null;
-        }
-        return getIteration(connection, iterationNumber);
+        String query = "select iteration_number, begin_time, end_time from periodic_test_iterations" +
+                " where iteration_number = (select max(iteration_number) from periodic_test_iterations)";
+        return connection.createQuery(query)
+                .addColumnMapping("iteration_number", "iterationNumber")
+                .addColumnMapping("begin_time", "begin")
+                .addColumnMapping("end_time", "end")
+                .executeAndFetchFirst(Iteration.class);
     }
 
-    private static void addNextIteration(Connection connection, Instant beginTime, Instant endTime) {
+    private static void addIteration(Connection connection, int iterationNumber, Instant beginTime, Instant endTime) {
         String query = "insert into periodic_test_iterations(iteration_number,begin_time,end_time) " +
                 "values(:number,:begin,:end)";
         //Insert periodic result iteration details
         try {
             connection.createQuery(query)
-                    .addParameter("number", getNextIterationNumber(connection))
+                    .addParameter("number", iterationNumber)
                     .addParameter("begin", beginTime)
                     .addParameter("end", endTime)
                     .executeUpdate();
@@ -285,7 +288,7 @@ public class InternalDBOperations {
         String query = "insert or replace into periodic_tests(domain,test,success,iteration_number)" +
                 "values(:domain,:test,:success,:iteration)";
         int iterationNumber = getNextIterationNumber(connection);
-        addNextIteration(connection, beginTime, endTime);
+        addIteration(connection, iterationNumber, beginTime, endTime);
         Query resultInsertQuery = connection.createQuery(query);
         rdpList.forEach(rdp -> {
             String domain = rdp.getDomain();
@@ -412,7 +415,7 @@ public class InternalDBOperations {
                 .collect(Collectors.toList());
 
         domains.forEach(domain -> {
-            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests) order by domain")
+            Table table = connection.createQuery("select test,success from current_tests where domain=:domain and test in (:tests)")
                     .addParameter("domain", domain)
                     .addParameter("tests", tests)
                     .executeAndFetchTable();
@@ -436,13 +439,11 @@ public class InternalDBOperations {
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
-        List<String> domains = connection.createQuery("select domain from servers where listed = 1")
-                .executeAndFetch(String.class);
         TestUtils.getAllTestNames().forEach(test -> {
-            Table table = connection.createQuery("select domain,success from current_tests" +
-                    " where test=:test and domain in (:domains)")
+            Table table = connection.createQuery("select servers.domain,success from current_tests" +
+                    " inner join servers on servers.domain = current_tests.domain" +
+                    " where test=:test and listed=1")
                     .addParameter("test", test)
-                    .addParameter("domains", domains)
                     .executeAndFetchTable();
             HashMap<String, Boolean> testResults = new HashMap<>();
             table.rows().stream().forEach(

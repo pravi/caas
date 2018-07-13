@@ -29,7 +29,12 @@ public class Configuration {
 
     public synchronized static Configuration getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new JsonReader<>(Configuration.class).read(FILE);
+            if (FILE.exists()) {
+                INSTANCE = new JsonReader<>(Configuration.class).read(FILE);
+            } else {
+                System.out.println("Configuration file not found. Reverting to default configuration");
+                INSTANCE = new Configuration();
+            }
         }
         return INSTANCE;
     }

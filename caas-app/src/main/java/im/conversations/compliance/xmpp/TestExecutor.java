@@ -5,6 +5,7 @@ import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.xmpp.extensions.csi.ClientStateIndication;
+import im.conversations.compliance.xmpp.extensions.omemo.Bundle;
 import im.conversations.compliance.xmpp.tests.AbstractTest;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.Extension;
@@ -21,7 +22,7 @@ public class TestExecutor {
 
     static {
         configuration = XmppSessionConfiguration.builder()
-                .extensions(Extension.of(ClientStateIndication.class))
+                .extensions(Extension.of(ClientStateIndication.class, Bundle.class))
                 .defaultResponseTimeout(Duration.ofSeconds(10))
                 .initialPresence(null)
                 .build();

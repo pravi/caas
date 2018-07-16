@@ -33,7 +33,8 @@ public class InternalDBOperations {
                 "test text," +
                 "success integer," +
                 "timestamp integer," +
-                "primary key(domain,test))"
+                "primary key(domain,test), " +
+                "unique(domain,test) on conflict replace)"
         ).executeUpdate();
 
         connection.createQuery("create table if not exists periodic_tests(" +
@@ -41,7 +42,8 @@ public class InternalDBOperations {
                 "test text," +
                 "success integer," +
                 "iteration_number integer," +
-                "primary key(domain,test,iteration_number))"
+                "primary key(domain,test,iteration_number)," +
+                "unique(domain,test,iteration_number) on conflict replace)"
         ).executeUpdate();
 
         connection.createQuery("create table if not exists periodic_test_iterations(" +
@@ -286,7 +288,7 @@ public class InternalDBOperations {
      */
     public static boolean addPeriodicResults(Connection connection, List<ResultDomainPair> rdpList, Instant beginTime, Instant endTime) {
         //Add the iteration to iterations list
-        String query = "insert or replace into periodic_tests(domain,test,success,iteration_number)" +
+        String query = "insert into periodic_tests(domain,test,success,iteration_number)" +
                 "values(:domain,:test,:success,:iteration)";
         int iterationNumber = getNextIterationNumber(connection);
         addIteration(connection, iterationNumber, beginTime, endTime);
@@ -374,7 +376,7 @@ public class InternalDBOperations {
      * @return
      */
     public static boolean addCurrentResults(Connection connection, String domain, List<Result> results, Instant timestamp) {
-        String queryText = "insert or replace into current_tests(domain,test,success,timestamp) " +
+        String queryText = "insert into current_tests(domain,test,success,timestamp) " +
                 "values(:domain,:test,:success,:timestamp)";
         Query query = connection.createQuery(queryText);
         results.forEach(
@@ -389,28 +391,8 @@ public class InternalDBOperations {
         return true;
     }
 
-    public static Map<String, List<Result>> getCurrentResultsByServer(Connection connection) {
-        HashMap<String, List<Result>> resultsByServer = new HashMap<>();
-        List<String> tests = TestUtils.getAllTestNames();
-        Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
-                " inner join servers on servers.domain = current_tests.domain" +
-                " where test in (:tests)")
-                .addParameter("tests", tests)
-                .executeAndFetchTable();
-        table.rows().forEach(
-                row -> {
-                    String domain = row.getString("domain");
-                    ComplianceTest test = TestUtils.getTestFrom(row.getString("test"));
-                    boolean success = row.getInteger("success") == 1;
-                    resultsByServer.putIfAbsent(domain, new ArrayList<>());
-                    resultsByServer.get(domain).add(new Result(test, success));
-                }
-        );
-        return resultsByServer;
-    }
 
-
-    public static Map<String, HashMap<String, Boolean>> getCurrentResultsHashMapByServer(Connection connection) {
+    public static Map<String, HashMap<String, Boolean>> getCurrentResultsByServer(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
         List<String> tests = TestUtils.getTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
@@ -422,7 +404,7 @@ public class InternalDBOperations {
                 row -> {
                     String domain = row.getString("domain");
                     String test = row.getString("test");
-                    boolean success = row.getBoolean("success");
+                    boolean success = row.getInteger("success") == 1;
                     resultsByServer.putIfAbsent(domain, new HashMap<>());
                     resultsByServer.get(domain).put(test, success);
                 }
@@ -430,19 +412,55 @@ public class InternalDBOperations {
         return resultsByServer;
     }
 
+    public static List<Result> getCurrentResultsForServer(Connection connection, String domain) {
+        ArrayList<Result> results = new ArrayList<>();
+        String query = "select test,success from current_tests" +
+                " where domain = :domain";
+        Table table = connection.createQuery(query)
+                .addParameter("domain", domain)
+                .executeAndFetchTable();
+        table.rows().forEach(
+                row -> {
+                    String test = row.getString("test");
+                    boolean success = row.getInteger("success") == 1;
+                    ComplianceTest complianceTest = TestUtils.getTestFrom(test);
+                    Result result = new Result(complianceTest, success);
+                    results.add(result);
+                }
+        );
+        return results;
+    }
+
+    public static HashMap<String, Boolean> getCurrentResultsForTest(Connection connection, String test) {
+        String query = "select servers.domain,success from current_tests" +
+                " inner join servers on servers.domain = current_tests.domain" +
+                " where test = :test and listed = 1";
+        Table table = connection.createQuery(query)
+                .addParameter("test", test)
+                .executeAndFetchTable();
+        HashMap<String, Boolean> results = new HashMap<>();
+        table.rows().forEach(
+                row -> {
+                    String domain = row.getString("domain");
+                    boolean success = row.getInteger("success") == 1;
+                    results.put(domain, success);
+                });
+        return results;
+    }
+
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByTest(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByTests = new HashMap<>();
         List<String> tests = TestUtils.getAllTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +
-                " where test in (:tests) and listed=1 order by test")
+                " where test in (:tests) and listed=1")
                 .addParameter("tests", tests)
                 .executeAndFetchTable();
         table.rows().forEach(
                 row -> {
                     String domain = row.getString("domain");
                     String test = row.getString("test");
-                    boolean success = row.getBoolean("success");
+                    boolean success = row.getInteger("success") == 1;
                     resultsByTests.putIfAbsent(test, new HashMap<>());
                     resultsByTests.get(test).put(domain, success);
                 }

@@ -1,5 +1,6 @@
 package im.conversations.compliance.persistence;
 
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.sql2o.Connection;
@@ -163,22 +164,22 @@ public class DBOperations {
         return success;
     }
 
-    public static Map<String, HashMap<String, Boolean>> getCurrentPublicResultsHashMapByServer() {
+    /**
+     * Get results for public servers
+     * @return
+     */
+    public static Map<String, HashMap<String, Boolean>> getCurrentResultsByServer() {
         Map<String, HashMap<String, Boolean>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            results = InternalDBOperations.getCurrentResultsHashMapByServer(connection);
+            results = InternalDBOperations.getCurrentResultsByServer(connection);
         }
         return results;
     }
 
-    /**
-     * Get a map of current results by server regardless of whether they are listed or not
-     * @return
-     */
-    public static Map<String, List<Result>> getCurrentResultsByServer() {
-        Map<String, List<Result>> results;
+    public static List<Result> getCurrentResultsForServer(String domain) {
+        List<Result> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            results = InternalDBOperations.getCurrentResultsByServer(connection);
+            results = InternalDBOperations.getCurrentResultsForServer(connection, domain);
         }
         return results;
     }
@@ -187,6 +188,14 @@ public class DBOperations {
         Map<String, HashMap<String, Boolean>> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
             results = InternalDBOperations.getCurrentResultsByTest(connection);
+        }
+        return results;
+    }
+
+    public static HashMap<String, Boolean> getCurrentResultsForTest(ComplianceTest test) {
+        HashMap<String, Boolean> results;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            results = InternalDBOperations.getCurrentResultsForTest(connection, test.short_name());
         }
         return results;
     }

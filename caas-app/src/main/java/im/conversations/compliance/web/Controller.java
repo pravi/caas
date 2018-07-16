@@ -25,7 +25,7 @@ public class Controller {
     private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getRoot = (request, response) -> {
-        Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentPublicResultsHashMapByServer();
+        Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentResultsByServer();
         HashMap<String, String> percentByServer = new HashMap<>();
         resultsByServer.keySet().forEach(
                 domain ->
@@ -192,7 +192,7 @@ public class Controller {
         }
         List<Result> results;
         try {
-            results = DBOperations.getCurrentResultsByServer().get(domain);
+            results = DBOperations.getCurrentResultsForServer(domain);
         } catch (Exception ex) {
             model.put("error_code", 404);
             model.put("error_msg", "Results unavailable for " + domain + ". Tests might still be running");
@@ -237,14 +237,18 @@ public class Controller {
         model.put("test", test);
         Map<String, Boolean> results;
         try {
-            results = DBOperations.getCurrentResultsByTest().get(test.short_name());
+            results = DBOperations.getCurrentResultsForTest(test);
         } catch (Exception ex) {
             ex.printStackTrace();
             model.put("error_code", 404);
             model.put("error_msg", "Error getting results for " + test.full_name());
             return new ModelAndView(model, "error.ftl");
         }
-        if (!results.isEmpty()) {
+        if (results == null || results.isEmpty()) {
+            model.put("error_code", 404);
+            model.put("error_msg", "Results unavailable for " + test.full_name());
+            return new ModelAndView(model, "error.ftl");
+        } else {
             int passed = results.entrySet().stream()
                     .map(it -> it.getValue() ? 1 : 0)
                     .reduce((it, ac) -> ac + it)
@@ -269,7 +273,7 @@ public class Controller {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
         try {
-            List<Result> results = DBOperations.getCurrentResultsByServer().get(domain);
+            List<Result> results = DBOperations.getCurrentResultsForServer(domain);
             WebUtils.addResultStats(model, results);
             String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
             model.put("domain", domain);

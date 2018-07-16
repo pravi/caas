@@ -201,7 +201,7 @@ public class InternalDBOperations {
     }
 
     // Methods related to historical snapshots
-    public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer(Connection connection, List<String> tests, List<String> domains) {
+    public static Map<String, List<HistoricalSnapshot>> getHistoricalSnapshotsGroupedByServer(Connection connection, List<String> tests, List<String> domains) {
         HashMap<String, List<HistoricalSnapshot>> historicalSnapshotsByServer = new HashMap<>();
         for (String domain : domains) {
             List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();
@@ -240,7 +240,7 @@ public class InternalDBOperations {
         return historicalSnapshotsByServer;
     }
 
-    public static HashMap<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByTest(Connection connection, List<String> tests, List<String> domains) {
+    public static HashMap<String, List<HistoricalSnapshot>> getHistoricalSnapshotGroupedByTest(Connection connection, List<String> tests, List<String> domains) {
         HashMap<String, List<HistoricalSnapshot>> historicalSnapshotsByTest = new HashMap<>();
         for (String test : tests) {
             List<HistoricalSnapshot> historicalSnapshots = new ArrayList<>();

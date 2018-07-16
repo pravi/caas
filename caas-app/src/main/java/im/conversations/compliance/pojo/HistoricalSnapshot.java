@@ -38,6 +38,20 @@ public class HistoricalSnapshot {
         return change;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof HistoricalSnapshot) {
+            HistoricalSnapshot hs = (HistoricalSnapshot) o;
+            boolean value = hs.iteration == iteration &&
+                    hs.timestamp.equals(timestamp) &&
+                    hs.change.equals(change) &&
+                    hs.total == total &&
+                    hs.passed == passed;
+            return value;
+        }
+        return false;
+    }
+
     public static class Change {
         private List<String> pass;
         private List<String> fail;
@@ -46,6 +60,7 @@ public class HistoricalSnapshot {
             this.pass = new ArrayList<>();
             this.fail = new ArrayList<>();
         }
+
         public Change(List<String> pass, List<String> fail) {
             this.pass = pass;
             this.fail = fail;
@@ -57,6 +72,31 @@ public class HistoricalSnapshot {
 
         public List<String> getFail() {
             return fail;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof Change) {
+                Change change = (Change) o;
+                if (change.pass.size() != this.pass.size()) {
+                    return false;
+                }
+                if (change.fail.size() != this.fail.size()) {
+                    return false;
+                }
+                for (String p : change.pass) {
+                    if (!pass.contains(p)) {
+                        return false;
+                    }
+                }
+                for (String f : change.fail) {
+                    if (!fail.contains(f)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

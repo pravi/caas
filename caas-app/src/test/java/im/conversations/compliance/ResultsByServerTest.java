@@ -2,7 +2,7 @@ package im.conversations.compliance;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.persistence.InternalDBOperations;
-import im.conversations.compliance.pojo.Iteration;
+import im.conversations.compliance.pojo.HistoricalSnapshot;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.pojo.ResultDomainPair;
 import im.conversations.compliance.pojo.Server;
@@ -14,12 +14,10 @@ import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class OneOffRunnerTest {
+public class ResultsByServerTest {
     private static final String JDBC_URL = "jdbc:sqlite::memory:";
     private Sql2o database;
     private Connection connection;
@@ -69,9 +67,9 @@ public class OneOffRunnerTest {
         resultDomainPairs.add(new ResultDomainPair(domain3, results3));
         Instant end = Instant.now();
         InternalDBOperations.addPeriodicResults(connection, resultDomainPairs, begin, end);
-        List<Result> readHistoricResults1 = InternalDBOperations.getHistoricalResultsFor(connection, domain1, 0);
-        List<Result> readHistoricResults2 = InternalDBOperations.getHistoricalResultsFor(connection, domain2, 0);
-        List<Result> readHistoricResults3 = InternalDBOperations.getHistoricalResultsFor(connection, domain3, 0);
+        List<Result> readHistoricalResults1 = InternalDBOperations.getHistoricalResultsFor(connection, domain1, 0);
+        List<Result> readHistoricalResults2 = InternalDBOperations.getHistoricalResultsFor(connection, domain2, 0);
+        List<Result> readHistoricalResults3 = InternalDBOperations.getHistoricalResultsFor(connection, domain3, 0);
         Map<String, HashMap<String, Boolean>> currentResultsByServer = InternalDBOperations.getCurrentResultsByServer(connection);
         HashMap<String, Boolean> readResultMap1 = currentResultsByServer.get(domain1);
         HashMap<String, Boolean> readResultMap2 = currentResultsByServer.get(domain2);
@@ -79,11 +77,11 @@ public class OneOffRunnerTest {
         List<Result> readCurrentResults1 = InternalDBOperations.getCurrentResultsForServer(connection, domain1);
         List<Result> readCurrentResults2 = InternalDBOperations.getCurrentResultsForServer(connection, domain2);
         List<Result> readCurrentResults3 = InternalDBOperations.getCurrentResultsForServer(connection, domain3);
-        Assert.assertEquals(results1, readHistoricResults1);
+        Assert.assertEquals(results1, readHistoricalResults1);
         Assert.assertEquals(results1, readCurrentResults1);
-        Assert.assertEquals(results2, readHistoricResults2);
+        Assert.assertEquals(results2, readHistoricalResults2);
         Assert.assertEquals(results2, readCurrentResults2);
-        Assert.assertEquals(results3, readHistoricResults3);
+        Assert.assertEquals(results3, readHistoricalResults3);
         Assert.assertEquals(results3, readCurrentResults3);
         Assert.assertEquals(resultMap1, readResultMap1);
         //Server wasn't public, so result should not be in the public servers' result
@@ -108,4 +106,89 @@ public class OneOffRunnerTest {
         Assert.assertEquals(results, readResults);
     }
 
+    @Test
+    public void checkHistoricalSnapshots() {
+        ArrayList<ResultDomainPair> rdpList;
+        List<ComplianceTest> tests = TestUtils.getComplianceTests()
+                .stream()
+                .limit(3)
+                .collect(Collectors.toList());
+        List<String> testNames = tests.stream()
+                .map(ComplianceTest::short_name)
+                .collect(Collectors.toList());
+        String domain = "historicalsnapshotservertest.tld";
+        InternalDBOperations.addServer(connection, new Server(domain, true));
+        ArrayList<Result> results1 = new ArrayList<>();
+        ArrayList<Result> results2 = new ArrayList<>();
+        ArrayList<Result> results3 = new ArrayList<>();
+        ArrayList<Result> results4 = new ArrayList<>();
+        ArrayList<Result> results5 = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            results1.add(new Result(tests.get(i), true));
+            results2.add(new Result(tests.get(i), true));
+            results3.add(new Result(tests.get(i), (i % 2 == 0)));
+            results5.add(new Result(tests.get(i), (i % 2 == 0)));
+        }
+        Instant timestamp = Instant.now();
+        HistoricalSnapshot.Change change0 = new HistoricalSnapshot.Change();
+        change0.getPass().add(testNames.get(0));
+        change0.getPass().add(testNames.get(1));
+        change0.getPass().add(testNames.get(2));
+        //Check if first point is present
+        HistoricalSnapshot historicalSnapshot0 = new HistoricalSnapshot(
+                0,
+                timestamp.toString(),
+                3,
+                3,
+                change0
+        );
+        HistoricalSnapshot.Change change1 = new HistoricalSnapshot.Change();
+        change1.getFail().add(testNames.get(1));
+        //Check if point for which there was a change is present
+        HistoricalSnapshot historicalSnapshot1 = new HistoricalSnapshot(
+                2,
+                timestamp.toString(),
+                2,
+                3,
+                change1
+        );
+        //Check if the latest point is present
+        HistoricalSnapshot historicalSnapshot2 = new HistoricalSnapshot(
+                4,
+                timestamp.toString(),
+                2,
+                3,
+                new HistoricalSnapshot.Change()
+        );
+        List<HistoricalSnapshot> historicalSnapshots = Arrays.asList(
+                historicalSnapshot0,
+                historicalSnapshot1,
+                historicalSnapshot2
+        );
+        rdpList = new ArrayList<>();
+        rdpList.add(new ResultDomainPair(domain, results1));
+        InternalDBOperations.addPeriodicResults(connection, rdpList, timestamp, timestamp);
+        rdpList = new ArrayList<>();
+        rdpList.add(new ResultDomainPair(domain, results2));
+        InternalDBOperations.addPeriodicResults(connection, rdpList, timestamp, timestamp);
+        rdpList = new ArrayList<>();
+        rdpList.add(new ResultDomainPair(domain, results3));
+        InternalDBOperations.addPeriodicResults(connection, rdpList, timestamp, timestamp);
+        rdpList = new ArrayList<>();
+        rdpList.add(new ResultDomainPair(domain, results4));
+        InternalDBOperations.addPeriodicResults(connection, rdpList, timestamp, timestamp);
+        rdpList = new ArrayList<>();
+        rdpList.add(new ResultDomainPair(domain, results5));
+        InternalDBOperations.addPeriodicResults(connection, rdpList, timestamp, timestamp);
+        List<HistoricalSnapshot> readBackHistoricalSnapshots =
+                InternalDBOperations
+                        .getHistoricalSnapshotsGroupedByServer(
+                                connection,
+                                testNames,
+                                Collections.singletonList(domain)
+                        )
+                        .get(domain);
+        Assert.assertEquals(historicalSnapshots, readBackHistoricalSnapshots);
+    }
 }

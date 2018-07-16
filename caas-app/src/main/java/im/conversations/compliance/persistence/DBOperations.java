@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
  * reducing database load
  */
 public class DBOperations {
-    private static Map<String, List<HistoricalSnapshot>> historicSnapshotsByServer;
-    private static Map<String, List<HistoricalSnapshot>> historicSnapshotsByTest;
+    private static Map<String, List<HistoricalSnapshot>> historicalSnapshotsByServer;
+    private static Map<String, List<HistoricalSnapshot>> historicalSnapshotsByTest;
 
     public static void init() {
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
@@ -35,8 +35,8 @@ public class DBOperations {
                 .stream()
                 .map(it -> it.getDomain())
                 .collect(Collectors.toList());
-        historicSnapshotsByServer = InternalDBOperations.getHistoricResultsGroupedByServer(connection, TestUtils.getTestNames(), allDomains);
-        historicSnapshotsByTest = InternalDBOperations.getHistoricResultsGroupedByTest(connection, TestUtils.getAllTestNames(), publicDomains);
+        historicalSnapshotsByServer = InternalDBOperations.getHistoricalSnapshotsGroupedByServer(connection, TestUtils.getTestNames(), allDomains);
+        historicalSnapshotsByTest = InternalDBOperations.getHistoricalSnapshotGroupedByTest(connection, TestUtils.getAllTestNames(), publicDomains);
     }
 
     public static boolean addServer(Server server) {
@@ -104,11 +104,11 @@ public class DBOperations {
     }
 
     public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer() {
-        return Collections.unmodifiableMap(historicSnapshotsByServer);
+        return Collections.unmodifiableMap(historicalSnapshotsByServer);
     }
 
     public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByTest() {
-        return Collections.unmodifiableMap(historicSnapshotsByTest);
+        return Collections.unmodifiableMap(historicalSnapshotsByTest);
     }
 
     public static boolean addCredential(Credential credential) {

@@ -1,5 +1,6 @@
 package im.conversations.compliance.pojo;
 
+import im.conversations.compliance.utils.Utils;
 import rocks.xmpp.extensions.version.model.SoftwareVersion;
 
 public class Server {
@@ -38,5 +39,17 @@ public class Server {
 
     public boolean isListed() {
         return listed;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Server) {
+            Server s = (Server) o;
+            return domain.equals(s.domain) &&
+                    listed == s.listed &&
+                    Utils.nullableStringEqual(softwareName, s.softwareName) &&
+                    Utils.nullableStringEqual(softwareVersion, s.softwareVersion);
+        }
+        return false;
     }
 }

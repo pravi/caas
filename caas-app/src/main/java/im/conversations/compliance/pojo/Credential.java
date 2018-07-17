@@ -29,4 +29,13 @@ public class Credential {
     public String getPassword() {
         return password;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Credential) {
+            Credential c = (Credential) o;
+            return jid.equals(c.getJid()) && password.equals(c.getPassword());
+        }
+        return false;
+    }
 }

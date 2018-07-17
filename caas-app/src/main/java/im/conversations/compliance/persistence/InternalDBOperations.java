@@ -129,8 +129,10 @@ public class InternalDBOperations {
     }
 
     public static boolean removeServer(Connection connection, Server server) {
-        String query = "remove from servers where domain=:domain";
-        connection.createQuery(query).bind(server).executeUpdate();
+        String query = "delete from servers where domain=:domain";
+        connection.createQuery(query)
+                .bind(server)
+                .executeUpdate();
         return true;
     }
 
@@ -390,7 +392,6 @@ public class InternalDBOperations {
         query.executeBatch();
         return true;
     }
-
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByServer(Connection connection) {
         HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();

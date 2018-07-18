@@ -40,6 +40,9 @@ public class WebUtils {
                 total++;
             }
         }
+        if(total <= 0) {
+            return;
+        }
         int percent = pass * 100 / total;
         model.put("pass", pass);
         model.put("total", total);

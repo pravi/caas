@@ -190,10 +190,8 @@ public class Controller {
             model.put("error_msg", "Credentials unavailable for " + domain);
             return new ModelAndView(model, "error.ftl");
         }
-        List<Result> results;
-        try {
-            results = DBOperations.getCurrentResultsForServer(domain);
-        } catch (Exception ex) {
+        List<Result> results = DBOperations.getCurrentResultsForServer(domain);
+        if (results.isEmpty()) {
             model.put("error_code", 404);
             model.put("error_msg", "Results unavailable for " + domain + ". Tests might still be running");
             return new ModelAndView(model, "error.ftl");
@@ -235,16 +233,9 @@ public class Controller {
             return new ModelAndView(model, "error.ftl");
         }
         model.put("test", test);
-        Map<String, Boolean> results;
-        try {
-            results = DBOperations.getCurrentResultsForTest(test);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            model.put("error_code", 404);
-            model.put("error_msg", "Error getting results for " + test.full_name());
-            return new ModelAndView(model, "error.ftl");
-        }
-        if (results == null || results.isEmpty()) {
+        Map<String, Boolean> results = DBOperations.getCurrentResultsForTest(test);
+
+        if (results.isEmpty()) {
             model.put("error_code", 404);
             model.put("error_msg", "Results unavailable for " + test.full_name());
             return new ModelAndView(model, "error.ftl");
@@ -272,14 +263,11 @@ public class Controller {
         response.type("image/svg+xml");
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        try {
-            List<Result> results = DBOperations.getCurrentResultsForServer(domain);
-            WebUtils.addResultStats(model, results);
-            String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
-            model.put("domain", domain);
-            model.put("resultLink", resultLink);
-        } catch (Exception ex) {
-        }
+        List<Result> results = DBOperations.getCurrentResultsForServer(domain);
+        WebUtils.addResultStats(model, results);
+        String resultLink = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
+        model.put("domain", domain);
+        model.put("resultLink", resultLink);
         return new ModelAndView(model, "badge.ftl");
     };
 
@@ -288,10 +276,8 @@ public class Controller {
         int iterationNumber = Integer.parseInt(request.params("iteration"));
         HashMap<String, Object> model = new HashMap<>();
         model.put("domain", domain);
-        Iteration iteration;
-        try {
-            iteration = DBOperations.getIteration(iterationNumber);
-        } catch (IndexOutOfBoundsException ex) {
+        Iteration iteration = DBOperations.getIteration(iterationNumber);
+        if (iteration == null) {
             model.put("error_code", 404);
             model.put("error_msg", "ERROR: Invalid historical point requested");
             return new ModelAndView(model, "error.ftl");

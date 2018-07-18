@@ -176,15 +176,11 @@ public class InternalDBOperations {
         String query = "insert into periodic_test_iterations(iteration_number,begin_time,end_time) " +
                 "values(:number,:begin,:end)";
         //Insert periodic result iteration details
-        try {
             connection.createQuery(query)
                     .addParameter("number", iterationNumber)
                     .addParameter("begin", beginTime)
                     .addParameter("end", endTime)
                     .executeUpdate();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     /**
@@ -416,7 +412,7 @@ public class InternalDBOperations {
     public static List<Result> getCurrentResultsForServer(Connection connection, String domain) {
         ArrayList<Result> results = new ArrayList<>();
         String query = "select test,success from current_tests" +
-                " where domain = :domain";
+                " where domain = :domain order by test";
         Table table = connection.createQuery(query)
                 .addParameter("domain", domain)
                 .executeAndFetchTable();
@@ -435,7 +431,7 @@ public class InternalDBOperations {
     public static HashMap<String, Boolean> getCurrentResultsForTest(Connection connection, String test) {
         String query = "select servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +
-                " where test = :test and listed = 1";
+                " where test = :test and listed = 1 order by servers.domain";
         Table table = connection.createQuery(query)
                 .addParameter("test", test)
                 .executeAndFetchTable();
@@ -478,14 +474,15 @@ public class InternalDBOperations {
 
     public static List<Result> getHistoricalResultsFor(Connection connection, String domain, int iteration) {
         Table table = connection.createQuery("select test,success from periodic_tests " +
-                "where domain=:domain and iteration_number = :iteration")
+                "where domain=:domain and iteration_number = :iteration order by test")
                 .addParameter("domain", domain)
                 .addParameter("iteration", iteration)
                 .executeAndFetchTable();
         ArrayList<Result> r = table.rows().stream()
                 .map(row -> new Result(
                         TestUtils.getTestFrom(row.getString("test")),
-                        (row.getInteger("success") == 1)))
+                        row.getInteger("success") == 1
+                ))
                 .collect(Collectors.toCollection(ArrayList::new));
         return r;
     }

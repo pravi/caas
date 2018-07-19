@@ -26,6 +26,7 @@ public class IterationsTest {
     @Test()
     public void whenNoIterations() {
         Assert.assertNull(InternalDBOperations.getLatestIteration(connection));
+        Assert.assertNull(InternalDBOperations.getIteration(connection, 0));
     }
 
     @Test()
@@ -38,5 +39,19 @@ public class IterationsTest {
         InternalDBOperations.addPeriodicResults(connection, new ArrayList<>(), begin, end);
         Assert.assertNotEquals(iteration0, InternalDBOperations.getLatestIteration(connection));
         Assert.assertEquals(iteration1, InternalDBOperations.getLatestIteration(connection));
+    }
+
+    @Test()
+    public void checkGetIteration() {
+        Instant begin = Instant.MIN;
+        Instant end = Instant.MAX;
+        Iteration iteration = new Iteration(0, begin, end);
+        InternalDBOperations.addPeriodicResults(connection, new ArrayList<>(), begin, end);
+        Assert.assertEquals(iteration,
+                InternalDBOperations.getIteration(connection, 0)
+        );
+        Assert.assertNull(
+                InternalDBOperations.getIteration(connection, 1)
+        );
     }
 }

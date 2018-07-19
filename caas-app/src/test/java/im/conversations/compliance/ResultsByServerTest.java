@@ -30,6 +30,13 @@ public class ResultsByServerTest {
     }
 
     @Test
+    public void whenNoResults() {
+        List<Result> dummy = InternalDBOperations.getCurrentResultsForServer(connection, "dummy");
+        Assert.assertTrue(InternalDBOperations.getCurrentResultsByServer(connection).isEmpty());
+        Assert.assertTrue(dummy.isEmpty());
+    }
+
+    @Test
     public void checkPeriodicResults() {
         int i = 0;
         List<Result> results1 = new ArrayList<>();

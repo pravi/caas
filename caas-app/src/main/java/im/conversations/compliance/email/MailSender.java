@@ -32,7 +32,6 @@ public class MailSender {
 
     public static void sendMail(Email email) {
         init();
-        mailer.getSession().setDebug(true);
         mailer.sendMail(email);
     }
 

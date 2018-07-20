@@ -52,6 +52,12 @@ public class InternalDBOperations {
                 "end_time integer)"
         ).executeUpdate();
 
+        connection.createQuery("create table if not exists subscribers(" +
+                "domain text," +
+                "unsubscribeCode text," +
+                "email text)"
+        ).executeUpdate();
+
         connection.createQuery("create index if not exists current_results_index on current_tests(domain)")
                 .executeUpdate();
 
@@ -67,6 +73,12 @@ public class InternalDBOperations {
                 .executeUpdate();
 
         connection.createQuery("create index if not exists servers_index on servers(domain)")
+                .executeUpdate();
+
+        connection.createQuery("create index if not exists subscribers_domain_index on subscribers(domain)")
+                .executeUpdate();
+
+        connection.createQuery("create index if not exists subscribers_code_index on subscribers(unsubscribeCode)")
                 .executeUpdate();
 
     }
@@ -485,6 +497,37 @@ public class InternalDBOperations {
                 ))
                 .collect(Collectors.toCollection(ArrayList::new));
         return r;
+    }
+
+    public static boolean addSubscriber(Connection connection, Subscriber subscriber) {
+        connection.createQuery("insert into subscribers(domain,email,unsubscribeCode) " +
+                "values(:domain,:email,:unsubscribeCode)")
+                .bind(subscriber)
+                .executeUpdate();
+        return true;
+    }
+
+    public static List<Subscriber> getSubscribersFor(Connection connection, String domain) {
+        List<Subscriber> subscribers = connection.createQuery(
+                "select email,domain,unsubscribeCode from subscribers where domain=:domain")
+                .addParameter("domain", domain)
+                .executeAndFetch(Subscriber.class);
+        return subscribers;
+    }
+
+    public static Subscriber removeSubscriber(Connection connection, String unsubscribeCode) {
+        Subscriber subscriber = connection.createQuery(
+                "select email,domain,unsubscribeCode from subscribers " +
+                        "where unsubscribeCode=:unsubscribeCode")
+                .addParameter("unsubscribeCode", unsubscribeCode)
+                .executeAndFetchFirst(Subscriber.class);
+
+        connection.createQuery("delete from subscribers " +
+                "where unsubscribeCode=:unsubscribeCode")
+                .addParameter("unsubscribeCode", unsubscribeCode)
+                .executeUpdate();
+
+        return subscriber;
     }
 
 }

@@ -49,8 +49,8 @@ public class MailBuilder {
     public Email buildVerificationEmail(String to, String code) {
         StringWriter stringWriter = new StringWriter();
         try {
-            configuration.getTemplate("verification.ftl").
-                    process(new HashMap<String, String>() {
+            configuration.getTemplate("verification.ftl")
+                    .process(new HashMap<String, String>() {
                         {
                             put("code", code);
                             put("rootUrl", rootUrl);

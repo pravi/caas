@@ -298,6 +298,7 @@ public class Controller {
     };
 
     public static Route postSubscription = (request, response) -> {
+        MailVerification.removeExpiredRequests();
         String email = request.queryParams("email");
         String domain = request.queryParams("domain");
         String rootUrl = WebUtils.getRootUrlFrom(request);
@@ -312,4 +313,14 @@ public class Controller {
         return gson.toJson(serverResponse);
     };
 
+    public static Route getUnsubscribe = (request, response) -> {
+        String code = request.params("code");
+        Subscriber subscriber = DBOperations.removeSubscriber(code);
+        if(subscriber == null) {
+            return "Invalid unsubscription code";
+        }
+        return "Unsubscribed " + subscriber.getEmail()
+                + " from receiving alerts, periodic compliance reports for "
+                + subscriber.getDomain();
+    };
 }

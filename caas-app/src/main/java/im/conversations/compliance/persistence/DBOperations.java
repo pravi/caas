@@ -223,4 +223,28 @@ public class DBOperations {
         }
         return status;
     }
+
+    public static boolean addSubscriber(Subscriber subscriber) {
+        boolean status = false;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            status = InternalDBOperations.addSubscriber(connection, subscriber);
+        }
+        return status;
+    }
+
+    public static List<Subscriber> getSubscribersFor(String domain) {
+        List<Subscriber> subscribers;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            subscribers = InternalDBOperations.getSubscribersFor(connection, domain);
+        }
+        return subscribers;
+    }
+
+    public static Subscriber removeSubscriber(String unsubscribeCode) {
+        Subscriber subscriber;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            subscriber = InternalDBOperations.removeSubscriber(connection, unsubscribeCode);
+        }
+        return subscriber;
+    }
 }

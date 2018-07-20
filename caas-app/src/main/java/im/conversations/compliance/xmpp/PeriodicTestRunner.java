@@ -88,7 +88,7 @@ public class PeriodicTestRunner implements Runnable {
         //Add results to database
         DBOperations.addPeriodicResults(rdpList, beginTime, endTime);
 
-        System.out.printf("Ended running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
+        System.out.printf("Ended running periodic tests #%d at %s%n", iterationNumber + 1, Instant.now());
         postTestsRun();
     }
 

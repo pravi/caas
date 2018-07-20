@@ -1,11 +1,15 @@
 package im.conversations.compliance.email;
 
+import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
+import im.conversations.compliance.pojo.Subscriber;
 import org.simplejavamail.email.Email;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 public class MailVerification {
@@ -26,12 +30,24 @@ public class MailVerification {
         if (request != null) {
             Instant timestamp = Instant.now();
             if (timestamp.isBefore(request.verificationTimeout)) {
-                //TODO: Add to database
+                Subscriber subscriber = Subscriber.createSubscriber(request.email, request.domain);
+                DBOperations.addSubscriber(subscriber);
                 return "Subscribed " + request.getEmail() + " to compliance reports for " + request.getDomain();
             }
             return "Verification request timed out";
         }
         return "Invalid confirmation code";
+    }
+
+    public static void removeExpiredRequests() {
+        Instant now = Instant.now();
+        for (Iterator<Map.Entry<String, VerificationRequest>> it = verificationRequests.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, VerificationRequest> next = it.next();
+            VerificationRequest request = next.getValue();
+            if (now.isAfter(request.getVerificationTimeout())) {
+                it.remove();
+            }
+        }
     }
 
     static class VerificationRequest {

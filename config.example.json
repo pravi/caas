@@ -1,6 +1,15 @@
 {
   "ip": "127.0.0.1",
   "port": 4567,
-  "storagePath": "/path/to/storage",
-  "testRunInterval": 1440
+  "dbUrl": "jdbc:sqlite:/path/to/storage/",
+  "testRunInterval": 1440,
+  "rootUrl":"http://domain.tld",
+  "mailConfig": {
+    "from": "john@example.com",
+    "host": "smtp.example.com",
+    "port": 587,
+    "ssl": true,
+    "username": "username",
+    "password": "password"
+  }
 }

@@ -2,6 +2,7 @@ package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
 import im.conversations.compliance.annotations.ComplianceTest;
+import im.conversations.compliance.email.MailVerification;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.utils.JsonReader;
@@ -9,6 +10,7 @@ import im.conversations.compliance.utils.TimeUtils;
 import im.conversations.compliance.xmpp.CredentialVerifier;
 import im.conversations.compliance.xmpp.OneOffTestRunner;
 import im.conversations.compliance.xmpp.utils.TestUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import spark.ModelAndView;
 import spark.Route;
 import spark.TemplateViewRoute;
@@ -221,6 +223,8 @@ public class Controller {
         model.put("tests", TestUtils.getComplianceTestMap());
         String imageUrl = WebUtils.getRootUrlFrom(request) + "/badge/" + domain;
         model.put("badgeCode", "<a href='" + request.url() + "'><img src='" + imageUrl + "'></a>");
+        boolean mailExists = Configuration.getInstance().getMailConfig() != null;
+        model.put("mailExists",mailExists);
         return new ModelAndView(model, "server.ftl");
     };
 
@@ -287,4 +291,25 @@ public class Controller {
         model.put("results", results);
         return new ModelAndView(model, "historic.ftl");
     };
+
+    public static Route getConfirmation = (request, response) -> {
+        String code = request.params("code");
+        return MailVerification.verifyEmail(code);
+    };
+
+    public static Route postSubscription = (request, response) -> {
+        String email = request.queryParams("email");
+        String domain = request.queryParams("domain");
+        String rootUrl = WebUtils.getRootUrlFrom(request);
+        ServerResponse serverResponse;
+        EmailValidator validator = EmailValidator.getInstance();
+        if (validator.isValid(email)) {
+            MailVerification.addEmailToList(email, domain);
+            serverResponse = new ServerResponse(true, "Verification mail sent", null);
+            return gson.toJson(serverResponse);
+        }
+        serverResponse = new ServerResponse(false, "Invalid email ID", null);
+        return gson.toJson(serverResponse);
+    };
+
 }

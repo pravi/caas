@@ -14,6 +14,8 @@ public class Configuration {
     private int port = 4567;
     private int testRunInterval = 24 * 60;
     private int dbConnections = 1;
+    //Required only if you want to send mails, and have a valid mail config
+    private String rootUrl;
     private MailConfig mailConfig;
     private String dbUrl = "jdbc:sqlite:data.db";
 
@@ -62,5 +64,9 @@ public class Configuration {
 
     public MailConfig getMailConfig() {
         return mailConfig;
+    }
+
+    public String getRootURL() {
+        return rootUrl;
     }
 }

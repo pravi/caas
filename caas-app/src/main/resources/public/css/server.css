@@ -13,6 +13,11 @@
     justify-content: space-between;
 }
 
+#form_subscribe > div {
+    margin: 5px;
+    padding: 5px;
+}
+
 .input_subscribe {
     width: 250px;
 }

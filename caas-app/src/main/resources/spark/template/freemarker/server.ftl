@@ -6,7 +6,7 @@
 <#assign description="Server compliance result for ${domain}" in page>
 <#assign title="${page.project_name}: Compliance result for ${domain}" in page>
 <#assign stylesheets=["/css/server.css","/css/graph.css","/css/stat.css"] in page>
-<#assign scripts=["/js/graph.js","/js/d3.min.js","/js/server.js"] in page>
+<#assign scripts=["/js/graph.js","/js/subscribe.js","/js/d3.min.js","/js/server.js"] in page>
 
 <@page.page>
 
@@ -44,18 +44,26 @@
     </div>
 
     <div id="additional_server">
+
+        <#if mailExists>
         <div class="card" id="subscribe_server">
             <h3>Subscribe to periodic reports for this server</h3>
             <form id="form_subscribe" action="#subscribe" method="post">
                 <div>
                     <label for="email" class="input_label_subscribe">E-Mail</label>
-                    <input name="email" class="input_subscribe" type="text"/>
+                    <input id="email" name="email" class="input_subscribe" type="text"/>
                 </div>
+                <div id="loading_subscribe">
+                    <div class="loader"></div>
+                    <div>Subscribing to results for ${domain}</div>
+                </div>
+                <div id="input_msg"></div>
                 <div>
                     <input type="submit" class="button" id="subscribe_button" value="Subscribe"/>
                 </div>
             </form>
         </div>
+        </#if>
 
         <div class="card" id="embed_server">
             <h3>Add badge to your website</h3>

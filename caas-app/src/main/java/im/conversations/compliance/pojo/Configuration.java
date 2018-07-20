@@ -14,6 +14,7 @@ public class Configuration {
     private int port = 4567;
     private int testRunInterval = 24 * 60;
     private int dbConnections = 1;
+    private MailConfig mailConfig;
     private String dbUrl = "jdbc:sqlite:data.db";
 
     private Configuration() {
@@ -57,5 +58,9 @@ public class Configuration {
 
     public int getDBConnections() {
         return dbConnections;
+    }
+
+    public MailConfig getMailConfig() {
+        return mailConfig;
     }
 }

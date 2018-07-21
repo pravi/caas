@@ -18,7 +18,7 @@ var print_report = function (softwareName, softwareVersion) {
 
     printWindow.document.write('<h2>' + 'Test results' + '</h2>');
 
-    $("#server_results").each(function (i, obj) {
+    $(".server_results").each(function (i, obj) {
         printWindow.document.write(obj.innerHTML);
     });
 

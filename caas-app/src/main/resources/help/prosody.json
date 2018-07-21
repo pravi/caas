@@ -45,7 +45,7 @@
       "instructions": "Set allow_registration = true in your configuration file"
     },
     {
-      "name": "xep0157",
+      "name": "abuse-contact",
       "possible": true,
       "since": "v0.9",
       "modulesRequired": [

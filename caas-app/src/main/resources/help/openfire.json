@@ -27,7 +27,7 @@
       "instructions": "Configurable in the admin console, on the page Server > Server Settings > Registration & Login."
     },
     {
-      "name": "xep0157",
+      "name": "abuse-contact",
       "possible": true,
       "since": "4.3.0",
       "instructions": "The non-empty email address for any admin user is exposed as an 'admin' contact."

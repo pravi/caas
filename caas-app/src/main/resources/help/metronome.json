@@ -2,6 +2,11 @@
   "softwareName": "metronome",
   "testsHelp": [
     {
+      "name": "abuse-contact",
+      "possible": true,
+      "since": "v1.0"
+    },
+    {
       "name": "xep0163",
       "possible": true,
       "since": "v1.2"

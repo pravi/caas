@@ -41,7 +41,7 @@
       "instructions": "Make sure you have allowed registration from the internet: <br><code><br>mod_register:<br>&nbsp;access_from: allow<br>&nbsp;access: register</code><p style='color: #f22;'>WARNING: You may not want to enable it as this may allow anyone to create an account on your server.</p>"
     },
     {
-      "name": "xep0157",
+      "name": "abuse-contact",
       "possible": true,
       "modulesRequired": [
         {

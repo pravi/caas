@@ -1,11 +1,12 @@
 package im.conversations.compliance.xmpp;
 
+import im.conversations.compliance.email.MailBuilder;
+import im.conversations.compliance.email.MailSender;
 import im.conversations.compliance.persistence.DBOperations;
-import im.conversations.compliance.pojo.Configuration;
-import im.conversations.compliance.pojo.Credential;
-import im.conversations.compliance.pojo.Iteration;
-import im.conversations.compliance.pojo.ResultDomainPair;
+import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.web.WebUtils;
+import im.conversations.compliance.xmpp.utils.TestUtils;
+import org.simplejavamail.email.Email;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
@@ -95,5 +96,44 @@ public class PeriodicTestRunner implements Runnable {
     private void postTestsRun() {
         //Remove invalid credential
         credentialsMarkedForRemoval.forEach(DBOperations::removeCredential);
+        if (Configuration.getInstance().getMailConfig() != null) {
+            sendMailsForChange();
+        }
+    }
+
+    private void sendMailsForChange() {
+        Iteration iteration = DBOperations.getLatestIteration().orElse(null);
+        if (iteration == null) {
+            return;
+        }
+        List<Server> servers = DBOperations.getServers(false);
+        for (Server server : servers) {
+            String domain = server.getDomain();
+            int newIteration = iteration.getIterationNumber();
+            int oldIteration = newIteration - 1;
+            List<Result> newResults = DBOperations.getHistoricalResultsFor(domain, newIteration);
+            List<Result> oldResults = DBOperations.getHistoricalResultsFor(domain, oldIteration);
+            HistoricalSnapshot.Change change = new HistoricalSnapshot.Change();
+            for (Result result : newResults) {
+                Result oldResult = oldResults.stream()
+                        .filter(it -> it.getTest().short_name().equals(result.getTest().short_name()))
+                        .findFirst()
+                        .orElse(null);
+                if (oldResult == null || oldResult.isSuccess() != result.isSuccess()) {
+                    if (result.isSuccess()) {
+                        change.getPass().add(result.getTest().short_name());
+                    } else {
+                        change.getFail().add(result.getTest().short_name());
+                    }
+                }
+            }
+            if (!change.getFail().isEmpty() || !change.getPass().isEmpty()) {
+                List<Email> mails = MailBuilder.getInstance().buildChangeMails(change, iteration, domain);
+                if(!mails.isEmpty()) {
+                    System.out.println("Sending email to subscribers of " + domain);
+                }
+                MailSender.sendMails(mails);
+            }
+        }
     }
 }

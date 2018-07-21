@@ -7,6 +7,8 @@ import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
 
+import java.util.List;
+
 public class MailSender {
     private static boolean init = false;
     private static MailConfig mailConfig;
@@ -33,6 +35,12 @@ public class MailSender {
     public static void sendMail(Email email) {
         init();
         mailer.sendMail(email);
+    }
+
+    public static void sendMails(List<Email> emails) {
+        for(Email email: emails) {
+            sendMail(email);
+        }
     }
 
 }

@@ -18,11 +18,12 @@ public class MailVerification {
     public static boolean addEmailToList(String address, String domain) {
         String code = UUID.randomUUID().toString();
         Instant expirationTime = Instant.now().plus(1, ChronoUnit.DAYS);
+        VerificationRequest verificationRequest = new VerificationRequest(address, domain, expirationTime);
         synchronized (verificationRequests) {
-            verificationRequests.put(code, new VerificationRequest(address, domain, expirationTime));
+            verificationRequests.put(code, verificationRequest);
         }
         String from = Configuration.getInstance().getMailConfig().getFrom();
-        Email email = MailBuilder.getInstance().buildVerificationEmail(address, code);
+        Email email = MailBuilder.getInstance().buildVerificationEmail(address, code, domain);
         MailSender.sendMail(email);
         return true;
     }

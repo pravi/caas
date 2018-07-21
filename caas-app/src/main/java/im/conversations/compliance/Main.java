@@ -9,6 +9,7 @@ import im.conversations.compliance.pojo.MailConfig;
 import im.conversations.compliance.web.Controller;
 import im.conversations.compliance.web.TestLiveWebsocket;
 import im.conversations.compliance.xmpp.PeriodicTestRunner;
+import spark.Route;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 

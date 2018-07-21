@@ -53,7 +53,8 @@ public class Controller {
 
     public static TemplateViewRoute getTests = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
-        model.put("tests", TestUtils.getAllComplianceTests());
+        model.put("tests", TestUtils.getComplianceTests());
+        model.put("informationalTests", TestUtils.getInformationalTests());
         return new ModelAndView(model, "tests.ftl");
     };
 

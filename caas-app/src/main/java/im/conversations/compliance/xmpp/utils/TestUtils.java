@@ -16,6 +16,14 @@ public class TestUtils {
                             .sorted(Comparator.comparing(ComplianceTest::short_name))
                             .collect(Collectors.toList()));
 
+    private static List<ComplianceTest> informationalTests =
+            Collections.unmodifiableList(
+                    allComplianceTests
+                            .stream()
+                            .filter(ComplianceTest::informational)
+                            .collect(Collectors.toList())
+            );
+
     private static List<ComplianceTest> complianceTests =
             Collections.unmodifiableList(
                     allComplianceTests
@@ -71,6 +79,10 @@ public class TestUtils {
      */
     public static List<ComplianceTest> getComplianceTests() {
         return complianceTests;
+    }
+
+    public static List<ComplianceTest> getInformationalTests() {
+        return informationalTests;
     }
 
     /**

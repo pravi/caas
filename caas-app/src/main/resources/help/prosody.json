@@ -190,12 +190,18 @@
     {
       "name": "xep0368",
       "possible": true,
-      "instructions": "TODO: Write instructions"
+      "instructions": "Go to https://prosody.im/doc/dns"
     },
     {
       "name": "xep0398",
       "possible": true,
-      "instructions": "install mod_profile"
+      "modulesRequired": [
+        {
+          "name": "profile",
+          "type": "community_prosody",
+          "link": "https://modules.prosody.im/mod_profile.html"
+        }
+      ]
     }
   ]
 }

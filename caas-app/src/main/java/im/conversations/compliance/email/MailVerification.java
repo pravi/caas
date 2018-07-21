@@ -13,12 +13,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MailVerification {
-    private static HashMap<String, VerificationRequest> verificationRequests = new HashMap<>();
+    private static final HashMap<String, VerificationRequest> verificationRequests = new HashMap<>();
 
     public static boolean addEmailToList(String address, String domain) {
         String code = UUID.randomUUID().toString();
         Instant expirationTime = Instant.now().plus(1, ChronoUnit.DAYS);
-        verificationRequests.put(code, new VerificationRequest(address, domain, expirationTime));
+        synchronized (verificationRequests) {
+            verificationRequests.put(code, new VerificationRequest(address, domain, expirationTime));
+        }
         String from = Configuration.getInstance().getMailConfig().getFrom();
         Email email = MailBuilder.getInstance().buildVerificationEmail(address, code);
         MailSender.sendMail(email);
@@ -26,7 +28,10 @@ public class MailVerification {
     }
 
     public static String verifyEmail(String code) {
-        VerificationRequest request = verificationRequests.remove(code);
+        VerificationRequest request;
+        synchronized (verificationRequests) {
+            request = verificationRequests.remove(code);
+        }
         if (request != null) {
             Instant timestamp = Instant.now();
             if (timestamp.isBefore(request.verificationTimeout)) {
@@ -41,11 +46,13 @@ public class MailVerification {
 
     public static void removeExpiredRequests() {
         Instant now = Instant.now();
-        for (Iterator<Map.Entry<String, VerificationRequest>> it = verificationRequests.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<String, VerificationRequest> next = it.next();
-            VerificationRequest request = next.getValue();
-            if (now.isAfter(request.getVerificationTimeout())) {
-                it.remove();
+        synchronized (verificationRequests) {
+            for (Iterator<Map.Entry<String, VerificationRequest>> it = verificationRequests.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, VerificationRequest> next = it.next();
+                VerificationRequest request = next.getValue();
+                if (now.isAfter(request.getVerificationTimeout())) {
+                    it.remove();
+                }
             }
         }
     }

@@ -99,15 +99,17 @@ public class PeriodicTestRunner implements Runnable {
         }
         for (Credential credential : credentialsMarkedForRemoval) {
             DBOperations.removeCredential(credential);
-            List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
-            if(!mails.isEmpty()) {
-                System.out.println(
-                        "Sending email to subscribers of "
-                                + credential.getDomain()
-                                + " notifying about credential failing to authenticate"
-                );
+            if (Configuration.getInstance().getMailConfig() != null) {
+                List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
+                if (!mails.isEmpty()) {
+                    System.out.println(
+                            "Sending email to subscribers of "
+                                    + credential.getDomain()
+                                    + " notifying about credential failing to authenticate"
+                    );
+                }
+                MailSender.sendMails(mails);
             }
-            MailSender.sendMails(mails);
         }
     }
 

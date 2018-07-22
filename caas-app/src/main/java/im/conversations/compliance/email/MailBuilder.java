@@ -103,8 +103,32 @@ public class MailBuilder {
     }
 
     public List<Email> buildCredentialRemovalEmails(Credential credential) {
-        //TODO: Implement this
-        return null;
+        List<Subscriber> subscribers = DBOperations.getSubscribersFor(credential.getDomain());
+        List<Email> emails = new ArrayList<>();
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("credential", credential);
+        model.put("domain", credential.getDomain());
+        model.put("rootUrl", rootUrl);
+
+        for (Subscriber subscriber : subscribers) {
+            StringWriter stringWriter = new StringWriter();
+            try {
+                model.put("subscriber", subscriber);
+                configuration.getTemplate("authentication_failed.ftl").process(model, stringWriter);
+            } catch (TemplateException | IOException e) {
+                e.printStackTrace();
+            }
+            String message = stringWriter.toString();
+            emails.add(
+                    buildEmail(
+                            from,
+                            subscriber.getEmail(),
+                            "Authentication failed for " + credential.getJid().toString(),
+                            message
+                    )
+            );
+        }
+        return emails;
     }
 
     public List<Email> buildResultsNotAvailableMails(String domain, Iteration iteration) {

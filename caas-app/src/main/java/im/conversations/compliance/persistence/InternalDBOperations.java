@@ -402,7 +402,7 @@ public class InternalDBOperations {
     }
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByServer(Connection connection) {
-        HashMap<String, HashMap<String, Boolean>> resultsByServer = new HashMap<>();
+        SortedMap<String, HashMap<String, Boolean>> resultsByServer = new TreeMap<>();
         List<String> tests = TestUtils.getTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +

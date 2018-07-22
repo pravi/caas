@@ -6,7 +6,7 @@
     To verify your email ID for receiving important alerts and reports from XMPP Compliance Tester about ${domain}, go
     to
     <a href="${rootUrl}/confirm/${code}/">${rootUrl}/confirm/${code}/</a> .
-This link will expire within 24 hours.
+    This link will expire within 24 hours.
 </p>
 </@mail.mail>
 

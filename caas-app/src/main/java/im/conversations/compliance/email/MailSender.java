@@ -34,7 +34,11 @@ public class MailSender {
 
     public static void sendMail(Email email) {
         init();
-        mailer.sendMail(email);
+        if(mailer.validate(email)) {
+            mailer.sendMail(email);
+        } else {
+            System.err.println("Invalid email");
+        }
     }
 
     public static void sendMails(List<Email> emails) {

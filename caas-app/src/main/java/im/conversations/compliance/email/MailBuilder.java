@@ -45,32 +45,35 @@ public class MailBuilder {
         return INSTANCE;
     }
 
-    private static Email buildEmail(String from, String to, String subject, String html) {
+    private static Email buildEmail(String from, String to, String subject, String html, String fallback) {
         Email email = EmailBuilder.startingBlank()
                 .from("XMPP Compliance Tester", from)
                 .to(to)
                 .withSubject(subject)
                 .withHTMLText(html)
+                .withPlainText(fallback)
                 .buildEmail();
         return email;
     }
 
     public Email buildVerificationEmail(String to, String code, String domain) {
         StringWriter stringWriter = new StringWriter();
+        StringWriter fallBackWriter = new StringWriter();
         try {
-            configuration.getTemplate("verification.ftl")
-                    .process(new HashMap<String, String>() {
-                        {
-                            put("code", code);
-                            put("rootUrl", rootUrl);
-                            put("domain", domain);
-                        }
-                    }, stringWriter);
+            HashMap<String, String> model = new HashMap<>();
+            model.put("code", code);
+            model.put("rootUrl", rootUrl);
+            model.put("domain", domain);
+            configuration.getTemplate("emails/verification.ftl")
+                    .process(model, stringWriter);
+            configuration.getTemplate("emails/verification_text.ftl")
+                    .process(model, fallBackWriter);
         } catch (TemplateException | IOException e) {
             e.printStackTrace();
         }
+        String fallbackMessage = fallBackWriter.toString();
         String message = stringWriter.toString();
-        return buildEmail(from, to, "Verify your E-Mail address", message);
+        return buildEmail(from, to, "Verify your E-Mail address", message, fallbackMessage);
     }
 
     public List<Email> buildChangeEmails(HistoricalSnapshot.Change change, Iteration iteration, String domain) {
@@ -83,19 +86,23 @@ public class MailBuilder {
         model.put("rootUrl", rootUrl);
         for (Subscriber subscriber : subscribers) {
             StringWriter stringWriter = new StringWriter();
+            StringWriter fallBackWriter = new StringWriter();
             try {
                 model.put("subscriber", subscriber);
-                configuration.getTemplate("change_report.ftl").process(model, stringWriter);
+                configuration.getTemplate("emails/change_report.ftl").process(model, stringWriter);
+                configuration.getTemplate("emails/change_report_text.ftl").process(model, fallBackWriter);
             } catch (TemplateException | IOException e) {
                 e.printStackTrace();
             }
             String message = stringWriter.toString();
+            String fallBackMessage = fallBackWriter.toString();
             emails.add(
                     buildEmail(
                             from,
                             subscriber.getEmail(),
                             "Changes in " + domain + "'s XMPP compliance results",
-                            message
+                            message,
+                            fallBackMessage
                     )
             );
         }
@@ -112,19 +119,25 @@ public class MailBuilder {
 
         for (Subscriber subscriber : subscribers) {
             StringWriter stringWriter = new StringWriter();
+            StringWriter fallBackWriter = new StringWriter();
             try {
                 model.put("subscriber", subscriber);
-                configuration.getTemplate("authentication_failed.ftl").process(model, stringWriter);
+                configuration.getTemplate("emails/authentication_failed.ftl")
+                        .process(model, stringWriter);
+                configuration.getTemplate("emails/authentication_failed_text.ftl")
+                        .process(model, fallBackWriter);
             } catch (TemplateException | IOException e) {
                 e.printStackTrace();
             }
             String message = stringWriter.toString();
+            String fallBackMessage = fallBackWriter.toString();
             emails.add(
                     buildEmail(
                             from,
                             subscriber.getEmail(),
                             "Authentication failed for " + credential.getJid().toString(),
-                            message
+                            message,
+                            fallBackMessage
                     )
             );
         }
@@ -143,19 +156,24 @@ public class MailBuilder {
 
         for (Subscriber subscriber : subscribers) {
             StringWriter stringWriter = new StringWriter();
+            StringWriter fallBackWriter = new StringWriter();
             try {
                 model.put("subscriber", subscriber);
-                configuration.getTemplate("results_unavailable.ftl").process(model, stringWriter);
+                configuration.getTemplate("emails/results_unavailable.ftl").process(model, stringWriter);
+                configuration.getTemplate("emails/results_unavailable_text.ftl")
+                        .process(model, fallBackWriter);
             } catch (TemplateException | IOException e) {
                 e.printStackTrace();
             }
             String message = stringWriter.toString();
+            String fallBackMessage = fallBackWriter.toString();
             emails.add(
                     buildEmail(
                             from,
                             subscriber.getEmail(),
                             "Error while running Compliance Tester for " + domain,
-                            message
+                            message,
+                            fallBackMessage
                     )
             );
         }

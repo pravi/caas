@@ -5,7 +5,6 @@ import im.conversations.compliance.email.MailSender;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.web.WebUtils;
-import im.conversations.compliance.xmpp.utils.TestUtils;
 import org.simplejavamail.email.Email;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
@@ -95,9 +94,20 @@ public class PeriodicTestRunner implements Runnable {
 
     private void postTestsRun() {
         //Remove invalid credential
-        credentialsMarkedForRemoval.forEach(DBOperations::removeCredential);
         if (Configuration.getInstance().getMailConfig() != null) {
             sendMailsForChange();
+        }
+        for (Credential credential : credentialsMarkedForRemoval) {
+            DBOperations.removeCredential(credential);
+            List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
+            if(!mails.isEmpty()) {
+                System.out.println(
+                        "Sending email to subscribers of "
+                                + credential.getDomain()
+                                + " notifying about credential failing to authenticate"
+                );
+            }
+            MailSender.sendMails(mails);
         }
     }
 
@@ -113,6 +123,18 @@ public class PeriodicTestRunner implements Runnable {
             int oldIteration = newIteration - 1;
             List<Result> newResults = DBOperations.getHistoricalResultsFor(domain, newIteration);
             List<Result> oldResults = DBOperations.getHistoricalResultsFor(domain, oldIteration);
+            //If results are unavailable due to error, notify subscribers
+            if (newResults.isEmpty()) {
+                List<Email> mails = MailBuilder.getInstance().buildResultsNotAvailableMails(domain, iteration);
+                if (!mails.isEmpty()) {
+                     System.out.println(
+                            "Sending email to subscribers of "
+                                    + domain
+                                    + " notifying about error while getting compliance results"
+                    );
+                }
+                MailSender.sendMails(mails);
+            }
             HistoricalSnapshot.Change change = new HistoricalSnapshot.Change();
             for (Result result : newResults) {
                 Result oldResult = oldResults.stream()
@@ -128,9 +150,13 @@ public class PeriodicTestRunner implements Runnable {
                 }
             }
             if (!change.getFail().isEmpty() || !change.getPass().isEmpty()) {
-                List<Email> mails = MailBuilder.getInstance().buildChangeMails(change, iteration, domain);
+                List<Email> mails = MailBuilder.getInstance().buildChangeEmails(change, iteration, domain);
                 if(!mails.isEmpty()) {
-                    System.out.println("Sending email to subscribers of " + domain);
+                    System.out.println(
+                            "Sending email to subscribers of "
+                                    + domain
+                                    + " notifying about changes in its compliance result"
+                    );
                 }
                 MailSender.sendMails(mails);
             }

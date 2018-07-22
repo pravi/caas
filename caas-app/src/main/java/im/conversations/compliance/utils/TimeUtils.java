@@ -17,8 +17,12 @@ public class TimeUtils {
             time = "just now";
         } else if (duration.getSeconds() < 60) {
             time = duration.getSeconds() + " seconds ago";
+        } else if (duration.toMinutes() == 1) {
+            time = "1 minute ago";
         } else if (duration.toMinutes() < 60) {
             time = duration.toMinutes() + " minutes ago";
+        } else if (duration.toHours() == 1) {
+            time = "1 hour ago";
         } else if (duration.toHours() < 48) {
             time = duration.toHours() + " hours ago";
         } else {

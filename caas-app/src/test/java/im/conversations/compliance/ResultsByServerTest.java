@@ -33,6 +33,7 @@ public class ResultsByServerTest {
     public void whenNoResults() {
         List<Result> dummy = InternalDBOperations.getCurrentResultsForServer(connection, "dummy");
         Assert.assertTrue(InternalDBOperations.getCurrentResultsByServer(connection).isEmpty());
+        Assert.assertTrue(InternalDBOperations.getHistoricalResultsFor(connection,"dummy",0).isEmpty());
         Assert.assertTrue(dummy.isEmpty());
     }
 

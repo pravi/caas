@@ -2,6 +2,7 @@ package im.conversations.compliance.xmpp;
 
 import im.conversations.compliance.email.MailBuilder;
 import im.conversations.compliance.email.MailSender;
+import im.conversations.compliance.email.MailVerification;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.web.WebUtils;
@@ -21,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PeriodicTestRunner implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private List<Credential> credentialsMarkedForRemoval;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
@@ -110,8 +111,13 @@ public class PeriodicTestRunner implements Runnable {
                                     + credential.getDomain()
                                     + " notifying about credential failing to authenticate"
                     );
+                    MailSender.sendMails(mails);
+                    LOGGER.info(
+                            "Sent email to subscribers of "
+                                    + credential.getDomain()
+                                    + " notifying about credential failing to authenticate"
+                    );
                 }
-                MailSender.sendMails(mails);
             }
         }
     }
@@ -137,8 +143,13 @@ public class PeriodicTestRunner implements Runnable {
                                     + domain
                                     + " notifying about error while getting compliance results"
                     );
+                    MailSender.sendMails(mails);
+                    LOGGER.info(
+                            "Sent email to subscribers of "
+                                    + domain
+                                    + " notifying about error while getting compliance results"
+                    );
                 }
-                MailSender.sendMails(mails);
             }
             HistoricalSnapshot.Change change = new HistoricalSnapshot.Change();
             for (Result result : newResults) {
@@ -156,14 +167,19 @@ public class PeriodicTestRunner implements Runnable {
             }
             if (!change.getFail().isEmpty() || !change.getPass().isEmpty()) {
                 List<Email> mails = MailBuilder.getInstance().buildChangeEmails(change, iteration, domain);
-                if(!mails.isEmpty()) {
+                if (!mails.isEmpty()) {
                     LOGGER.info(
                             "Sending email to subscribers of "
                                     + domain
                                     + " notifying about changes in its compliance result"
                     );
+                    MailSender.sendMails(mails);
+                    LOGGER.info(
+                            "Sent email to subscribers of "
+                                    + domain
+                                    + " notifying about changes in its compliance result"
+                    );
                 }
-                MailSender.sendMails(mails);
             }
         }
     }

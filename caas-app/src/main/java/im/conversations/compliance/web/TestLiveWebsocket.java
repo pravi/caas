@@ -49,7 +49,6 @@ public class TestLiveWebsocket {
 
     @OnWebSocketMessage
     public void message(Session session, String message) throws IOException {
-        System.out.println("Sent: " + message);
         session.getRemote().sendString(message);
     }
 }

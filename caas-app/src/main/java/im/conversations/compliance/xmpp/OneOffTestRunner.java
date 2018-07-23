@@ -4,6 +4,8 @@ import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.utils.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class OneOffTestRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OneOffTestRunner.class);
     private static final ConcurrentHashMap<String, ArrayList<ResultListener>> testRunningFor;
     private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -26,7 +29,7 @@ public class OneOffTestRunner {
             if (!testRunningFor.containsKey(credential.getDomain())) {
                 testRunningFor.put(credential.getDomain(), new ArrayList<>());
                 executorService.submit(() -> startTests(credential));
-                System.out.println("Added " + credential.getDomain() + " to test running list");
+                LOGGER.info("Added " + credential.getDomain() + " to test running list");
             }
         }
     }
@@ -35,7 +38,7 @@ public class OneOffTestRunner {
         try {
             synchronized (testRunningFor) {
                 testRunningFor.get(domain).add(resultListener);
-                System.out.println("Registered a listener for one-off tests for " + domain);
+                LOGGER.info("Registered a listener for one-off tests for " + domain);
             }
         } catch (Exception ex) {
             return false;

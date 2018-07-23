@@ -6,6 +6,8 @@ import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.web.WebUtils;
 import org.simplejavamail.email.Email;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
@@ -22,6 +24,7 @@ public class PeriodicTestRunner implements Runnable {
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private List<Credential> credentialsMarkedForRemoval;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
@@ -32,7 +35,7 @@ public class PeriodicTestRunner implements Runnable {
             minutesLeft = Configuration.getInstance().getTestRunInterval() - between.toMinutes();
         }
         if (minutesLeft > 0) {
-            System.out.println("Next test scheduled " + minutesLeft + " minutes from now");
+            LOGGER.info("Next test scheduled " + minutesLeft + " minutes from now");
         }
         // Run on start
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this, minutesLeft, Configuration.getInstance().getTestRunInterval(), TimeUnit.MINUTES);
@@ -46,13 +49,13 @@ public class PeriodicTestRunner implements Runnable {
     @Override
     public void run() {
         if (!WebUtils.isConnected()) {
-            System.out.println("Internet connection not available. Retrying in 5 minutes");
+            LOGGER.warn("Internet connection not available. Retrying in 5 minutes");
             scheduledThreadPoolExecutor.schedule(this, 5, TimeUnit.MINUTES);
             return;
         }
         List<Credential> credentials = DBOperations.getCredentials();
         if (credentials.isEmpty()) {
-            System.out.println("No credentials found. Periodic test skipped");
+            LOGGER.info("No credentials found. Periodic test skipped");
             return;
         }
         credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
@@ -102,7 +105,7 @@ public class PeriodicTestRunner implements Runnable {
             if (Configuration.getInstance().getMailConfig() != null) {
                 List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
                 if (!mails.isEmpty()) {
-                    System.out.println(
+                    LOGGER.info(
                             "Sending email to subscribers of "
                                     + credential.getDomain()
                                     + " notifying about credential failing to authenticate"
@@ -129,7 +132,7 @@ public class PeriodicTestRunner implements Runnable {
             if (newResults.isEmpty()) {
                 List<Email> mails = MailBuilder.getInstance().buildResultsNotAvailableMails(domain, iteration);
                 if (!mails.isEmpty()) {
-                     System.out.println(
+                     LOGGER.info(
                             "Sending email to subscribers of "
                                     + domain
                                     + " notifying about error while getting compliance results"
@@ -154,7 +157,7 @@ public class PeriodicTestRunner implements Runnable {
             if (!change.getFail().isEmpty() || !change.getPass().isEmpty()) {
                 List<Email> mails = MailBuilder.getInstance().buildChangeEmails(change, iteration, domain);
                 if(!mails.isEmpty()) {
-                    System.out.println(
+                    LOGGER.info(
                             "Sending email to subscribers of "
                                     + domain
                                     + " notifying about changes in its compliance result"

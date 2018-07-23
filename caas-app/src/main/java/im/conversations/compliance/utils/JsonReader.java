@@ -3,10 +3,13 @@ package im.conversations.compliance.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class JsonReader<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonReader.class);
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
     public static final Gson gson = gsonBuilder.create();
     private final Class<T> typeClass;
@@ -22,7 +25,7 @@ public class JsonReader<T> {
 
     public T read(File file) {
         try {
-            System.out.println("Reading json file from " + file.getAbsolutePath());
+            LOGGER.info("Reading json file from " + file.getAbsolutePath());
             return gson.fromJson(new FileReader(file), typeClass);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Configuration file not found");
@@ -31,7 +34,7 @@ public class JsonReader<T> {
         }
     }
     public T read(InputStream inputStream) {
-        System.out.println("Reading json file from inputstream");
+        LOGGER.info("Reading json file from inputstream");
         return gson.fromJson(new InputStreamReader(inputStream),typeClass);
     }
 }

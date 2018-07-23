@@ -1,11 +1,15 @@
 package im.conversations.compliance.pojo;
 
 import im.conversations.compliance.utils.JsonReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Optional;
 
 public class Configuration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     private static File FILE = new File("config.json");
     private static Configuration INSTANCE;
@@ -35,7 +39,7 @@ public class Configuration {
             if (FILE.exists()) {
                 INSTANCE = new JsonReader<>(Configuration.class).read(FILE);
             } else {
-                System.out.println("Configuration file not found. Reverting to default configuration");
+                LOGGER.warn("Configuration file not found. Reverting to default configuration");
                 INSTANCE = new Configuration();
             }
         }

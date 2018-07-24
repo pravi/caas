@@ -10,7 +10,7 @@
 #additional_server {
     margin: 50px auto;
     display: inline-flex;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 #form_subscribe > div {
@@ -18,8 +18,9 @@
     padding: 5px;
 }
 
-.input_subscribe {
-    width: 250px;
+#additional_server div {
+    overflow: hidden;
+    flex: 1 1 600px;
 }
 
 #help_container {

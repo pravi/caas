@@ -133,10 +133,10 @@
                            ${help.getInstructions()?no_esc}
                        </li>
                    </div>
-        <p class="footnote">
-            Note: These instructions are valid only for this particular server, because of the software running on it.
-        </p>
                    </#if>
+                    <p class="footnote">
+                        Note: These instructions are valid only for this particular server, because of the software running on it.
+                    </p>
 
                 </ul>
             </div>

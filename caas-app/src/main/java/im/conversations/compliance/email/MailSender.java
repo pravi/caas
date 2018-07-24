@@ -6,10 +6,13 @@ import org.simplejavamail.email.Email;
 import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class MailSender {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailSender.class);
     private static boolean init = false;
     private static MailConfig mailConfig;
     private static TransportStrategy transportStrategy;
@@ -37,7 +40,7 @@ public class MailSender {
         if(mailer.validate(email)) {
             mailer.sendMail(email);
         } else {
-            System.err.println("Invalid email");
+            LOGGER.error("Invalid email");
         }
     }
 

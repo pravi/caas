@@ -66,7 +66,7 @@ public class PeriodicTestRunner implements Runnable {
             iterationNumber = iteration.getIterationNumber();
         }
         Instant beginTime = Instant.now();
-        System.out.printf("Started running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
+        LOGGER.info("Started running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
 
         List<ResultDomainPair> rdpList = credentials.parallelStream()
                 .map(credential -> {
@@ -92,7 +92,7 @@ public class PeriodicTestRunner implements Runnable {
         //Add results to database
         DBOperations.addPeriodicResults(rdpList, beginTime, endTime);
 
-        System.out.printf("Ended running periodic tests #%d at %s%n", iterationNumber + 1, Instant.now());
+        LOGGER.info("Ended running periodic tests #%d at %s%n", iterationNumber + 1, Instant.now());
         postTestsRun();
     }
 

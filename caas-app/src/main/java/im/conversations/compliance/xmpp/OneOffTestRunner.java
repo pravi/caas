@@ -78,6 +78,7 @@ public class OneOffTestRunner {
             }
             ex.printStackTrace();
         }
+        LOGGER.info("One-off tests completed for " + credential.getDomain());
     }
 
     public interface ResultListener {

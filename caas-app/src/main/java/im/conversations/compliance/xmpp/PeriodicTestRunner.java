@@ -2,7 +2,6 @@ package im.conversations.compliance.xmpp;
 
 import im.conversations.compliance.email.MailBuilder;
 import im.conversations.compliance.email.MailSender;
-import im.conversations.compliance.email.MailVerification;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.web.WebUtils;
@@ -66,7 +65,7 @@ public class PeriodicTestRunner implements Runnable {
             iterationNumber = iteration.getIterationNumber();
         }
         Instant beginTime = Instant.now();
-        LOGGER.info("Started running periodic tests #%d at %s%n", iterationNumber + 1, beginTime);
+        LOGGER.info("Started running periodic tests #" + (iterationNumber + 1) + " at " + beginTime);
 
         List<ResultDomainPair> rdpList = credentials.parallelStream()
                 .map(credential -> {
@@ -92,15 +91,12 @@ public class PeriodicTestRunner implements Runnable {
         //Add results to database
         DBOperations.addPeriodicResults(rdpList, beginTime, endTime);
 
-        LOGGER.info("Ended running periodic tests #%d at %s%n", iterationNumber + 1, Instant.now());
+        LOGGER.info("Ended running periodic tests #" + (iterationNumber + 1) + " at " + endTime);
         postTestsRun();
     }
 
     private void postTestsRun() {
         //Remove invalid credential
-        if (Configuration.getInstance().getMailConfig() != null) {
-            sendMailsForChange();
-        }
         for (Credential credential : credentialsMarkedForRemoval) {
             DBOperations.removeCredential(credential);
             if (Configuration.getInstance().getMailConfig() != null) {
@@ -119,6 +115,9 @@ public class PeriodicTestRunner implements Runnable {
                     );
                 }
             }
+        }
+        if (Configuration.getInstance().getMailConfig() != null) {
+            sendMailsForChange();
         }
     }
 

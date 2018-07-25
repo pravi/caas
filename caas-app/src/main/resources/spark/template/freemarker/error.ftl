@@ -3,7 +3,7 @@
 <#assign description="Get detailed report for your XMPP servers' compliance test results, periodic reports" in page>
 <#assign title="${page.project_name}: Error ${error_code}" in page>
 <@page.page>
-<div class="card">
+<div class="card error">
     <h1>
         Error ${error_code}
     </h1>

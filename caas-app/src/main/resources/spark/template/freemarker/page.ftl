@@ -1,4 +1,4 @@
-<#assign project_name="CaaS">
+<#assign project_name="XMPP Compliance Tester">
 <#macro page>
     <#assign nav_bar_height=80>
 <html>
@@ -12,6 +12,14 @@
     <style>
         #nav_bar, #brand, #nav_list_menu {
             height: ${nav_bar_height}px;
+        }
+
+        #brand {
+            height: ${nav_bar_height - 10}px;
+        }
+
+        #brand_img {
+            height: ${nav_bar_height - 25}px;
         }
 
         #content {
@@ -48,11 +56,12 @@
 
 <body>
 <nav id="nav_bar">
+    <a href="/">
     <div id="brand">
-        <a href="/">
-            <h1 id="brand_name">${project_name}</h1>
-        </a>
+        <img id="brand_img" src="/img/logo.svg">
+        <h1 id="brand_name">${project_name}</h1>
     </div>
+    </a>
     <div id="hamburger" onclick="menu_toggle()">
         <span></span>
         <span></span>

@@ -30,7 +30,17 @@ public class SubscribersTest {
                 InternalDBOperations.getSubscribersFor(connection, "dummy")
                         .isEmpty()
         );
-        Assert.assertNull(InternalDBOperations.removeSubscriber(connection, "test"));
+        Assert.assertNull(
+                InternalDBOperations.removeSubscriber(
+                        connection, "test"
+                )
+        );
+        Assert.assertFalse(
+                InternalDBOperations.isSubscribed(
+                        connection,
+                        "dummy@example.com",
+                        "example.com"
+                ));
     }
 
     @Test
@@ -66,5 +76,23 @@ public class SubscribersTest {
         Assert.assertEquals(subscriber1, readBackSubscriber1);
         List<Subscriber> readBackSubscribers = InternalDBOperations.getSubscribersFor(connection, domain1);
         Assert.assertEquals(Collections.singletonList(subscriber2),readBackSubscribers);
+    }
+
+    public void isSubscribedTest() {
+        String email1 = "test1@exmaple.com";
+        String email2 = "test2@exmaple.com";
+        String domain1 = "jabber-server-1.com";
+        String domain2 = "jabber-server-2.com";
+        Subscriber subscriber1 = Subscriber.createSubscriber(email1, domain1);
+        Subscriber subscriber2 = Subscriber.createSubscriber(email1, domain2);
+        Subscriber subscriber3 = Subscriber.createSubscriber(email2, domain2);
+        InternalDBOperations.addSubscriber(connection, subscriber1);
+        InternalDBOperations.addSubscriber(connection, subscriber1);
+        InternalDBOperations.addSubscriber(connection, subscriber2);
+        InternalDBOperations.addSubscriber(connection, subscriber3);
+        Assert.assertTrue(InternalDBOperations.isSubscribed(connection, email1, domain1));
+        Assert.assertTrue(InternalDBOperations.isSubscribed(connection, email1, domain2));
+        Assert.assertFalse(InternalDBOperations.isSubscribed(connection, email2, domain1));
+        Assert.assertTrue(InternalDBOperations.isSubscribed(connection, email2, domain2));
     }
 }

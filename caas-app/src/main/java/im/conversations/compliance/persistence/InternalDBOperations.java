@@ -18,7 +18,8 @@ public class InternalDBOperations {
         connection.createQuery("create table if not exists credentials(" +
                 "domain text," +
                 "jid text primary key," +
-                "password text)"
+                "password text," +
+                "unique(domain) on conflict replace)"
         ).executeUpdate();
 
         connection.createQuery("create table if not exists servers(" +
@@ -505,6 +506,16 @@ public class InternalDBOperations {
                 .bind(subscriber)
                 .executeUpdate();
         return true;
+    }
+
+    public static boolean isSubscribed(Connection connection, String email, String domain) {
+        boolean subscribed = connection.createQuery(
+                "select count(email) from subscribers " +
+                        "where domain = :domain and email = :email")
+                .addParameter("email", email)
+                .addParameter("domain", domain)
+                .executeScalar(Integer.class) > 0;
+        return subscribed;
     }
 
     public static List<Subscriber> getSubscribersFor(Connection connection, String domain) {

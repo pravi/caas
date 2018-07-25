@@ -306,6 +306,12 @@ public class Controller {
         ServerResponse serverResponse;
         EmailValidator validator = EmailValidator.getInstance();
         if (validator.isValid(email)) {
+            boolean exists = DBOperations.getSubscribersFor(domain).stream()
+                    .anyMatch(it -> it.getEmail().equals(email));
+            if (exists) {
+                serverResponse = new ServerResponse(false, "ERROR: You are already subscribed!", null);
+                return gson.toJson(serverResponse);
+            }
             MailVerification.addEmailToList(email, domain);
             serverResponse = new ServerResponse(true, "Verification mail sent", null);
             return gson.toJson(serverResponse);

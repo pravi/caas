@@ -75,8 +75,13 @@ $(function () {
 
             // Set widths of the th elements in thead. For the fixed th, set its position
             ths.forEach(function (th, i) {
-                th.style.width = thStyles[i].width + 'px';
+                //I am not sure why this works, but this fixes Firefox's weird right extra margin issue
+                th.style.width = window.getComputedStyle(ths[i]).width;
+                if (i === 1) {
+                    th.style.width = thStyles[i].width + 'px';
+                }
                 if (i === 0) {
+                    th.style.width = thStyles[i].width + 'px';
                     th.style.position = 'absolute';
                     th.style.top = '0';
                     th.style.left = - thStyles[0].boundingWidth + 'px';
@@ -96,8 +101,13 @@ $(function () {
                 tr.style.paddingLeft = thStyles[0].boundingWidth + 'px';
                 [].slice.call(tr.querySelectorAll('td'))
                     .forEach(function (td, j) {
-                        td.style.width = thStyles[j].width + 'px';
+                        //I am not sure why this works, but this fixes Firefox's weird right extra margin issue
+                        td.style.width = window.getComputedStyle(ths[j]).width;
+                        if (j === 1) {
+                            td.style.width = thStyles[j].width + 'px';
+                        }
                         if (j === 0) {
+                            td.style.width = thStyles[j].width + 'px';
                             td.style.position = 'absolute';
                             td.style.left = '0';
                         }

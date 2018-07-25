@@ -7,10 +7,9 @@
 </p>
 
 <p>
-    You can check if there are any credentials left for ${domain},
-    by going to the <a href="${rootUrl}/live/${domain}">live result page</a>.
-    If there are no credentials left, add new credentials for ${domain}
-    by going to <a href="${rootUrl}/add/">add page</a> .
+    Please add new credentials for ${domain}
+    by going to <a href="${rootUrl}/add/">add page</a> to keep running these tests,
+    and prevent receiving emails about test failures.
 </p>
 </@mail.mail>
 

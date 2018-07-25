@@ -9,10 +9,10 @@ import rocks.xmpp.core.session.XmppSessionConfiguration;
 import java.time.Duration;
 
 public class CredentialVerifier {
+    private static final XmppSessionConfiguration xmppSessionConfiguration = XmppSessionConfiguration.builder()
+            .defaultResponseTimeout(Duration.ofSeconds(10))
+            .build();
     public static boolean verifyCredential(Credential credentials) {
-        XmppSessionConfiguration xmppSessionConfiguration = XmppSessionConfiguration.builder()
-                .defaultResponseTimeout(Duration.ofSeconds(10))
-                .build();
         Jid jid;
         // Handles invalid credentials gracefully rather than throwing Internal Server error
         try {

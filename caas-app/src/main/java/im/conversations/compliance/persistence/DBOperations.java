@@ -119,12 +119,12 @@ public class DBOperations {
         return success;
     }
 
-    public static Credential getCredentialFor(String domain) {
+    public static Optional<Credential> getCredentialFor(String domain) {
         Credential credential;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
             credential = InternalDBOperations.getCredentialFor(connection, domain);
         }
-        return credential;
+        return Optional.ofNullable(credential);
     }
 
     public static List<Credential> getCredentials() {

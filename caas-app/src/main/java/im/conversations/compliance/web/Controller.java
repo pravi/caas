@@ -2,6 +2,8 @@ package im.conversations.compliance.web;
 
 import com.google.gson.Gson;
 import im.conversations.compliance.annotations.ComplianceTest;
+import im.conversations.compliance.email.MailBuilder;
+import im.conversations.compliance.email.MailSender;
 import im.conversations.compliance.email.MailVerification;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.*;
@@ -19,7 +21,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -83,37 +84,8 @@ public class Controller {
             return gson.toJson(postResponse);
         }
 
-        List<Credential> credentials = DBOperations.getCredentials();
-        Predicate<Credential> jidMatches = it -> it.getJid().toString().equals(credential.getJid().toString());
-        Predicate<Credential> passwordMatches = it -> it.getPassword().equals(credential.getPassword());
-        if (credentials != null && credentials.stream().filter(jidMatches).anyMatch(passwordMatches)) {
-            Server server = DBOperations.getServer(credential.getDomain()).orElse(null);
-            if (server != null) {
-                DBOperations.setListed(server.getDomain(), listedServer);
-                postResponse = new ServerResponse(
-                        false,
-                        "UPDATE: Server will now be " +
-                                (listedServer ? "included in" : "excluded from") +
-                                " the public lists and tables",
-                        null);
-                return gson.toJson(postResponse);
-            }
-            postResponse = new ServerResponse(
-                    false,
-                    "ERROR: Credentials already exist in the database",
-                    null);
-            return gson.toJson(postResponse);
-        }
-
-
         // Verify credentials
-        boolean verified;
-        try {
-            verified = CredentialVerifier.verifyCredential(credential);
-        } catch (Exception ex) {
-            verified = false;
-            ex.printStackTrace();
-        }
+        boolean verified = CredentialVerifier.verifyCredential(credential);
         if (!verified) {
             postResponse = new ServerResponse(
                     false,
@@ -121,12 +93,40 @@ public class Controller {
                     null);
             return gson.toJson(postResponse);
         }
-        // If credentials are verified, and there was some old credential with the same jid, remove it
-        else if (credentials != null) {
-            credentials.stream()
-                    .filter(jidMatches)
-                    .findFirst()
-                    .ifPresent(DBOperations::removeCredential);
+
+        Credential existingCredential = DBOperations.getCredentialFor(credential.getDomain()).orElse(null);
+        if (existingCredential != null) {
+            //Update server's listed status
+            Server server = DBOperations.getServer(credential.getDomain()).get();
+            DBOperations.setListed(server.getDomain(), listedServer);
+
+            //If existing credential does not work update it
+            boolean existingVerified = CredentialVerifier.verifyCredential(existingCredential);
+            if (!existingVerified) {
+                DBOperations.removeCredential(existingCredential);
+                DBOperations.addCredential(credential);
+                postResponse = new ServerResponse(
+                        false,
+                        "UPDATE: Credential updated and set server as " +
+                                (listedServer ? "listed" : "unlisted"),
+                        null
+                );
+                MailSender.sendMails(
+                        MailBuilder.getInstance().buildCredentialUpdateEmails(credential)
+                );
+                return gson.toJson(postResponse);
+            }
+
+            //If existing credential was working, just notify about new listing status
+            postResponse = new ServerResponse(
+                    false,
+                    "UPDATE: Credential already exists for server. " +
+                            "Server will now be " +
+                            (listedServer ? "included in" : "excluded from") +
+                            " the public lists and tables",
+                    null
+            );
+            return gson.toJson(postResponse);
         }
 
         //Check if domain exists, if not add to domains table
@@ -144,6 +144,9 @@ public class Controller {
         //Update server's listing for new credentials for an existing server
         else {
             DBOperations.setListed(credential.getDomain(), listedServer);
+            MailSender.sendMails(
+                    MailBuilder.getInstance().buildCredentialUpdateEmails(credential)
+            );
         }
 
         // Add credentials to database
@@ -176,7 +179,8 @@ public class Controller {
 
         if (credential == null) {
             model.put("error_code", 404);
-            model.put("error_msg", "No credentials for " + domain + " found in database");
+            String howToAdd =  "You can add credentials by going to " + WebUtils.getRootUrlFrom(request) + "/add";
+            model.put("error_msg", "No credentials for " + domain + "  found in the database. " + howToAdd);
             return new ModelAndView(model, "error.ftl");
         }
         OneOffTestRunner.runOneOffTestsFor(credential);

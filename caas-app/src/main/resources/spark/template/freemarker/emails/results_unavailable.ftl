@@ -4,8 +4,8 @@
 <@mail.mail>
 <p>
     We are facing errors running XMPP Compliance Tester for ${domain} .
-    Make sure that your server is up, and is working correctly.
 </p>
+
 <p style="color:red;">
     We encountered error while running test #${iteration.getIterationNumber()}.
 </p>
@@ -15,6 +15,10 @@
     <br>
     (from ${iteration.getBegin()} GMT to ${iteration.getEnd()} GMT)
 </p>
+
+<p>
+    Make sure that your server is up, and is working correctly.
+    You can check if your server is working correctly and the credentials are correct by going to the <a href="${rootUrl}/live/${domain}">live result page</a>
 </p>
 </@mail.mail>
 

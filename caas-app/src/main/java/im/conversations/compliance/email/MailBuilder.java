@@ -142,6 +142,31 @@ public class MailBuilder {
         return emails;
     }
 
+    public List<Email> buildCredentialUpdateEmails(Credential credential) {
+        List<Subscriber> subscribers = DBOperations.getSubscribersFor(credential.getDomain());
+        List<Email> emails = new ArrayList<>();
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("credential", credential);
+        model.put("domain", credential.getDomain());
+        model.put("rootUrl", rootUrl);
+
+        for (Subscriber subscriber : subscribers) {
+            model.put("subscriber", subscriber);
+            String html = getProcessedTemplate("emails/new_credentials.ftl", model);
+            String plainText = getProcessedTemplate("emails/new_credentials_text.ftl", model);
+            emails.add(
+                    buildEmail(
+                            from,
+                            subscriber.getEmail(),
+                            "Credentials updated for " + credential.getDomain(),
+                            html,
+                            plainText
+                    )
+            );
+        }
+        return emails;
+    }
+
     private String getProcessedTemplate(String templateName, HashMap<String, Object> model) {
         StringWriter stringWriter = new StringWriter();
         try {

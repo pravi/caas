@@ -5,6 +5,7 @@ import im.conversations.compliance.email.MailBuilder;
 import im.conversations.compliance.persistence.DBConnections;
 import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
+import im.conversations.compliance.pojo.Help;
 import im.conversations.compliance.pojo.MailConfig;
 import im.conversations.compliance.web.Controller;
 import im.conversations.compliance.web.TestLiveWebsocket;
@@ -51,5 +52,6 @@ public class Main {
         DBConnections.init();
         DBOperations.init();
         PeriodicTestRunner.getInstance();
+        Help.getInstance();
     }
 }

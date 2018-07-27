@@ -77,70 +77,16 @@
 
     <#if helps??>
     <div id="help_container">
-        <#list helps as help>
-            <#if help.isPossible()??>
-            <div class="help card" id="${help.getName()}">
-
-                <a class="close" href="#${help.getName()}">&times;</a>
-                <h3>For <a href="/test/${help.getName()}">${tests[help.getName()].full_name()}</a>* :</h3>
-                <ul>
-
-                    <#if help.getSince()??>
-                       <li>
-                           Make sure your server is at least ${help.getSince()}
-                           <#if softwareVersion??>(currently ${softwareVersion})</#if>
-                       </li>
-                    </#if>
-
-                   <#if help.modulesRequired??>
-                   <li>
-                       <#if softwareName == "Openfire" >
-                          Install the following plugin:
-                       <#else>
-                          Add the following modules to your configuration file:
-                       </#if>
-                       <div class="modules">
-                       <#list help.getModulesRequired() as module>
-                           <div class="module">
-                               <div class="${module.getType()}">
-                               <#if module.getLink()??>
-                               <a href="${module.getLink()}">
-                                   ${module.getName()}
-                               </a>
-                               <#else>
-                                   ${module.getName()}
-                               </#if>
-
-                               <#if module.getType() == "community_prosody">
-                               <br><br>
-                               This module doesn't come with Prosody
-                                   installation.
-                               You will have to download it by following
-                               <a href="https://prosody.im/doc/installing_modules">
-                                   these instructions
-                               </a>
-                               </#if>
-                               </div>
-                           </div>
-                       </#list>
-                       </div>
-                   </li>
-                   </#if>
-
-                   <#if help.getInstructions()??>
-                   <div class="instructions">
-                       <li>
-                           ${help.getInstructions()?no_esc}
-                       </li>
-                   </div>
-                   </#if>
-                    <p class="footnote">
-                        Note: These instructions are valid only for this particular server, because of the software running on it.
-                    </p>
-
-                </ul>
+        <#list helps as test,help>
+            <div class="card help" id="${test}">
+                <a class="close" href="#${test}">&times;</a>
+                <h3>For <a href="/test/${test}">${tests[test].full_name()}</a>* :</h3>
+                ${help?no_esc}
+                <p class="footnote">
+                    Note: These instructions are valid only for this particular server,
+                    because of the software running on it.
+                </p>
             </div>
-            </#if>
         </#list>
     </div>
     </#if>

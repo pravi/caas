@@ -210,13 +210,8 @@ public class Controller {
 
         WebUtils.addResultStats(model, results);
 
-        ServerHelp serverHelp = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
-        if (serverHelp != null) {
-            List<TestHelp> helps = serverHelp.getTestsHelp().stream()
-                    .filter(th -> failedTests.contains(th.getName()))
-                    .collect(Collectors.toList());
-            model.put("helps", helps);
-        }
+        HashMap<String,String> help = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
+        model.put("helps", help);
         Instant lastRun = DBOperations.getLastRunFor(domain);
         model.put("domain", domain);
         model.put("results", results);

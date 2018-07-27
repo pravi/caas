@@ -116,6 +116,13 @@ td.not_found {
     background-color: #aaaaaa;
 }
 
+pre code {
+    display: block;
+}
+
+code {
+    white-space: pre;
+}
 code, .code {
     word-break: break-all;
     word-wrap: break-word;

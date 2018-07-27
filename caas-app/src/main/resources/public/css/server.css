@@ -39,6 +39,7 @@
 }
 
 .help.card {
+    max-width: 600px;
     overflow: auto;
     display: none;
     text-align: left;

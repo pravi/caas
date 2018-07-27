@@ -1,6 +1,8 @@
 package im.conversations.compliance.pojo;
 
-import com.google.gson.Gson;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,15 +15,17 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Help {
+    private static final Parser PARSER = Parser.builder().build();
+    private static final HtmlRenderer RENDERER = HtmlRenderer.builder().build();
     private static final String HELP_RESOURCES_DIRECTORY = "help";
     private static final Help INSTANCE = new Help();
-    private final Map<String, ServerHelp> serverHelps;
+    private final Map<String, HashMap<String, String>> helps;
 
     private Help() {
-        this.serverHelps = load(getClass().getClassLoader());
+        this.helps = load(getClass().getClassLoader());
     }
 
-    private static Map<String, ServerHelp> load(ClassLoader classLoader) {
+    private static Map<String, HashMap<String, String>> load(ClassLoader classLoader) {
         try {
             final URL resources = classLoader.getResource(HELP_RESOURCES_DIRECTORY);
             if (resources == null) {
@@ -36,7 +40,7 @@ public class Help {
                     fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 }
                 final Path root = fileSystem.getPath(HELP_RESOURCES_DIRECTORY);
-                final Map<String, ServerHelp> serverHelps = load(root);
+                final Map<String, HashMap<String, String>> serverHelps = load(root);
                 fileSystem.close();
                 return serverHelps;
             } else {
@@ -49,30 +53,44 @@ public class Help {
         }
     }
 
-    private static Map<String, ServerHelp> load(Path root) throws IOException {
-        final Map<String, ServerHelp> serverHelps = new HashMap<>();
-        final Gson gson = new Gson();
-        Files.walk(root, 1).filter(Files::isRegularFile).forEach(path -> {
+    private static Map<String, HashMap<String, String>> load(Path root) throws IOException {
+        Map<String, HashMap<String, String>> helpMap = new HashMap<>();
+        Files.walk(root, 1).filter(Files::isDirectory).forEach(folderPath -> {
+            String softwareName = folderPath.getFileName().toString();
+            HashMap<String, String> helpForThisSoftware = new HashMap<>();
             try {
-                final ServerHelp serverHelp = gson.fromJson(Files.newBufferedReader(path), ServerHelp.class);
-                serverHelps.putIfAbsent(serverHelp.getSoftwareName(), serverHelp);
-            } catch (IOException e) {
-                //continue
+                Files.walk(folderPath, 1).filter(Files::isRegularFile).forEach(filePath -> {
+                    try {
+                        Node document = PARSER.parseReader(Files.newBufferedReader(filePath));
+                        String htmlText = RENDERER.render(document);
+                        String testFileName = filePath.getFileName().toString();
+                        int length = testFileName.length();
+                        if (!testFileName.substring(length - 3).equals(".md")) {
+                            throw new IllegalStateException("All help files should have md extension");
+                        }
+                        String testName = testFileName.substring(0, (testFileName.length() - 3));
+                        helpForThisSoftware.put(testName, htmlText);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IOException ex) {
             }
+            helpMap.put(softwareName, helpForThisSoftware);
         });
-        return serverHelps;
+        return helpMap;
     }
 
     public static synchronized Help getInstance() {
         return INSTANCE;
     }
 
-    public Optional<ServerHelp> getHelpFor(String software) {
+    public Optional<HashMap<String, String>> getHelpFor(String software) {
         if(software == null) {
             return Optional.empty();
         }
         software = software.trim().toLowerCase();
-        return Optional.ofNullable(serverHelps.get(software));
+        return Optional.ofNullable(helps.get(software));
     }
 
 }

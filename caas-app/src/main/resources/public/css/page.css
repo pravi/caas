@@ -122,6 +122,7 @@ pre code {
 
 code {
     white-space: pre;
+    overflow: scroll;
 }
 code, .code {
     word-break: break-all;

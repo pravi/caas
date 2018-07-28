@@ -33,8 +33,11 @@ public class MailBuilder {
         if (INSTANCE != null) {
             throw new IllegalStateException("MailBuilder has already been initialised");
         }
-        if(rootUrl == null) {
+        if (rootUrl == null) {
             throw new IllegalArgumentException("rootUrl can't be null in configuration");
+        }
+        if (from == null) {
+            throw new IllegalArgumentException("from can't be null in configuration");
         }
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setClassForTemplateLoading(FreeMarkerEngine.class, "");

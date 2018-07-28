@@ -72,10 +72,13 @@ $(function () {
             thead.style.top = '0';
             thead.style.left = thStyles[0].boundingWidth + 'px';
             thead.style.zIndex = 10;
+            var thWidths = [];
 
             // Set widths of the th elements in thead. For the fixed th, set its position
             ths.forEach(function (th, i) {
                 //I am not sure why this works, but this fixes Firefox's weird right extra margin issue
+                thWidths[i] = window.getComputedStyle(ths[i]).width;
+                th.style.width = thWidths[i];
                 th.style.width = window.getComputedStyle(ths[i]).width;
                 if (i === 1) {
                     th.style.width = thStyles[i].width + 'px';
@@ -102,7 +105,7 @@ $(function () {
                 [].slice.call(tr.querySelectorAll('td'))
                     .forEach(function (td, j) {
                         //I am not sure why this works, but this fixes Firefox's weird right extra margin issue
-                        td.style.width = window.getComputedStyle(ths[j]).width;
+                        td.style.width = thWidths[j];
                         if (j === 1) {
                             td.style.width = thStyles[j].width + 'px';
                         }
@@ -156,7 +159,6 @@ $(function () {
         $("h2").after( $("<p class='error_message'></p>").text("WARNING: Some features will not work in IE/Edge"));
         return;
     }
-
     var fixedTable = fixTable(document.getElementById("results_table"));
     fixedTable.relayout();
 });

@@ -3,8 +3,8 @@
 <#import "graph.ftl" as graph>
 <#import "stat.ftl" as stat>
 <#import "result.ftl" as result>
-<#assign description="Server compliance result for ${domain}" in page>
-<#assign title="${page.project_name}: Compliance result for ${domain}" in page>
+<#assign description="Check list of features supported by ${domian}, it's historic results and subscribe to alerts about ${domain}'s results" in page>
+<#assign title="${domain} 's compliance result | ${page.project_name}" in page>
 <#assign stylesheets=["/css/server.css","/css/graph.css","/css/stat.css"] in page>
 <#assign scripts=["/js/graph.js","/js/subscribe.js","/js/d3.min.js","/js/server.js"] in page>
 

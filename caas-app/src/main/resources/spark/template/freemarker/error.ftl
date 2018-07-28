@@ -1,7 +1,6 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#assign description="Get detailed report for your XMPP servers' compliance test results, periodic reports" in page>
-<#assign title="${page.project_name}: Error ${error_code}" in page>
+<#assign title="Error ${error_code} | ${page.project_name}" in page>
 <@page.page>
 <div class="card error">
     <h1>

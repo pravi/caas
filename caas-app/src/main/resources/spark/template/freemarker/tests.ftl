@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#assign description="Check compliance status for XMPP extensions and other compliance tests across servers" in page>
-<#assign title="${page.project_name}: Check " in page>
+<#assign description="Check compliance status for XMPP extensions and features across servers, along with information about those features" in page>
+<#assign title="Compliance status for tests across servers | ${page.project_name}" in page>
 <#assign stylesheets=["/css/tests.css"] in page>
 <@page.page>
     <h2>Compliance tests</h2>

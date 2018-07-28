@@ -1,7 +1,6 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#assign description="Loading compliance results for ${domain}" in page>
-<#assign title="${page.project_name}: Testing ${domain} for compliance" in page>
+<#assign title="Testing ${domain} for compliance | ${page.project_name}" in page>
 <#assign scripts=["/js/live.js"] in page>
 <@page.page>
 <script>

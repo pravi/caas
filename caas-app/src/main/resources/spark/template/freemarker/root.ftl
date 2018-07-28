@@ -1,9 +1,8 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#assign description="Check compliance status for XMPP servers" in page>
 <#assign scripts=["/js/table.js"] in page>
 <#assign stylesheets=["/css/table.css"] in page>
-<#assign title="${page.project_name}: Check compliance status for XMPP servers" in page>
+<#assign title="Check compliance status for XMPP servers | ${page.project_name}" in page>
 <@page.page>
     <h2>Compliance status</h2>
     <div id="results_table" class="fixed-table-container">

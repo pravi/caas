@@ -1,12 +1,13 @@
 <#assign project_name="XMPP Compliance Tester">
+<#assign default_description= "Choose a Jabber server from a list of servers by comparing their current and historic support for features, or test your current server for features">
 <#macro page>
     <#assign nav_bar_height=80>
 <html>
 <head>
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">
-    <title>${title!"Check your XMPP server for compliance"}</title>
+    <title>${title!project_name}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:description" content="${description}">
+    <meta property="og:description" content="${description!default_description}">
     <meta property="og:locale" content="en_US">
     <meta charset="UTF-8">
     <style>

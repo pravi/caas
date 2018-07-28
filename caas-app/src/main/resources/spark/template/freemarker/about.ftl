@@ -1,7 +1,6 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#assign description="Get detailed report for your XMPP servers' compliance test results, periodic reports." in page>
-<#assign title="${page.project_name}: Test your XMPP server for compliance" in page>
+<#assign title="About XMPP Compliance Tester | ${page.project_name}" in page>
 <#assign stylesheets=["/css/about.css"] in page>
 <@page.page>
     <h2>

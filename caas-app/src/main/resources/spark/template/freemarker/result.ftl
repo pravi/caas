@@ -1,5 +1,6 @@
 <#ftl output_format="HTML">
 <#macro result>
+<h3>Results</h3>
 <div class="server_results">
     <#if results?size != 0>
     <#list results as result>

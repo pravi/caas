@@ -43,6 +43,13 @@
         <button onclick="location.href='/live/${domain}'">Rerun tests</button>
     </div>
 
+    <#if helps??>
+    <p>
+        NOTE: If you are the server admin/maintainer, click on the failing tests to get some help for passing those
+        tests
+    </p>
+    </#if>
+
     <div id="additional_server">
 
         <#if mailExists>

@@ -4,7 +4,17 @@
 <#assign stylesheets=["/css/table.css"] in page>
 <#assign title="Check compliance status for XMPP servers | ${page.project_name}" in page>
 <@page.page>
-    <h2>Compliance status</h2>
+    <div id="cover_table_hack"></div>
+    <div id="div_header"></div>
+    <div id="div_first_col">
+    <#list resultsByServer as domain,results>
+        <div class="server_name">
+            <a href="/server/${domain}">
+                ${domain}
+            </a>
+        </div>
+    </#list>
+    </div>
     <div id="results_table" class="fixed-table-container">
         <#if resultsByServer?has_content>
             <table>

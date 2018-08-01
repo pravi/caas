@@ -1,11 +1,53 @@
 #results_table {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.5);
+    overflow: scroll;
+    max-height: 70%;
 }
 
-table a {
+#div_header, #div_first_col {
+    position: fixed;
+    visibility: hidden;
+    text-align: left;
+}
+
+#div_header {
+    z-index: 10;
+    font-weight: 700;
+}
+
+.header_element {
+    display: inline-block;
+    margin: 0;
+    vertical-align: center;
+    padding: 10px 8px;
+    background-color: #eee;
+    border-right: 2px solid white;
+}
+
+.server_name {
+    padding: 10px 8px;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+}
+
+#div_header_clone {
+    visibility: hidden;
+}
+
+
+#div_first_col * {
+    height: 100%;
+    vertical-align: bottom;
+}
+
+
+thead *, #div_header *, #div_first_col * {
     font-size: 12px;
     line-height: 16px;
     color: black;
+}
+
+.server_name.hover {
+    background-color: #ccc;
 }
 
 tr:hover td {
@@ -24,21 +66,29 @@ tr:hover > td.failed {
     background-color: #d63939;
 }
 
-.fixed-table-container {
-    width: 100%;
-    max-height: 70%;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    margin-bottom: 40px;
+#div_first_col {
+    z-index: 5;
+    background: #eee;
+    font-size: 12px;
+    float: left;
 }
 
-.fixed-table-container table {
+table a {
+    color: black;
+}
+
+#results_table {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+}
+
+table {
     border-collapse: collapse;
     width: 100%;
 }
 
-.fixed-table-container th,
-.fixed-table-container td {
+th, td {
     font-size: 12px;
     line-height: 16px;
     border-right: 2px solid white;
@@ -73,4 +123,31 @@ tr:hover > td.failed {
 .fixed-table-container th:last-child,
 .fixed-table-container td:last-child {
     border-right: 0;
+}
+
+#cover_table_hack {
+    position: absolute;
+    top: 80px;
+    height: 8px;
+    z-index: 100;
+    width: 100%;
+    background-color: #fafafa;
+    display: block;
+}
+
+body {
+    margin: 0;
+}
+
+div {
+    overflow: hidden;
+}
+
+footer {
+    position: absolute;
+    display: block;
+    padding-top: 10px;
+    z-index: 100;
+    background-color: #fafafa;
+    margin: 0px;
 }

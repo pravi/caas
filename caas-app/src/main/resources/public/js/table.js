@@ -6,12 +6,12 @@ $(function () {
         var trs = [].slice.call(tbody.querySelectorAll('tr'));
         var firstColumnChildren = [].slice.call(div_first_col.children);
 
-        document.querySelector('body').style.overflow = 'hidden'; // One time thing
 
-        function relayout() {
-            var screenWidth = window.innerWidth;
-            var screenHeight = window.innerHeight;
-
+        var reset = function () {
+            container.style.marginLeft = '';
+            container.style.marginTop = '';
+            container.style["max-width"] = '';
+            container.style["max-height"] = '';
             trs.forEach(function (tr, i) {
                 var tds = [].slice.call(tr.querySelectorAll('td'));
                 tds.forEach(function (td, j) {
@@ -19,9 +19,21 @@ $(function () {
                     td.style["min-width"] = '';
                 });
             });
-
             thead.style.display = '';
-            thead.setAttribute('style','');
+            div_first_col.style.visibility = 'hidden';
+            div_header.style.visibility = 'hidden';
+            document.querySelector('body').style.overflow = 'scroll';
+        }
+
+        var relayout = function () {
+            var screenWidth = window.innerWidth;
+            var screenHeight = window.innerHeight;
+
+            reset();
+
+            //Make footer take the rest of the screen
+            document.querySelector('body').style.overflow = 'hidden';
+            document.querySelector("footer").style.height = "100%";
 
             var thStyles = ths.map(function (th) {
                 var style = document.defaultView.getComputedStyle(th);
@@ -50,7 +62,7 @@ $(function () {
 
             var headerBoundingHeight = div_header.getBoundingClientRect().height;
             var firstColumnBoundingWidth = div_first_col.getBoundingClientRect().width;
-            var containerHeight = screenHeight - 80 - 16 - 30 - thStyles[0].boundingHeight + 'px';
+            var containerHeight = screenHeight - 80 - 16 - 40 - thStyles[0].boundingHeight + 'px';
             var containerWidth = screenWidth - firstColumnBoundingWidth + 'px';
             container.style["max-height"] = containerHeight;
             container.style["max-width"] = containerWidth;
@@ -88,12 +100,12 @@ $(function () {
             thead.style.display = 'none';
             div_header.style.top = thStyles[0].top;
 
+            div_header.style.visibility = 'visible';
+            div_first_col.style.visibility = 'visible';
         }
 
         relayout();
 
-        div_header.style.visibility = 'visible';
-        div_first_col.style.visibility = 'visible';
 
         //Add sticky behaviour to first column and header
         container.addEventListener('scroll', function () {
@@ -126,7 +138,8 @@ $(function () {
         window.addEventListener('resize', resizeThrottler, false);
 
         return {
-            relayout: relayout
+            relayout: relayout,
+            reset: reset
         };
     }
 
@@ -143,7 +156,30 @@ $(function () {
 
     var fixedTable = fixTable(container, div_header, div_first_col);
 
-    //Make footer take the rest of the screen
-    document.querySelector("body").style.overflow = "hidden";
-    document.querySelector("footer").style.height = "100%";
+    var resetButton = true;
+    var stickyHeaderToggle = document.getElementById("reset_table");
+    var disabled = false;
+
+    function scrollToTop() {
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    }
+
+    stickyHeaderToggle.addEventListener('click', function () {
+        if (disabled) {
+            return;
+        }
+        disabled = true;
+        if (resetButton) {
+            fixedTable.reset();
+            stickyHeaderToggle.innerText = "Turn on sticky headers"
+        } else {
+            scrollToTop();
+            fixedTable.relayout();
+            stickyHeaderToggle.innerText = "Turn off sticky headers"
+        }
+        resetButton = !resetButton;
+        disabled = false;
+    });
+
 });

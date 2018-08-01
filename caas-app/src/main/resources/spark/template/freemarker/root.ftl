@@ -64,4 +64,5 @@
         </h3>
         </#if>
     </div>
+    <#assign footerText=" Problems viewing the table? <a href='#' id='reset_table'> Turn off sticky headers </a> " in page>
 </@page.page>

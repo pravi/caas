@@ -89,7 +89,8 @@
 <footer>
     <small>
         Copyright &copy; 2018 <a href="https://gultsch.de/">Daniel Gultsch</a>, <a href="https://rishiraj.me">Rishi
-        Raj</a>
+        Raj</a>.
+        ${footerText!}
     </small>
 </footer>
 </body>

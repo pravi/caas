@@ -22,6 +22,7 @@ $(function () {
             thead.style.display = '';
             div_first_col.style.visibility = 'hidden';
             div_header.style.visibility = 'hidden';
+            document.querySelector("footer").style.height = '';
             document.querySelector('body').style.overflow = 'scroll';
         }
 
@@ -123,20 +124,6 @@ $(function () {
             }.bind(this));
         });
 
-        //Add relayout feature
-        var resizeTimeout;
-
-        function resizeThrottler() {
-            if (!resizeTimeout) {
-                resizeTimeout = setTimeout(function () {
-                    resizeTimeout = null;
-                    relayout();
-                }, 800);
-            }
-        }
-
-        window.addEventListener('resize', resizeThrottler, false);
-
         return {
             relayout: relayout,
             reset: reset
@@ -180,6 +167,23 @@ $(function () {
         }
         resetButton = !resetButton;
         disabled = false;
-    });
+    }.bind(this));
+
+
+    //Add relayout feature
+    var resizeTimeout;
+
+    var resizeThrottler = function () {
+        if (!resizeTimeout) {
+            resizeTimeout = setTimeout(function () {
+                resizeTimeout = null;
+                if (resetButton) {
+                    fixedTable.relayout();
+                }
+            }, 500);
+        }
+    }.bind(this);
+
+    window.addEventListener('resize', resizeThrottler, false);
 
 });

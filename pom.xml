@@ -9,6 +9,7 @@
 
     <modules>
         <module>caas-annotations</module>
+        <module>caas-web</module>
         <module>caas-app</module>
     </modules>
 

@@ -1,4 +1,4 @@
-<p align="center"><img width=12.5% src="https://github.com/iNPUTmice/caas/blob/master/caas-app/src/main/resources/public/icons/android-chrome-192x192.png"></p>
+<p align="center"><img width=12.5% src="https://github.com/iNPUTmice/caas/blob/master/caas-web/src/main/resources/public/icons/android-chrome-192x192.png"></p>
 <h1 align="center">XMPP Compliance Tester</h1>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -20,7 +20,7 @@ mvn package
 ```
 (needs Java 8)
 
-## Run
+## Run server
 ```
-java -jar caas-app/target/caas-app.jar
+java -jar caas-web/target/caas-web.jar
 ```

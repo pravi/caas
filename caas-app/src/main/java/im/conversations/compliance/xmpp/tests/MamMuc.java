@@ -10,7 +10,6 @@ import rocks.xmpp.extensions.muc.ChatRoom;
 import rocks.xmpp.extensions.muc.ChatService;
 import rocks.xmpp.extensions.muc.MultiUserChatManager;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

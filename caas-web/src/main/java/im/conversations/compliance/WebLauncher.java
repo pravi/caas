@@ -15,7 +15,7 @@ import spark.template.freemarker.FreeMarkerEngine;
 
 import static spark.Spark.*;
 
-public class Main {
+public class WebLauncher {
     public static void main(String[] args) {
         TemplateEngine templateEngine = new FreeMarkerEngine();
         staticFileLocation("/public");

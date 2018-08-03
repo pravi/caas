@@ -5,6 +5,15 @@ $(function () {
         var tbody = container.querySelector('tbody');
         var trs = [].slice.call(tbody.querySelectorAll('tr'));
         var firstColumnChildren = [].slice.call(div_first_col.children);
+        var headerDivs = [];
+
+        ths.forEach(function (th, i) {
+            var headerDiv = document.createElement("div");
+            headerDiv.className = "header_element";
+            headerDiv.innerHTML = th.innerHTML;
+            div_header.appendChild(headerDiv);
+            headerDivs[i] = headerDiv;
+        });
 
 
         var reset = function () {
@@ -24,7 +33,7 @@ $(function () {
             div_header.style.visibility = 'hidden';
             document.querySelector("footer").style.height = '';
             document.querySelector('body').style.overflow = 'scroll';
-        }
+        };
 
         var relayout = function () {
             var screenWidth = window.innerWidth;
@@ -73,17 +82,13 @@ $(function () {
 
             var headerHeight = parseInt(thStyles[0].height) - 2 + 'px';
             thStyles.forEach(function (thStyle, i) {
-                var headerDiv = document.createElement("div");
-                headerDiv.className = "header_element";
-                headerDiv.innerHTML = ths[i].innerHTML;
-                headerDiv.style.width = thStyle.width;
-                headerDiv.style.height = headerHeight;
-                div_header.appendChild(headerDiv);
+                headerDivs[i].style.width = thStyle.width;
+                headerDivs[i].style.height = headerHeight;
                 if (i === 0) {
-                    headerDiv.style.borderLeft = '0';
+                    headerDivs[i].style.borderLeft = '0';
                 }
                 else if (i === thStyles.length - 1) {
-                    headerDiv.style.borderRight = '0'
+                    headerDivs[i].style.borderRight = '0'
                 }
             });
             trs.forEach(function (tr, i) {

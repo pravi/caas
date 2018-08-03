@@ -13,12 +13,22 @@ Picking the right extensions to implement or enable isn't always easy. For this 
 
 This app won't just help you to assess if your server supports those compliance profiles, but also give you some instructions on how to implement the profiles which are currently not supported. 
 
+## How to use
+There are two ways you can run this project:
+* as a command line tool to quickly check the compliance of your server locally 
+* as a full-fledged web application
+
 ## Build instructions
 
 ```
 mvn package
 ```
 (needs Java 8)
+
+## Run command line tool
+```
+java -jar caas-app/target/caas-app.jar
+```
 
 ## Run server
 ```

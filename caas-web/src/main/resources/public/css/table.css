@@ -128,7 +128,7 @@ th, td {
 #cover_table_hack {
     position: absolute;
     top: 80px;
-    height: 8px;
+    height: 10px;
     z-index: 100;
     width: 100%;
     background-color: #fafafa;

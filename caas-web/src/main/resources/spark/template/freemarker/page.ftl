@@ -24,8 +24,7 @@
         }
 
         #content {
-            margin-top: ${1.1*nav_bar_height}px;
-            text-align: center;
+            margin-top: ${nav_bar_height + 10}px;
         }
     </style>
     <link rel="stylesheet" href="/css/page.css">
@@ -70,7 +69,7 @@
     </div>
     <div id="nav_list_menu" onclick="menu_toggle()">
         <a href="/add">
-            Test your server
+            Test a server
         </a>
         <a href="/">
             Servers

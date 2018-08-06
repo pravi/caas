@@ -8,6 +8,7 @@ body, #content {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 13pt;
     background-color: #fafafa;
+    text-align: center;
 }
 
 .error_message, noscript {
@@ -155,7 +156,7 @@ footer {
 }
 
 #nav_bar {
-    position: absolute;
+    position: fixed;
     top: 0px;
     right: 0px;
     left: 0px;

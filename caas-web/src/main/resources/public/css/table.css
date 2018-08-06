@@ -125,8 +125,14 @@ th, td {
     border-right: 0;
 }
 
-#nav_bar_space {
+#cover_table_hack {
+    position: absolute;
+    top: 80px;
+    height: 8px;
     z-index: 100;
+    width: 100%;
+    background-color: #fafafa;
+    display: block;
 }
 
 body {

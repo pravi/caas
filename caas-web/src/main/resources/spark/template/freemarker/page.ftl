@@ -22,10 +22,11 @@
         #brand_img {
             height: ${nav_bar_height - 25}px;
         }
-
-        #content {
-            margin-top: ${1.1*nav_bar_height}px;
-            text-align: center;
+        #nav_bar_space {
+            height: ${nav_bar_height + 10}px;
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
         }
     </style>
     <link rel="stylesheet" href="/css/page.css">
@@ -70,7 +71,7 @@
     </div>
     <div id="nav_list_menu" onclick="menu_toggle()">
         <a href="/add">
-            Test your server
+            Test a server
         </a>
         <a href="/">
             Servers
@@ -83,6 +84,7 @@
         </a>
     </div>
 </nav>
+<div id="nav_bar_space"></div>
 <div id="content">
             <#nested>
 </div>

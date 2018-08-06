@@ -4,6 +4,8 @@
 }
 
 body, #content {
+    margin-top: 0px;
+    text-align: center;
     color: rgba(0, 0, 0, 0.87);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 13pt;
@@ -155,7 +157,7 @@ footer {
 }
 
 #nav_bar {
-    position: absolute;
+    position: fixed;
     top: 0px;
     right: 0px;
     left: 0px;

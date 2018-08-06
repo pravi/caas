@@ -29,12 +29,8 @@ public class ResultsByServerTest {
         InternalDBOperations.init(connection);
     }
 
-    @Test
-    public void whenNoResults() {
-        List<Result> dummy = InternalDBOperations.getCurrentResultsForServer(connection, "dummy");
-        Assert.assertTrue(InternalDBOperations.getCurrentResultsByServer(connection).isEmpty());
-        Assert.assertTrue(InternalDBOperations.getHistoricalResultsFor(connection,"dummy",0).isEmpty());
-        Assert.assertTrue(dummy.isEmpty());
+    public static void checkHistoricalTable() {
+        //TODO: Write tests
     }
 
     @Test
@@ -198,5 +194,14 @@ public class ResultsByServerTest {
                         )
                         .get(domain);
         Assert.assertEquals(historicalSnapshots, readBackHistoricalSnapshots);
+    }
+
+    @Test
+    public void whenNoResults() {
+        List<Result> dummy = InternalDBOperations.getCurrentResultsForServer(connection, "dummy");
+        Assert.assertTrue(InternalDBOperations.getCurrentResultsByServer(connection).isEmpty());
+        Assert.assertTrue(InternalDBOperations.getHistoricalTableFor(connection, 0).isEmpty());
+        Assert.assertTrue(InternalDBOperations.getHistoricalResultsFor(connection, "dummy", 0).isEmpty());
+        Assert.assertTrue(dummy.isEmpty());
     }
 }

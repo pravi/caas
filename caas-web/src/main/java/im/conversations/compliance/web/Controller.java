@@ -29,26 +29,8 @@ public class Controller {
 
     public static TemplateViewRoute getRoot = (request, response) -> {
         Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentResultsByServer();
-        HashMap<String, String> percentByServer = new HashMap<>();
-        resultsByServer.keySet().forEach(
-                domain ->
-                {
-                    int total = resultsByServer.get(domain).size();
-                    int success = resultsByServer.get(domain)
-                            .values()
-                            .stream()
-                            .map(it -> it ? 1 : 0)
-                            .reduce((it, val) -> it + val)
-                            .get();
-                    String percent = (success * 100 / total) + "% (" + success + "/" + total + ")";
-                    percentByServer.put(domain, percent);
-                }
-        );
-        List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
         HashMap<String, Object> model = new HashMap<>();
-        model.put("percentByServer", percentByServer);
-        model.put("resultsByServer", resultsByServer);
-        model.put("tests", complianceTests);
+        WebUtils.addDataForComplianceTable(model, resultsByServer);
         return new ModelAndView(model, "root.ftl");
     };
 
@@ -275,21 +257,42 @@ public class Controller {
         return new ModelAndView(model, "badge.ftl");
     };
 
-    public static TemplateViewRoute getHistoric = (request, response) -> {
-        String domain = request.params("domain");
-        int iterationNumber = Integer.parseInt(request.params("iteration"));
+    public static TemplateViewRoute getHistoricTable = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
-        model.put("domain", domain);
-        Iteration iteration = DBOperations.getIteration(iterationNumber);
-        if (iteration == null) {
+        int iterationNumber;
+        try {
+            iterationNumber = Integer.parseInt(request.params("iteration"));
+            Iteration iteration = DBOperations.getIteration(iterationNumber);
+            model.put("iteration", iteration);
+            model.put("timeSince", TimeUtils.getTimeSince(iteration.getBegin()));
+        } catch (Exception ex) {
             model.put("error_code", 404);
             model.put("error_msg", "ERROR: Invalid historical point requested");
             return new ModelAndView(model, "error.ftl");
         }
-        List<Result> results = DBOperations.getHistoricalResultsFor(domain, iterationNumber);
-        model.put("iteration", iteration);
-        model.put("results", results);
+        Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getHistoricalTableFor(iterationNumber);
+        WebUtils.addDataForComplianceTable(model, resultsByServer);
         return new ModelAndView(model, "historic.ftl");
+    };
+
+    public static TemplateViewRoute getHistoricForServer = (request, response) -> {
+        HashMap<String, Object> model = new HashMap<>();
+        int iterationNumber;
+        try {
+            iterationNumber = Integer.parseInt(request.params("iteration"));
+            Iteration iteration = DBOperations.getIteration(iterationNumber);
+            model.put("iteration", iteration);
+            model.put("timeSince", TimeUtils.getTimeSince(iteration.getBegin()));
+        } catch (Exception ex) {
+            model.put("error_code", 404);
+            model.put("error_msg", "ERROR: Invalid historical point requested");
+            return new ModelAndView(model, "error.ftl");
+        }
+        String domain = request.params("domain");
+        model.put("domain", domain);
+        List<Result> results = DBOperations.getHistoricalResultsFor(domain, iterationNumber);
+        model.put("results", results);
+        return new ModelAndView(model, "historic_server.ftl");
     };
 
     public static Route getConfirmation = (request, response) -> {

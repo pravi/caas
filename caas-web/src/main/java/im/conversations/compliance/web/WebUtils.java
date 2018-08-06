@@ -1,11 +1,14 @@
 package im.conversations.compliance.web;
 
+import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.xmpp.utils.TestUtils;
 import spark.Request;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WebUtils {
 
@@ -51,6 +54,28 @@ public class WebUtils {
                 put("Specifications compliant", percent + "%");
             }
         });
+    }
+
+    public static void addDataForComplianceTable(HashMap<String, Object> model, Map<String, HashMap<String, Boolean>> resultsByServer) {
+        HashMap<String, String> percentByServer = new HashMap<>();
+        resultsByServer.keySet().forEach(
+                domain ->
+                {
+                    int total = resultsByServer.get(domain).size();
+                    int success = resultsByServer.get(domain)
+                            .values()
+                            .stream()
+                            .map(it -> it ? 1 : 0)
+                            .reduce((it, val) -> it + val)
+                            .get();
+                    String percent = (success * 100 / total) + "% (" + success + "/" + total + ")";
+                    percentByServer.put(domain, percent);
+                }
+        );
+        List<ComplianceTest> complianceTests = TestUtils.getComplianceTests();
+        model.put("tests", complianceTests);
+        model.put("percentByServer", percentByServer);
+        model.put("resultsByServer", resultsByServer);
     }
 
     public static boolean isConnected() {

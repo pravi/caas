@@ -208,6 +208,14 @@ public class DBOperations {
         return instant;
     }
 
+    public static Map<String, HashMap<String, Boolean>> getHistoricalTableFor(int iterationNumber) {
+        Map<String, HashMap<String, Boolean>> results;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            results = InternalDBOperations.getHistoricalTableFor(connection, iterationNumber);
+        }
+        return results;
+    }
+
     public static List<Result> getHistoricalResultsFor(String domain, int iterationNumber) {
         List<Result> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {

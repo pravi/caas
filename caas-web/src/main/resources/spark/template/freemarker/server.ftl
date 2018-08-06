@@ -1,8 +1,8 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#import "graph.ftl" as graph>
-<#import "stat.ftl" as stat>
-<#import "result.ftl" as result>
+<#import "includes/graph.ftl" as graph>
+<#import "includes/stat.ftl" as stat>
+<#import "includes/result.ftl" as result>
 <#assign description="Check list of features supported by ${domain}, it's historic results and subscribe to alerts about ${domain}'s results" in page>
 <#assign title="${domain}'s compliance result | ${page.project_name}" in page>
 <#assign stylesheets=["/css/server.css","/css/graph.css","/css/stat.css"] in page>

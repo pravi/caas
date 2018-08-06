@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
-<#import "graph.ftl" as graph>
-<#import "stat.ftl" as stat>
+<#import "includes/graph.ftl" as graph>
+<#import "includes/stat.ftl" as stat>
 <#assign description="Check list of servers that have implemented ${test.full_name()}, it's historic implementation status" in page>
 <#assign scripts=["/js/graph.js","/js/d3.min.js"] in page>
 <#assign stylesheets=["/css/graph.css","/css/stat.css"] in page>

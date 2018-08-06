@@ -36,7 +36,8 @@ public class WebLauncher {
         get("/server/:domain/", Controller.getServer, templateEngine);
         get("/badge/:domain/", Controller.getBadge, templateEngine);
         get("/test/:test/", Controller.getTest, templateEngine);
-        get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoric, templateEngine);
+        get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoricForServer, templateEngine);
+        get("/historic/iteration/:iteration/", Controller.getHistoricTable, templateEngine);
         MailConfig mailConfig = Configuration.getInstance().getMailConfig();
         if (mailConfig != null) {
             post("/subscribe/", Controller.postSubscription);

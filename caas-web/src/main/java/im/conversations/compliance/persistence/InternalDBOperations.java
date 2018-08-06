@@ -485,6 +485,30 @@ public class InternalDBOperations {
         return lastRun;
     }
 
+    public static Map<String, HashMap<String, Boolean>> getHistoricalTableFor(Connection connection, int iterationNumber) {
+        SortedMap<String, HashMap<String, Boolean>> resultsByServer = new TreeMap<>();
+        List<String> tests = TestUtils.getTestNames();
+        Table table = connection.createQuery("select test,servers.domain,success from periodic_tests" +
+                " inner join servers on servers.domain = periodic_tests.domain" +
+                " where test in (:tests) and" +
+                " listed = 1 and" +
+                " iteration_number = :iteration_number"
+        )
+                .addParameter("iteration_number", iterationNumber)
+                .addParameter("tests", tests)
+                .executeAndFetchTable();
+        table.rows().forEach(
+                row -> {
+                    String domain = row.getString("domain");
+                    String test = row.getString("test");
+                    boolean success = row.getInteger("success") == 1;
+                    resultsByServer.putIfAbsent(domain, new HashMap<>());
+                    resultsByServer.get(domain).put(test, success);
+                }
+        );
+        return resultsByServer;
+    }
+
     public static List<Result> getHistoricalResultsFor(Connection connection, String domain, int iteration) {
         Table table = connection.createQuery("select test,success from periodic_tests " +
                 "where domain=:domain and iteration_number = :iteration order by test")

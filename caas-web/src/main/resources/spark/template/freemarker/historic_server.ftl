@@ -7,4 +7,9 @@
     <h3>Test ran ${timeSince} (from ${iteration.getBegin()} - ${iteration.getEnd()})</h3>
     <@result.result>
     </@result.result>
+    <a href="/historic/iteration/${iteration.getIterationNumber()}">
+        <button>
+            See complete compliance table for test #${iteration.getIterationNumber()}
+        </button>
+    </a>
 </@page.page>

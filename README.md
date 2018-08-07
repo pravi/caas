@@ -32,15 +32,15 @@ cd caas-app
 mvn package
 ```
 
-## Run server
+### Run server
 ```
 java -jar caas-web/target/caas-web.jar
 ```
 
-## Run command line tool
+### Run command line tool
 ```
 java -jar caas-app/target/caas-app.jar [jid] [password]
 ```
 
 ## Contributing
-Read Contributing.MD
+Read [CONTRIBUTING.md](CONTRIBUTING.md)

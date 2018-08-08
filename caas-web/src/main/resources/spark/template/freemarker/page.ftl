@@ -2,6 +2,7 @@
 <#assign default_description= "Choose a Jabber server from a list of servers by comparing their current and historic support for features, or test your current server for features">
 <#macro page>
     <#assign nav_bar_height=80>
+<!DOCTYPE html>
 <html>
 <head>
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">

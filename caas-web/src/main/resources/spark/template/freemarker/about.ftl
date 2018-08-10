@@ -4,16 +4,14 @@
 <#assign stylesheets=["/css/about.css"] in page>
 <@page.page>
     <h2>
-        About Compliance as a Service (CaaS)
+        About XMPP Compliance Tester
     </h2>
     <link rel="stylesheet" href="/css/about.css">
 
         <p>
-            This is a work in progress web application based off
-            <a href="https://github.com/iNPUTmice/ComplianceTester">XMPP Compliance tester</a>
-            for checking and visualising compliance status of various XMPP servers,
-            made as a part of Google Summer of Code 2018 for Conversations.im by
-            <a href="https://rishiraj.me">Rishi Raj</a>.
+            This is a web application for checking and visualising compliance status of XMPP servers, with XEPs (XMPP Extension Protocols), made as a part of
+            <a href="https://summerofcode.withgoogle.com/projects/5341326460059648">Google Summer of Code 2018</a> for Conversations.im by <a href="https://rishiraj.me">Rishi Raj</a>.
+            The code for this website, along with a command line tool to check compliance of your server locally, is available under a BSD-3 License on <a href="https://github.com/iNPUTmice/caas">Github</a>.
         </p>
      <div class="card">
          <h3>Why compliance?</h3>

@@ -1,5 +1,6 @@
-.card > p {
+ p {
     text-align: left;
+    padding: 0 25px;
 }
 
 #content {

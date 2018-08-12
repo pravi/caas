@@ -29,8 +29,63 @@ public class ResultsByServerTest {
         InternalDBOperations.init(connection);
     }
 
-    public static void checkHistoricalTable() {
-        //TODO: Write tests
+    @Test
+    public void checkHistoricalTable() {
+        int i = 0;
+        List<Result> results0 = new ArrayList<>();
+        List<Result> results1 = new ArrayList<>();
+        HashMap<String, Boolean> resultMap0 = new HashMap<>();
+        HashMap<String, Boolean> resultMap1 = new HashMap<>();
+        for (ComplianceTest test : TestUtils.getComplianceTests()) {
+            i++;
+            Result result0 = new Result(test, (i % 2 == 0));
+            Result result1 = new Result(test, (i % 2 != 0));
+            results0.add(result0);
+            results1.add(result1);
+            resultMap0.put(test.short_name(), result0.isSuccess());
+            resultMap1.put(test.short_name(), result1.isSuccess());
+        }
+        String domain0 = "domain0.com";
+        String domain1 = "domain1.com";
+        String domain2 = "domain2.com";
+
+        List<ResultDomainPair> rdpList0 = Arrays.asList(
+                new ResultDomainPair(domain0, results0),
+                new ResultDomainPair(domain1, results1),
+                new ResultDomainPair(domain2, results0)
+        );
+        HashMap expectedValue0 = new HashMap() {
+            {
+                put(domain0, resultMap0);
+                put(domain1, resultMap1);
+            }
+        };
+        List<ResultDomainPair> rdpList1 = Arrays.asList(
+                new ResultDomainPair(domain0, results1),
+                new ResultDomainPair(domain1, results0),
+                new ResultDomainPair(domain2, results0)
+        );
+        HashMap expectedValue1 = new HashMap() {
+            {
+                put(domain0, resultMap1);
+                put(domain1, resultMap0);
+            }
+        };
+
+        Instant now = Instant.now();
+        InternalDBOperations.addServer(connection, new Server(domain0, true));
+        InternalDBOperations.addServer(connection, new Server(domain1, true));
+        InternalDBOperations.addServer(connection, new Server(domain2, false));
+        InternalDBOperations.addPeriodicResults(connection, rdpList0, Instant.now(), Instant.now());
+        InternalDBOperations.addPeriodicResults(connection, rdpList1, Instant.now(), Instant.now());
+        Map<String, HashMap<String, Boolean>> readValue0 = InternalDBOperations.getHistoricalTableFor(
+                connection, 0
+        );
+        Map<String, HashMap<String, Boolean>> readValue1 = InternalDBOperations.getHistoricalTableFor(
+                connection, 1
+        );
+        Assert.assertEquals(expectedValue0, readValue0);
+        Assert.assertEquals(expectedValue1, readValue1);
     }
 
     @Test

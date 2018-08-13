@@ -52,7 +52,7 @@ $(function () {
     //Prevent closing of modal when clicking inside help card or chip
     $(".help").click(preventModalClosing);
     $(".chip").click(preventModalClosing);
-    drawGraph(data, function gotoHistoric(domain,data) {
+    drawGraph(data, function gotoHistoric(data) {
         var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/historic/server/" + domain + "/iteration/" + data.iteration;
         window.location = url;
     })

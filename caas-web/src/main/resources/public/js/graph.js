@@ -14,8 +14,8 @@ var drawGraph = function (data, onPointClick) {
             return check;
         },
         "formatDate": function (date) {
-            var hour = date.getHours();
-            var min = date.getMinutes();
+            var hour = ("0" + date.getHours()).slice(-2);
+            var min = ("0" + date.getMinutes()).slice(-2);
             var monthNames = [
                 "January", "February", "March",
                 "April", "May", "June", "July",
@@ -217,14 +217,13 @@ var drawGraph = function (data, onPointClick) {
         })
         .on("click", function (d) {
             if (utils.isMobile()) {
-                var it = d.iteration;
                 tooltip.select("button")
                     .on("click", function () {
-                        onPointClick(domain,d);
+                        onPointClick(d);
                     });
             }
             else {
-                onPointClick(domain,d);
+                onPointClick(d);
             }
         })
         .on("mousemove", function (d, i) {

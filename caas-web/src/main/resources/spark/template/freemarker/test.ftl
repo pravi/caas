@@ -11,7 +11,11 @@
     <script>
         var data = JSON.parse('${historic_data?no_esc}');
         $(function () {
-            drawGraph(data);
+            drawGraph(data, function gotoHistoric(data) {
+                console.log(data);
+                var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/historic/iteration/" + data.iteration;
+                window.location = url;
+            })
         });
     </script>
     <h2>${test.full_name()}</h2>

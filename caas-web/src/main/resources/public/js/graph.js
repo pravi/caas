@@ -57,7 +57,7 @@ var drawGraph = function (data, onPointClick) {
 
     for (var i in data) {
         var d = data[i];
-        var html = "<b>" + d.passed + "/" + d.total + " (" + (d.passed / d.total * 100).toFixed(2) + "%) tests passed</b>";
+        var html = "<b>" + d.passed + "/" + d.total + " (" + (d.passed / d.total * 100).toFixed(2) + "%) passed</b>";
         if (utils.isMobile()) {
             html += "<button>More details</button>";
         }
@@ -71,7 +71,7 @@ var drawGraph = function (data, onPointClick) {
             }
 
             if ("pass" in d.change && d.change.pass.length !== 0) {
-                html += "<div class='chart_tests_pass'>Passing in :<br><ul>";
+                html += "<div class='chart_pass'>Passing in :<br><ul>";
                 for (var i in d.change.pass) {
                     var a = d.change.pass[i];
                     html += "<li>" + a + "</li>";
@@ -79,7 +79,7 @@ var drawGraph = function (data, onPointClick) {
                 html += "</ul></div>"
             }
             if ("fail" in d.change && d.change.fail.length !== 0) {
-                html += "<div class='chart_tests_fail'>Failing in :<ul>";
+                html += "<div class='chart_fail'>Failing in :<ul>";
                 for (var i in d.change.fail) {
                     var a = d.change.fail[i];
                     html += "<li>" + a + "</li>";

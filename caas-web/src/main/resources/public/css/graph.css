@@ -10,16 +10,16 @@ line, path, circle {
     z-index: 100;
 }
 
-.chart_tests_fail {
+.chart_fail {
     color: #bb1111;
     float: right;
 }
 
-.chart_tests_fail *, .chart_tests_pass * {
+.chart_fail *, .chart_pass * {
     margin: 0px;
 }
 
-.chart_tests_pass {
+.chart_pass {
     color: #43a047;
     float: left;
 }

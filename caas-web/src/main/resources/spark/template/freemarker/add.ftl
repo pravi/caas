@@ -27,5 +27,5 @@
             <label for="listed">Include server in list?</label>
         </div>
     </form>
-    <#assign footerText="<br/>Note: If you just want to test your server locally, you can alternatively build the command line tool provided in the <a href='https://github.com/iNPUTmice/caas'>repository</a> and testing your server locally." in page>
+    <#assign footerText="<br/>Note: If you just want to test your server locally, you can alternatively build the command line tool provided in the <a href='https://github.com/iNPUTmice/caas'>repository</a>." in page>
 </@page.page>

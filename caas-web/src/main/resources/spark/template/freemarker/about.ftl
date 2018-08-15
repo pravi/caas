@@ -17,7 +17,7 @@
     <div class="card">
          <h3>Why compliance?</h3>
          <p>
-             XMPP is an extensible and living standard. Requirments shift over time and thus new extensions (called
+             XMPP is an extensible and living standard. Requirements shift over time and thus new extensions (called
              XEPs) get developed.
              While server implementors usually react quite fast and are able to cater to those needs it's the server
              operators who don't upgrade to the latest version or don't enable certain features.
@@ -58,7 +58,7 @@
                  Helps server admins/maintainers getting the right configuration for their servers by giving them information on passing failed tests
              </li>
              <li>
-                 Allowing users to explore historical compliance for servers and tests by clicking their links and clicking points on
+                 Allows users to explore historical compliance for servers and tests by clicking their links and clicking points on
                  graphs
              </li>
          </ul>

@@ -28,15 +28,16 @@ public class TestExecutor {
                 .build();
     }
 
-    public static List<Result> executeTestsFor(Credential credential) throws XmppException, TestFactory.TestCreationException {
+    public static List<Result> executeTestsFor(Credential credential, Hook... hooks) throws XmppException, TestFactory.TestCreationException {
 
         ArrayList<Result> results = new ArrayList<>();
         XmppClient client = XmppClient.create(credential.getDomain(), configuration);
         client.connect(credential.getJid());
         client.login(credential.getJid().getLocal(), credential.getPassword(), "caas");
 
-        //Update server metadata
-        ServerMetadataChecker.updateServerMetadataFor(client, credential);
+        for(Hook hook : hooks) {
+            hook.run(client);
+        }
 
         //Run tests
         List<Class<? extends AbstractTest>> testClasses = Tests.getTests();
@@ -47,5 +48,9 @@ public class TestExecutor {
         }
         client.close();
         return results;
+    }
+
+    public interface Hook {
+        void run(XmppClient client);
     }
 }

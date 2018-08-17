@@ -60,7 +60,7 @@ public class OneOffTestRunner {
     private static void startTests(Credential credential) {
         List<Result> results;
         try {
-            results = TestExecutor.executeTestsFor(credential);
+            results = TestExecutor.executeTestsFor(credential, (client) -> ServerMetadataChecker.updateServerMetadataFor(client, credential));
             DBOperations.addCurrentResults(
                     credential.getDomain(),
                     results,

@@ -71,7 +71,7 @@ public class PeriodicTestRunner implements Runnable {
                 .map(credential -> {
                     ResultDomainPair rdp = null;
                     try {
-                        rdp = new ResultDomainPair(credential.getDomain(), TestExecutor.executeTestsFor(credential));
+                        rdp = new ResultDomainPair(credential.getDomain(), TestExecutor.executeTestsFor(credential, (client) -> ServerMetadataChecker.updateServerMetadataFor(client, credential)));
                     } catch (TestFactory.TestCreationException e) {
                         e.printStackTrace();
                     } catch (AuthenticationException ex) {
@@ -137,7 +137,7 @@ public class PeriodicTestRunner implements Runnable {
             if (newResults.isEmpty()) {
                 List<Email> mails = MailBuilder.getInstance().buildResultsNotAvailableMails(domain, iteration);
                 if (!mails.isEmpty()) {
-                     LOGGER.info(
+                    LOGGER.info(
                             "Sending email to subscribers of "
                                     + domain
                                     + " notifying about error while getting compliance results"

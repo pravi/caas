@@ -2,10 +2,17 @@ package im.conversations.compliance;
 
 
 import im.conversations.compliance.pojo.Credential;
-import im.conversations.compliance.xmpp.TestExecutorCLI;
+import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.xmpp.TestExecutor;
 import im.conversations.compliance.xmpp.TestFactory;
 import rocks.xmpp.addr.Jid;
 import rocks.xmpp.core.XmppException;
+import rocks.xmpp.core.session.XmppClient;
+import rocks.xmpp.extensions.version.SoftwareVersionManager;
+import rocks.xmpp.extensions.version.model.SoftwareVersion;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommandLineLauncher {
     public static void main(String[] args) {
@@ -43,11 +50,37 @@ public class CommandLineLauncher {
         }
         Credential credential = new Credential(jid, password);
         try {
-            TestExecutorCLI.executeTestsFor(credential);
-        } catch (XmppException e) {
-            e.printStackTrace();
-        } catch (TestFactory.TestCreationException e) {
+            Map<Boolean, List<Result>> results = TestExecutor.executeTestsFor(credential, (client -> {
+                final Optional<SoftwareVersion> version = getSoftwareVersion(client);
+                if (version.isPresent()) {
+                    System.out.println("Server is running " + version.get().getName() + " " + version.get().getVersion());
+                } else {
+                    System.out.println("Server is running unknown software");
+                }
+            })).stream().collect(Collectors.partitioningBy(r -> r.getTest().informational()));
+            System.out.println("\nCompliance report for " + credential.getDomain());
+            int padding = Collections.max(results.values().stream().flatMap(List::stream).collect(Collectors.toList()), Comparator.comparing(r -> r.getTest().full_name().length())).getTest().full_name().length() + 1;
+            for (Result result : results.get(false)) {
+                print(result, padding);
+            }
+            System.out.println("\nInformational tests:");
+            for (Result result : results.get(true)) {
+                print(result, padding);
+            }
+        } catch (TestFactory.TestCreationException | XmppException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Optional<SoftwareVersion> getSoftwareVersion(XmppClient client) {
+        try {
+            return Optional.ofNullable(client.getManager(SoftwareVersionManager.class).getSoftwareVersion(client.getDomain()).getResult());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private static void print(Result result, int padding) {
+        System.out.println(String.format("%1$-" + padding + "s", result.getTest().full_name() + " ") + (result.isSuccess() ? "\u001B[32mPASSED\u001B[0m" : "\u001B[31mFAILED\u001B[0m"));
     }
 }

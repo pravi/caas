@@ -89,7 +89,7 @@ public class Help {
     private static HashMap<String, String> load(Path serverFolder) throws IOException {
         HashMap<String, String> helpForThisSoftware = new HashMap<>();
         Files.walk(serverFolder, 1).filter(Files::isRegularFile).forEach(filePath -> {
-            Node document = null;
+            Node document;
             try {
                 document = PARSER.parseReader(Files.newBufferedReader(filePath));
                 String htmlText = RENDERER.render(document);

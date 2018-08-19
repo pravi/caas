@@ -12,10 +12,7 @@ import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -24,7 +21,7 @@ public class PeriodicTestRunner implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-    private List<Credential> credentialsMarkedForRemoval;
+    private final Queue<Credential> credentialsMarkedForRemoval = new ArrayDeque<>();
 
     private PeriodicTestRunner() {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
@@ -58,7 +55,6 @@ public class PeriodicTestRunner implements Runnable {
             LOGGER.info("No credentials found. Periodic test skipped");
             return;
         }
-        credentialsMarkedForRemoval = Collections.synchronizedList(new ArrayList());
         Iteration iteration = DBOperations.getLatestIteration().orElse(null);
         int iterationNumber = -1;
         if (iteration != null) {
@@ -97,22 +93,25 @@ public class PeriodicTestRunner implements Runnable {
 
     private void postTestsRun() {
         //Remove invalid credential
-        for (Credential credential : credentialsMarkedForRemoval) {
-            DBOperations.removeCredential(credential);
-            if (Configuration.getInstance().getMailConfig() != null) {
-                List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
-                if (!mails.isEmpty()) {
-                    LOGGER.info(
-                            "Sending email to subscribers of "
-                                    + credential.getDomain()
-                                    + " notifying about credential failing to authenticate"
-                    );
-                    MailSender.sendMails(mails);
-                    LOGGER.info(
-                            "Sent email to subscribers of "
-                                    + credential.getDomain()
-                                    + " notifying about credential failing to authenticate"
-                    );
+        Credential credential;
+        synchronized (this.credentialsMarkedForRemoval) {
+            while ((credential = credentialsMarkedForRemoval.poll()) != null) {
+                DBOperations.removeCredential(credential);
+                if (Configuration.getInstance().getMailConfig() != null) {
+                    List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
+                    if (!mails.isEmpty()) {
+                        LOGGER.info(
+                                "Sending email to subscribers of "
+                                        + credential.getDomain()
+                                        + " notifying about credential failing to authenticate"
+                        );
+                        MailSender.sendMails(mails);
+                        LOGGER.info(
+                                "Sent email to subscribers of "
+                                        + credential.getDomain()
+                                        + " notifying about credential failing to authenticate"
+                        );
+                    }
                 }
             }
         }

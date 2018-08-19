@@ -16,7 +16,12 @@ public class ExtensibleResourceDescriptor {
     private List<Link> links = null;
 
     public List<Link> getLinks(String... rel) {
-        return getLinks().stream().filter(l -> Arrays.stream(rel).anyMatch(r -> r.equals(l.getRel()))).collect(Collectors.toList());
+        List<String> list = Arrays.asList(rel);
+        return getLinks(list);
+    }
+
+    public List<Link> getLinks(List<String> rels) {
+        return getLinks().stream().filter(l -> rels.stream().anyMatch(r -> r.equals(l.getRel()))).collect(Collectors.toList());
     }
 
     private List<Link> getLinks() {

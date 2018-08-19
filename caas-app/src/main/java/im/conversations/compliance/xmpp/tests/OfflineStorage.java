@@ -9,7 +9,7 @@ import java.util.List;
 @ComplianceTest(
         short_name = "xep0160",
         full_name = "XEP-0160: Best Practices for Handling Offline Messages",
-        url = "https://xmpp.org/extensions/xep-0160s.html",
+        url = "https://xmpp.org/extensions/xep-0160.html",
         description = "Checks if the server follows the best practices for Jabber/XMPP servers " +
                 "in handling messages sent to recipients who are offline."
 )

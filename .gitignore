@@ -6,3 +6,4 @@ config.json
 *.db
 target
 notes.txt
+accounts.xml

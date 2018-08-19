@@ -88,6 +88,10 @@ table {
     width: 100%;
 }
 
+table *, #div_first_col *, #div_header *{
+    box-sizing: border-box;
+}
+
 th, td {
     font-size: 12px;
     line-height: 16px;

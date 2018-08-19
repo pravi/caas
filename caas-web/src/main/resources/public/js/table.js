@@ -58,7 +58,7 @@ $(function () {
             var theadStyle = document.defaultView.getComputedStyle(thead);
             var headerHeight = theadStyle.height;
             var headerWidth = theadStyle.width;
-            var rowHeight = parseInt(document.defaultView.getComputedStyle(tbody.querySelector("tr")).height) - 22 + 'px';
+            var rowHeight = document.defaultView.getComputedStyle(tbody.querySelector("tr")).height;
 
             div_header.style.height = headerHeight;
             div_header.style.width = headerWidth;
@@ -80,7 +80,7 @@ $(function () {
             div_first_col.style.marginTop = headerBoundingHeight + 'px';
             container.style.marginLeft = firstColumnBoundingWidth + 'px';
 
-            var headerHeight = parseInt(thStyles[0].height) - 2 + 'px';
+            var headerHeight = thStyles[0].height;
             thStyles.forEach(function (thStyle, i) {
                 headerDivs[i].style.width = thStyle.width;
                 headerDivs[i].style.height = headerHeight;

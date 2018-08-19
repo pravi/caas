@@ -42,7 +42,7 @@ public class MamMuc extends AbstractTest {
             boolean hasFormField = false;
             try {
                 DataForm form = room.getConfigurationForm().get();
-                final DataForm.Field mam = room.getConfigurationForm().get().findField("mam"); //ejabberd community
+                final DataForm.Field mam = form.findField("mam"); //ejabberd community
                 final DataForm.Field roomConfigMam = form.findField("muc#roomconfig_mam"); //ejabberd SaaS
                 final DataForm.Field roomConfigEnable = form.findField("muc#roomconfig_enablearchiving");
                 hasFormField = mam != null || roomConfigMam != null || roomConfigEnable != null;

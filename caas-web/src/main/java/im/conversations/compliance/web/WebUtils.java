@@ -1,6 +1,7 @@
 package im.conversations.compliance.web;
 
 import im.conversations.compliance.annotations.ComplianceTest;
+import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.xmpp.utils.TestUtils;
 import spark.Request;
@@ -23,7 +24,11 @@ public class WebUtils {
      * @return
      */
     public static String getRootUrlFrom(Request request) {
-        return request.url().split(request.uri())[0];
+        String rootUrl = Configuration.getInstance().getRootURL();
+        if(rootUrl == null) {
+            rootUrl = request.url().split(request.uri())[0];
+        }
+        return rootUrl;
     }
 
     /**

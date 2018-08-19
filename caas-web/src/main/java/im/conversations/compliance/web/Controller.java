@@ -204,7 +204,8 @@ public class Controller {
         model.put("timestamp", lastRun);
         model.put("tests", TestUtils.getComplianceTestMap());
         String imageUrl = WebUtils.getRootUrlFrom(request) + "/badge/" + domain;
-        model.put("badgeCode", "<a href='" + request.url() + "'><img src='" + imageUrl + "'></a>");
+        String resultUrl = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
+        model.put("badgeCode", "<a href='" + resultUrl + "'><img src='" + imageUrl + "'></a>");
         boolean mailExists = Configuration.getInstance().getMailConfig() != null;
         model.put("mailExists",mailExists);
         return new ModelAndView(model, "server.ftl");

@@ -43,7 +43,7 @@ $(function () {
 
             //Make footer take the rest of the screen
             document.querySelector('body').style.overflow = 'hidden';
-            document.querySelector("footer").style.height = "100%";
+            document.querySelector("footer").style.height = "50px";
 
             var thStyles = ths.map(function (th) {
                 var style = document.defaultView.getComputedStyle(th);
@@ -72,7 +72,7 @@ $(function () {
 
             var headerBoundingHeight = div_header.getBoundingClientRect().height;
             var firstColumnBoundingWidth = div_first_col.getBoundingClientRect().width;
-            var containerHeight = screenHeight - 80 - 16 - 40 - thStyles[0].boundingHeight + 'px';
+            var containerHeight = screenHeight - 80 - 16 - 50 - thStyles[0].boundingHeight + 'px';
             var containerWidth = screenWidth - firstColumnBoundingWidth + 'px';
             container.style["max-height"] = containerHeight;
             container.style["max-width"] = containerWidth;
@@ -164,11 +164,11 @@ $(function () {
         disabled = true;
         if (resetButton) {
             fixedTable.reset();
-            stickyHeaderToggle.innerText = "Turn on sticky headers"
+            stickyHeaderToggle.innerText = "Turn off compatibility mode"
         } else {
             scrollToTop();
             fixedTable.relayout();
-            stickyHeaderToggle.innerText = "Turn off sticky headers"
+            stickyHeaderToggle.innerText = "Turn on compatibility mode"
         }
         resetButton = !resetButton;
         disabled = false;

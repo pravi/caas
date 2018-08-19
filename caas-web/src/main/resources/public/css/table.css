@@ -1,6 +1,5 @@
 #results_table {
     overflow: scroll;
-    max-height: 80%;
 }
 
 #div_header, #div_first_col {
@@ -151,7 +150,7 @@ div {
 footer {
     position: absolute;
     display: block;
-    padding-top: 10px;
+    padding-top: 5px;
     z-index: 100;
     background-color: #fafafa;
     margin: 0px;

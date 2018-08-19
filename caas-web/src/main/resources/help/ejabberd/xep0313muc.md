@@ -6,5 +6,9 @@ modules:
     ...
      mod_mam:
         default: always
-    mod_mam_muc: {}
+    mod_muc:
+    ...
+    default_room_options:
+        mam: true
+    ...
 ```

@@ -12,7 +12,7 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 
 @ComplianceTest(
         short_name = "xep0368",
@@ -32,7 +32,8 @@ public class XmppOverTls extends AbstractTest {
     public boolean run() {
         final String domain = client.getDomain().getDomain();
         final SSLParameters parameters = new SSLParameters();
-        parameters.setServerNames(Arrays.asList(new SNIHostName(domain)));
+        parameters.setServerNames(Collections.singletonList(new SNIHostName(domain)));
+        parameters.setApplicationProtocols(new String[]{"xmpp-client"});
         try {
             final SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             ResolverResult<SRV> results = ResolverApi.INSTANCE.resolve("_xmpps-client._tcp." + domain, SRV.class);

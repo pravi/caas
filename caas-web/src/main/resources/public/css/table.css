@@ -109,6 +109,7 @@ th, td {
 }
 
 .fixed-table-container td:first-child {
+    white-space: nowrap;
     background: #eee;
 }
 

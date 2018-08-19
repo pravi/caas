@@ -10,13 +10,36 @@ import im.conversations.compliance.pojo.MailConfig;
 import im.conversations.compliance.web.Controller;
 import im.conversations.compliance.web.TestLiveWebsocket;
 import im.conversations.compliance.xmpp.PeriodicTestRunner;
+import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import static spark.Spark.*;
 
 public class WebLauncher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebLauncher.class);
+
     public static void main(String[] args) {
+
+        Options options = new Options();
+        options.addOption(new Option("c", "config", true, "Path to the config file"));
+        try {
+            CommandLine cmd = new DefaultParser().parse(options, args);
+            String configPath = cmd.getOptionValue("c");
+            if (configPath != null) {
+                Configuration.setFilename(configPath);
+            }
+        } catch (ParseException e) {
+            LOGGER.warn("unable to parse config. using default", e);
+        }
+        start();
+    }
+
+    private static void start() {
+
         TemplateEngine templateEngine = new FreeMarkerEngine();
         staticFileLocation("/public");
         webSocket("/socket/*", TestLiveWebsocket.class);

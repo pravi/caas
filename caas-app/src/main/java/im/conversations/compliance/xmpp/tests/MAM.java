@@ -11,8 +11,8 @@ import java.util.List;
         full_name = "XEP-0313: Message Archive Management",
         url = "https://xmpp.org/extensions/xep-0313.html",
         description = "Provides a protocol to query and control an archive of messages stored on a server. " +
-                "It is used to record conversations that take place on clients that do not support local history storage, " +
-                "to synchronise conversation history seamlessly between multiple clients, etc."
+                "It is used to synchronise conversation history seamlessly between multiple clients, " +
+                "record conversations that take place on clients that do not support local history storage, etc."
 )
 public class MAM extends AbstractDiscoTest {
 

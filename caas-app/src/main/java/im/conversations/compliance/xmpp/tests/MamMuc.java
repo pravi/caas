@@ -19,8 +19,9 @@ import java.util.concurrent.ExecutionException;
         short_name = "xep0313muc",
         full_name = "XEP-0313: Message Archive Management (for Multi-User Chat)",
         url = "https://xmpp.org/extensions/xep-0313.html",
-        description = "Provides a generic protocol for streaming binary data between any two entities on an XMPP network. " +
-                "It establishes an out-of-band bytestream between any two XMPP users which can be direct(peer-to-peer) or mediated."
+        description = "Provides a protocol to query and control an archive of messages of a multi user chat stored on a server. " +
+                "It is used to synchronise conversation history seamlessly between multiple clients, " +
+                "record conversations that take place on clients that do not support local history storage, etc. for a MUC"
 )
 public class MamMuc extends AbstractTest {
     public MamMuc(XmppClient client) {

@@ -17,7 +17,7 @@ import java.util.Set;
 
 
 @AutoService(Processor.class)
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_10)
 @SupportedAnnotationTypes({"im.conversations.compliance.annotations.ComplianceTest"})
 public class ComplianceTestProcessor extends AbstractProcessor {
     private static boolean ran = false;

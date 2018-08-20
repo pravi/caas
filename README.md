@@ -20,7 +20,7 @@ There are two ways you can run this project:
 
 ## Build instructions
 
-You need to have Java 8 and [maven](https://maven.apache.org/)
+You need to have Java 10 and [maven](https://maven.apache.org/)
 
 To build both the command line tool and web service, simply run
 ```

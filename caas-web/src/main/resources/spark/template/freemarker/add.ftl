@@ -27,5 +27,6 @@
             <label for="listed">Include server in list?</label>
         </div>
     </form>
+     <p style="color:red;">Note: Don't use a personal or privileged account for testing servers, as the credentials will be stored on our database</p>
     <#assign footerText="<br/>Note: If you just want to test your server locally, you can alternatively build the command line tool provided in the <a href='https://github.com/iNPUTmice/caas'>repository</a>." in page>
 </@page.page>

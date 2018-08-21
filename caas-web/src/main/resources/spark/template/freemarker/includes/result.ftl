@@ -16,7 +16,7 @@
         <div class="result chip clickable failed" onclick="showHelp('${result.getTest().short_name()}')">
             ${result.getTest().full_name()}
             <div class="result_image">
-                <img src="/img/passed.svg">
+                <img src="/img/failed.svg">
             </div>
         </div>
             </#if>

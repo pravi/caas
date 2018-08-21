@@ -29,7 +29,7 @@
 
     <@graph.graph> </@graph.graph>
 
-      <div id="server_results">
+      <div id="server_results" class="results_container">
         <#list results as domain,passed>
             <div class="result chip clickable ${passed?then("passed","failed")}" onclick="location.href='/server/${domain}'">
             ${domain}

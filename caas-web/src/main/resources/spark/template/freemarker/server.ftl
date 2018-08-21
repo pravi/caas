@@ -16,7 +16,7 @@
         var timestamp = "${timestamp}";
     </script>
 
-    <h2> Compliance status for ${domain}</h2>
+    <h2> Compliance status for <a href="http://${domain}">${domain}</a></h2>
 
     <@stat.stat></@stat.stat>
 

@@ -192,8 +192,8 @@ public class DBOperations {
         return results;
     }
 
-    public static HashMap<String, Boolean> getCurrentResultsForTest(ComplianceTest test) {
-        HashMap<String, Boolean> results;
+    public static Map<String, Boolean> getCurrentResultsForTest(ComplianceTest test) {
+        Map<String, Boolean> results;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
             results = InternalDBOperations.getCurrentResultsForTest(connection, test.short_name());
         }

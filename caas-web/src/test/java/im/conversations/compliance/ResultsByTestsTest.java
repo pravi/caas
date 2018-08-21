@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ResultsByTestsTest {
     private static final String JDBC_URL = "jdbc:sqlite::memory:";
@@ -32,7 +33,7 @@ public class ResultsByTestsTest {
 
     @Test
     public void whenNoResults() {
-        HashMap<String, Boolean> dummy = InternalDBOperations.getCurrentResultsForTest(connection, "dummy");
+        Map<String, Boolean> dummy = InternalDBOperations.getCurrentResultsForTest(connection, "dummy");
         Assert.assertTrue(InternalDBOperations.getCurrentResultsByServer(connection).isEmpty());
         Assert.assertTrue(dummy.isEmpty());
     }
@@ -187,7 +188,7 @@ public class ResultsByTestsTest {
         for (int i = 0; i < 3; i++) {
             results.put(domains.get(i), (i % 2 == 0));
         }
-        HashMap<String, Boolean> readResults = InternalDBOperations.getCurrentResultsForTest(connection, test.short_name());
+        Map<String, Boolean> readResults = InternalDBOperations.getCurrentResultsForTest(connection, test.short_name());
         Assert.assertEquals(results, readResults);
     }
 

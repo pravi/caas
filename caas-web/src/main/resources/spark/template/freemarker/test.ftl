@@ -31,8 +31,17 @@
 
       <div id="server_results">
         <#list results as domain,passed>
-            <div class="chip clickable ${passed?then("passed","failed")}" onclick="location.href='/server/${domain}'">
+            <div class="result chip clickable ${passed?then("passed","failed")}" onclick="location.href='/server/${domain}'">
             ${domain}
+                <#if passed>
+                <div class="result_image">
+                    <img src="/img/passed.svg">
+                </div>
+                <#else>
+                <div class="result_image">
+                    <img src="/img/failed.svg">
+                </div>
+                </#if>
         </div>
         </#list>
       </div>

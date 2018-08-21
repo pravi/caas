@@ -441,14 +441,14 @@ public class InternalDBOperations {
         return results;
     }
 
-    public static HashMap<String, Boolean> getCurrentResultsForTest(Connection connection, String test) {
+    public static Map<String, Boolean> getCurrentResultsForTest(Connection connection, String test) {
         String query = "select servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +
-                " where test = :test and listed = 1 order by servers.domain";
+                " where test = :test and listed = 1";
         Table table = connection.createQuery(query)
                 .addParameter("test", test)
                 .executeAndFetchTable();
-        HashMap<String, Boolean> results = new HashMap<>();
+        SortedMap<String, Boolean> results = new TreeMap<>();
         table.rows().forEach(
                 row -> {
                     String domain = row.getString("domain");

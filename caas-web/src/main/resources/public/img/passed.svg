@@ -1,15 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns="http://www.w3.org/2000/svg"
-   viewBox="-16 0 64 64"
-   xml:space="preserve"
-   width="32"
-   height="24">
-
-<polyline
-   class="tick path"
-   style="fill:none;stroke:#43a047;stroke-width:3;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1"
-   points="  11.6,20 15.9,24.2 26.4,13.8 "
-   id="polyline4"
-   transform="matrix(3.5396701,0,0,3.5396701,-35.266942,-36.022224)" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" version="1.1" viewBox="-16 0 48 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><polyline class="tick path" transform="matrix(2.9794 0 0 2.9794 -48.62 -25.255)" points="11.6 20 15.9 24.2 26.4 13.8" fill="none" stroke="#43a047" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"/>
 </svg>

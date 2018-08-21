@@ -91,11 +91,15 @@ li {
 
 .chip.result {
     box-sizing: border-box;
-    width: 17%;
+    width: 21%;
     margin: 5px 1%;
     vertical-align: middle;
 }
 
+.result_image {
+    margin-left: auto;
+    margin-right: 0px;
+}
 .result > img {
     display: block;
     width: 36px;
@@ -299,12 +303,17 @@ footer {
     height: 30px;
     animation: spin 2s linear infinite;
 }
-
-@media only screen and (max-width: 950px) {
-
+@media only screen and (max-width: 1200px) {
     .chip.result {
         margin: 7px 2%;
         width: 28%;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .chip.result {
+        width: 45%;
+        margin: 10px 1%;
     }
     #nav_list_menu {
         display: block;
@@ -361,12 +370,6 @@ footer {
 }
 
 @media only screen and (max-width: 600px) {
-
-    .chip.result {
-        width: 45%;
-        margin: 10px 1%;
-    }
-
     #brand_img {
         margin-right: 0;
     }
@@ -375,7 +378,7 @@ footer {
     }
 }
 
-@media only screen and (max-width: 450px) {
+@media only screen and (max-width: 500px) {
     .chip.result {
         width: 95%;
     }

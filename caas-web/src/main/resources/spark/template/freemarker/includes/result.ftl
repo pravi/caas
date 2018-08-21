@@ -8,12 +8,16 @@
             <#if result.success>
         <div class="result chip clickable passed" onclick="location.href='/test/${result.getTest().short_name()}'">
             ${result.getTest().full_name()}
-            <img src="/img/passed.svg">
+            <div class="result_image">
+                <img src="/img/passed.svg">
+            </div>
         </div>
             <#else>
         <div class="result chip clickable failed" onclick="showHelp('${result.getTest().short_name()}')">
             ${result.getTest().full_name()}
-            <img src="/img/passed.svg">
+            <div class="result_image">
+                <img src="/img/passed.svg">
+            </div>
         </div>
             </#if>
         </#if>
@@ -26,12 +30,16 @@
                 <#if result.success>
         <div class="result chip clickable passed" onclick="location.href='/test/${result.getTest().short_name()}'">
             ${result.getTest().full_name()}
-            <img src="/img/passed.svg">
+            <div class="result_image">
+                <img src="/img/passed.svg">
+            </div>
         </div>
                 <#else>
         <div class="result chip clickable failed" onclick="showHelp('${result.getTest().short_name()}')">
             ${result.getTest().full_name()}
-            <img src="/img/failed.svg">
+            <div class="result_image">
+                <img src="/img/failed.svg">
+            </div>
         </div>
                 </#if>
             </#if>

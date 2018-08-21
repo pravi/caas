@@ -11,6 +11,6 @@ Or you can alternatively just modify the annotations for tests if the metadata o
 Note: You __MUST NOT__ change the short_name of an existing test.
 
 ### Adding a new feature to the website
-We use [Spark web framework](http://sparkjava.com/) for the website.
+We use [Spark web framework](http://sparkjava.com/) and Freemarker Template engine for the website. You can find all the HTML/CSS/JS in caas-web/src/main/resources
 
 Have a fun time hacking :)

@@ -13,6 +13,7 @@
             Extension Protocols), made as a part of
             <a href="https://summerofcode.withgoogle.com/projects/5341326460059648">Google Summer of Code 2018</a> for Conversations.im by <a href="https://rishiraj.me">Rishi Raj</a>.
             The code for this website, along with a command line tool to check compliance of your server locally, is available under a BSD-3 License on <a href="https://github.com/iNPUTmice/caas">Github</a>.
+            If you want to contribute to the project, read our <a href="https://github.com/iNPUTmice/caas/blob/master/CONTRIBUTING.md">contributing guide</a>
         </p>
     <div class="card">
          <h3>Why compliance?</h3>

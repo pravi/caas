@@ -403,11 +403,15 @@ public class InternalDBOperations {
     }
 
     public static Map<String, HashMap<String, Boolean>> getCurrentResultsByServer(Connection connection) {
-        SortedMap<String, HashMap<String, Boolean>> resultsByServer = new TreeMap<>();
+        Map<String, HashMap<String, Boolean>> resultsByServer = new LinkedHashMap<>();
         List<String> tests = TestUtils.getTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +
-                " where test in (:tests) and listed = 1")
+                " where test in (:tests) and listed = 1" +
+                " order by (select sum(success) from current_tests" +
+                " where domain=servers.domain and test in (:tests))" +
+                "desc"
+        )
                 .addParameter("tests", tests)
                 .executeAndFetchTable();
         table.rows().forEach(
@@ -486,13 +490,16 @@ public class InternalDBOperations {
     }
 
     public static Map<String, HashMap<String, Boolean>> getHistoricalTableFor(Connection connection, int iterationNumber) {
-        SortedMap<String, HashMap<String, Boolean>> resultsByServer = new TreeMap<>();
+        Map<String, HashMap<String, Boolean>> resultsByServer = new LinkedHashMap<>();
         List<String> tests = TestUtils.getTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from periodic_tests" +
                 " inner join servers on servers.domain = periodic_tests.domain" +
                 " where test in (:tests) and" +
                 " listed = 1 and" +
-                " iteration_number = :iteration_number"
+                " iteration_number = :iteration_number" +
+                " order by (select sum(success) from periodic_tests" +
+                " where domain=servers.domain and test in (:tests) and iteration_number=:iteration_number " +
+                ") desc"
         )
                 .addParameter("iteration_number", iterationNumber)
                 .addParameter("tests", tests)

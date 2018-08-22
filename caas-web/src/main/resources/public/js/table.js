@@ -45,9 +45,25 @@ $(function () {
             document.querySelector('body').style.overflow = 'hidden';
             document.querySelector("footer").style.height = "50px";
 
-            var thStyles = ths.map(function (th) {
+            //Prevent text from overflowing
+            var extraHack = 2;
+
+            var thStyles = ths.map(function (th, i) {
                 var style = document.defaultView.getComputedStyle(th);
-                var rect = th.getBoundingClientRect();
+                var rect;
+                //Prevent weird text overflow
+                if (i <= 1) {
+                    var modifiedWidth = parseInt(style.width) + extraHack + 'px';
+                    th.style.width = modifiedWidth;
+                    rect = th.getBoundingClientRect();
+                    return {
+                        height: style.height,
+                        width: modifiedWidth,
+                        boundingHeight: rect.height,
+                        boundingWidth: rect.width
+                    }
+                }
+                rect = th.getBoundingClientRect();
                 return {
                     height: style.height,
                     width: style.width,
@@ -57,13 +73,13 @@ $(function () {
             });
             var theadStyle = document.defaultView.getComputedStyle(thead);
             var headerHeight = theadStyle.height;
-            var headerWidth = theadStyle.width;
+            var headerWidth = parseInt(theadStyle.width) + 2 * extraHack + 'px';
             var rowHeight = document.defaultView.getComputedStyle(tbody.querySelector("tr")).height;
 
             div_header.style.height = headerHeight;
             div_header.style.width = headerWidth;
 
-            div_first_col.style.width = thStyles[0].boundingWidth;
+            div_first_col.style.width = thStyles[0].width;
             div_first_col.style.height = document.defaultView.getComputedStyle(tbody).height;
 
             firstColumnChildren.forEach(function (serverNameDiv) {
@@ -71,14 +87,15 @@ $(function () {
             });
 
             var headerBoundingHeight = div_header.getBoundingClientRect().height;
-            var firstColumnBoundingWidth = div_first_col.getBoundingClientRect().width;
+            // Subtracting 1px to line things up
+            var tableMarginLeft = parseInt(window.getComputedStyle(div_first_col).width) - 1;
             var containerHeight = screenHeight - 80 - 16 - 50 - thStyles[0].boundingHeight + 'px';
-            var containerWidth = screenWidth - firstColumnBoundingWidth + 'px';
+            var containerWidth = screenWidth - tableMarginLeft + 'px';
             container.style["max-height"] = containerHeight;
             container.style["max-width"] = containerWidth;
-            container.style.marginTop = headerBoundingHeight + 'px';
             div_first_col.style.marginTop = headerBoundingHeight + 'px';
-            container.style.marginLeft = firstColumnBoundingWidth + 'px';
+            container.style.marginTop = headerBoundingHeight + 'px';
+            container.style.marginLeft = tableMarginLeft + 'px';
 
             var headerHeight = thStyles[0].height;
             thStyles.forEach(function (thStyle, i) {
@@ -97,7 +114,7 @@ $(function () {
                     if (j === 0) {
                         td.style.display = 'none';
                     }
-                    if (j > 1) {
+                    if (j >= 1) {
                         td.style["min-width"] = thStyles[j].width;
                     }
                 });

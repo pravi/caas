@@ -20,6 +20,7 @@
     padding: 10px 8px;
     background-color: #eee;
     border-right: 2px solid white;
+    border-bottom: 2px solid white;
 }
 
 .server_name {
@@ -76,11 +77,6 @@ table a {
     color: black;
 }
 
-#results_table {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-}
 
 table {
     border-collapse: collapse;

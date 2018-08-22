@@ -410,7 +410,7 @@ public class InternalDBOperations {
                 " where test in (:tests) and listed = 1" +
                 " order by (select sum(success) from current_tests" +
                 " where domain=servers.domain and test in (:tests))" +
-                "desc"
+                "desc, servers.domain asc"
         )
                 .addParameter("tests", tests)
                 .executeAndFetchTable();
@@ -499,7 +499,7 @@ public class InternalDBOperations {
                 " iteration_number = :iteration_number" +
                 " order by (select sum(success) from periodic_tests" +
                 " where domain=servers.domain and test in (:tests) and iteration_number=:iteration_number " +
-                ") desc"
+                ") desc, servers.domain asc"
         )
                 .addParameter("iteration_number", iterationNumber)
                 .addParameter("tests", tests)

@@ -3,20 +3,32 @@ line, path, circle {
 }
 
 #tooltip {
+    box-sizing: border-box;
     position: absolute;
     opacity: 0;
+    padding: 10px;
     top: 0px;
-    width: 300px;
+    width: 450px;
     z-index: 100;
+}
+
+#tooltip li {
+    font-size: 0.8em;
+}
+
+.chart_pass, .chart_fail {
+    box-sizing: border-box;
+    margin: 0;
+    border: none !important;
+    padding: 5px;
+    width: 213px;
+    display: inline-block;
+    overflow: hidden;
 }
 
 .chart_fail {
     color: #bb1111;
     float: right;
-}
-
-.chart_fail *, .chart_pass * {
-    margin: 0px;
 }
 
 .chart_pass {
@@ -37,4 +49,26 @@ line, path, circle {
     margin: 5px;
     padding: 5px;
     overflow-x: scroll;
+}
+
+@media only screen and (max-width: 500px) {
+    #tooltip {
+        width: 300px;
+    }
+    #tooltip li {
+        font-size: 0.7em;
+    }
+    .chart_pass, .chart_fail {
+        width: 138px;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+    #tooltip {
+        max-width: 250px;
+    }
+
+    .chart_pass, .chart_fail {
+        max-width: 113px;
+    }
 }

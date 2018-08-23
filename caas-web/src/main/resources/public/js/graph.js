@@ -59,7 +59,7 @@ var drawGraph = function (data, onPointClick) {
         var d = data[i];
         var html = "<b>" + d.passed + "/" + d.total + " (" + (d.passed / d.total * 100).toFixed(2) + "%) passed</b>";
         if (utils.isMobile()) {
-            html += "<button>More details</button>";
+            html += "<br/><button>More details</button>";
         }
         html += "<p>Time: " + utils.formatDate(d.timestamp) + "</p>";
         if ("change" in d) {

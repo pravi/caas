@@ -73,7 +73,7 @@ $(function () {
             });
             var theadStyle = document.defaultView.getComputedStyle(thead);
             var headerHeight = theadStyle.height;
-            var headerWidth = parseInt(theadStyle.width) + 2 * extraHack + 'px';
+            var headerWidth = parseInt(theadStyle.width) + 4 * extraHack + 'px';
             var rowHeight = document.defaultView.getComputedStyle(tbody.querySelector("tr")).height;
 
             div_header.style.height = headerHeight;

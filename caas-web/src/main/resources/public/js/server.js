@@ -16,7 +16,17 @@ var print_report = function (softwareName, softwareVersion) {
 
     printWindow.document.write('<h2>' + 'Test results' + '</h2>');
 
-    var table = "<table><thead><th>Test</th><th>Result</th></thead>";
+    var table = "<style type='text/css'>" +
+        "table {" +
+            "border:solid #000 !important;" +
+            "border-width:1px 0 0 1px !important;" +
+        "}" +
+        "th, td {" +
+            "border:solid #000 !important;" +
+            "border-width:0 1px 1px 0 !important;" +
+        "}" +
+   "</style>";
+    table += "<table><thead><th>Test</th><th>Result</th></thead>";
     table += "<tbody>"
     $(".results_container").each(function (i, obj) {
         var children = [].slice.call(obj.children);

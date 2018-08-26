@@ -25,7 +25,7 @@ public class TestLiveWebsocket {
                         msg,
                         "/server/" + domain);
                 message(session, gson.toJson(liveResultResponse));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -36,7 +36,7 @@ public class TestLiveWebsocket {
                     null);
             try {
                 message(session, gson.toJson(liveResultResponse));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             session.close(400, "Invalid request");

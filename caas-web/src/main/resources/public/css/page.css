@@ -123,18 +123,6 @@ li {
 }
 
 
-td.passed {
-    background-color: #43a047;
-}
-
-td.failed {
-    background-color: #ff4444;
-}
-
-td.not_found {
-    background-color: #aaaaaa;
-}
-
 pre code {
     display: block;
 }

@@ -58,6 +58,34 @@ tr:hover td.not_found {
     background-color: #c3c3c3;
 }
 
+td.passed {
+    background-color: #43a047;
+}
+
+td.failed {
+    background-color: #ff4444;
+}
+
+td.not_found {
+    background-color: #aaaaaa;
+}
+
+.compatibility td.failed {
+    background-color: #dddddd;
+}
+
+.compatibility td.passed {
+    background-color: #444444;
+}
+
+.compatibility tr:hover > td.failed {
+    background-color: #aaaaaa;
+}
+
+.compatibility tr:hover > td.passed {
+    background-color: #111111;
+}
+
 tr:hover > td.passed {
     background-color: #387838;
 }

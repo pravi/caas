@@ -5,7 +5,7 @@
 <#assign stylesheets=["/css/table.css"] in page>
 <#assign title="Historic compliance table for test #${iteration.getIterationNumber()} | ${page.project_name}" in page>
 <#assign no_results_found_msg="No results found found for this iteration">
-<#assign footerText="The test ran ${timeSince} (from ${iteration.getBegin()} GMT to ${iteration.getEnd()} GMT). <a href='#' id='reset_table'>Turn off sticky headers </a> " in page>
+<#assign footerText="The test ran ${timeSince} (from ${iteration.getBegin()} GMT to ${iteration.getEnd()} GMT). &middot; <a href='#' id='colorblind'>Colorblind mode</a> &middot; <a href='#' id='reset_table'> Compatibility view </a> " in page>
 <@page.page>
     <@table.table>
     </@table.table>

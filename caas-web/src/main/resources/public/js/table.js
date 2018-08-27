@@ -152,27 +152,32 @@ $(function () {
         };
     }
 
-
-    //For IE/Edge, skip fixing the table as it does not seem to work
-    if (document.documentMode || /Edge/.test(navigator.userAgent)) {
-        $("#results_table").after($("<p class='error_message'></p>").text("WARNING: Some features will not work in IE/Edge"));
-        return;
-    }
-
     var container = document.getElementById("results_table");
     var div_header = document.getElementById("div_header");
     var div_first_col = document.getElementById("div_first_col");
 
-    var fixedTable = fixTable(container, div_header, div_first_col);
-
     var resetButton = true;
     var stickyHeaderToggle = document.getElementById("reset_table");
+    var colorblindToggle = document.getElementById("colorblind");
     var disabled = false;
 
     function scrollToTop() {
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     }
+
+    colorblindToggle.addEventListener('click', function () {
+        container.classList.add('compatibility');
+    });
+
+//For IE/Edge, skip fixing the table as it does not seem to work
+    if (document.documentMode || /Edge/.test(navigator.userAgent)) {
+        $("#results_table").after($("<p class='error_message'></p>").text("WARNING: Some features will not work in IE/Edge"));
+        stickyHeaderToggle.innerText = "";
+        return;
+    }
+
+    var fixedTable = fixTable(container, div_header, div_first_col);
 
     stickyHeaderToggle.addEventListener('click', function () {
         if (disabled) {
@@ -181,11 +186,11 @@ $(function () {
         disabled = true;
         if (resetButton) {
             fixedTable.reset();
-            stickyHeaderToggle.innerText = "Turn off compatibility mode"
+            stickyHeaderToggle.innerText = "Modern view"
         } else {
             scrollToTop();
             fixedTable.relayout();
-            stickyHeaderToggle.innerText = "Turn on compatibility mode"
+            stickyHeaderToggle.innerText = "Compatibility view"
         }
         resetButton = !resetButton;
         disabled = false;

@@ -14,8 +14,10 @@ Picking the right extensions to implement or enable isn't always easy. For this 
 This app won't just help you to assess if your server supports those compliance profiles, but also give you some instructions on how to implement the profiles which are currently not supported (if you are using popular server softwares) 
 
 ## How to use
-There are two ways you can run this project:
-* as a command line tool to quickly check the compliance of your server locally 
+You can use the live version on [compliance.conversations.im](https://compliance.conversations.im).
+
+Alternatively, you can run the project in these ways:-
+* as a command line tool to quickly check the compliance of servers locally 
 * as a full-fledged web service
 
 ## Build instructions

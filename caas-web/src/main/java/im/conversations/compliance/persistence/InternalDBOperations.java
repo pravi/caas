@@ -116,6 +116,19 @@ public class InternalDBOperations {
         return true;
     }
 
+    public static List<String> getCompliantServers(Connection connection) {
+        String query = "select servers.domain from servers inner join current_tests on current_tests.domain = servers.domain" +
+                " where test in (:tests) group by current_tests.domain having sum(success) = count(success) and listed = 1";
+        List<String> tests = new ArrayList<>(TestUtils.getTestNames());
+
+        //Make sure server supports in-band registration
+        tests.add("xep0077");
+
+        return connection.createQuery(query)
+                .addParameter("tests",tests)
+                .executeAndFetch(String.class);
+    }
+
     public static List<Server> getPublicServers(Connection connection) {
         String query = "select domain,software_name,software_version,listed from servers where listed=1";
         return connection.createQuery(query)

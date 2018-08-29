@@ -2,6 +2,7 @@ package im.conversations.compliance;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.persistence.InternalDBOperations;
+import im.conversations.compliance.persistence.InternalDBOperations;
 import im.conversations.compliance.pojo.HistoricalSnapshot;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.pojo.ResultDomainPair;
@@ -27,6 +28,58 @@ public class ResultsByServerTest {
         database = new Sql2o(JDBC_URL, null, null);
         connection = database.open();
         InternalDBOperations.init(connection);
+    }
+
+    @Test
+    public void checkCompliantServersApiTest() {
+        String failingComplianceTestDomain = "domain0.tld";
+        String failingInformationalTestDomain = "domain1.tld"; // Fails all informational tests
+        String failingRegistrationTestDomain = "domain2.tld";
+        String passingAllNecessaryTestsDomain = "domain3.tld"; // Fails all informational tests other than registration test
+        String passingAllTestsDomain = "domain4.tld";
+        String passingAllTestsUnlistedDomain = "domain5.tld"; // Server is unlisted
+        InternalDBOperations.addServer(connection, new Server(failingComplianceTestDomain, true));
+        InternalDBOperations.addServer(connection, new Server(failingInformationalTestDomain, true));
+        InternalDBOperations.addServer(connection, new Server(failingRegistrationTestDomain, true));
+        InternalDBOperations.addServer(connection, new Server(passingAllNecessaryTestsDomain, true));
+        InternalDBOperations.addServer(connection, new Server(passingAllTestsDomain, true));
+        InternalDBOperations.addServer(connection, new Server(passingAllTestsUnlistedDomain, false));
+        List<Result> failingComplianceResults = new ArrayList<>();
+        List<Result> failingInfoResults = new ArrayList<>();
+        List<Result> failingRegResults = new ArrayList<>();
+        List<Result> passingAllNecessaryResults = new ArrayList<>();
+        List<Result> passingAllResults = new ArrayList<>();
+        List<Result> passingAllUnlistedResults = new ArrayList<>();
+        for (ComplianceTest complianceTest : TestUtils.getAllComplianceTests()) {
+            Result pass = new Result(complianceTest, true);
+            Result fail = new Result(complianceTest, false);
+            passingAllResults.add(pass);
+            passingAllUnlistedResults.add(pass);
+            if (!complianceTest.informational()) {
+                failingComplianceResults.add(fail);
+                failingInfoResults.add(pass);
+                failingRegResults.add(pass);
+                passingAllNecessaryResults.add(pass);
+            } else if (complianceTest.short_name().equals("xep0077")) {
+                failingComplianceResults.add(pass);
+                failingInfoResults.add(fail);
+                failingRegResults.add(fail);
+                passingAllNecessaryResults.add(pass);
+            } else {
+                failingComplianceResults.add(pass);
+                failingInfoResults.add(fail);
+                failingRegResults.add(pass);
+                passingAllNecessaryResults.add(fail);
+            }
+        }
+        InternalDBOperations.addCurrentResults(connection,failingComplianceTestDomain, failingComplianceResults, Instant.now());
+        InternalDBOperations.addCurrentResults(connection,failingInformationalTestDomain, failingInfoResults, Instant.now());
+        InternalDBOperations.addCurrentResults(connection,failingRegistrationTestDomain, failingRegResults, Instant.now());
+        InternalDBOperations.addCurrentResults(connection,passingAllNecessaryTestsDomain, passingAllNecessaryResults, Instant.now());
+        InternalDBOperations.addCurrentResults(connection,passingAllTestsDomain, passingAllResults, Instant.now());
+        InternalDBOperations.addCurrentResults(connection,passingAllTestsUnlistedDomain, passingAllUnlistedResults, Instant.now());
+
+        Assert.assertEquals(Arrays.asList(passingAllNecessaryTestsDomain, passingAllTestsDomain), InternalDBOperations.getCompliantServers(connection));
     }
 
     @Test

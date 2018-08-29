@@ -54,6 +54,18 @@ public class DBOperations {
     }
 
     /**
+     * Get a list of fully compliant listed servers, which support in band registration
+     * @return
+     */
+    public static List<String> getCompliantServers() {
+        List<String> servers;
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            servers = InternalDBOperations.getCompliantServers(connection);
+        }
+        return servers;
+    }
+
+    /**
      * Get a list of servers
      *
      * @param onlyPublic Should only public servers be returned

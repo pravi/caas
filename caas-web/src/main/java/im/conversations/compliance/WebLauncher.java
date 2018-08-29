@@ -7,6 +7,7 @@ import im.conversations.compliance.persistence.DBOperations;
 import im.conversations.compliance.pojo.Configuration;
 import im.conversations.compliance.pojo.Help;
 import im.conversations.compliance.pojo.MailConfig;
+import im.conversations.compliance.web.Api;
 import im.conversations.compliance.web.Controller;
 import im.conversations.compliance.web.TestLiveWebsocket;
 import im.conversations.compliance.xmpp.PeriodicTestRunner;
@@ -61,6 +62,8 @@ public class WebLauncher {
         get("/test/:test/", Controller.getTest, templateEngine);
         get("/historic/server/:domain/iteration/:iteration/", Controller.getHistoricForServer, templateEngine);
         get("/historic/iteration/:iteration/", Controller.getHistoricTable, templateEngine);
+
+        get("/api/compliant_servers/", Api.getCompliantServers);
         MailConfig mailConfig = Configuration.getInstance().getMailConfig();
         if (mailConfig != null) {
             post("/subscribe/", Controller.postSubscription);

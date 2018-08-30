@@ -156,7 +156,7 @@ $(function () {
     var div_header = document.getElementById("div_header");
     var div_first_col = document.getElementById("div_first_col");
 
-    var resetButton = true;
+    var modernView = true;
     var stickyHeaderToggle = document.getElementById("reset_table");
     var colorblindToggle = document.getElementById("colorblind");
     var disabled = false;
@@ -166,8 +166,16 @@ $(function () {
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     }
 
+    var cbm = "Colorblind mode";
+    var ncm = "Normal color mode";
+
     colorblindToggle.addEventListener('click', function () {
-        container.classList.add('compatibility');
+        container.classList.toggle('compatibility');
+        if(colorblindToggle.innerText === ncm) {
+            colorblindToggle.innerText = cbm;
+        } else {
+            colorblindToggle.innerText = ncm;
+        }
     });
 
 //For IE/Edge, skip fixing the table as it does not seem to work
@@ -184,7 +192,7 @@ $(function () {
             return;
         }
         disabled = true;
-        if (resetButton) {
+        if (modernView) {
             fixedTable.reset();
             stickyHeaderToggle.innerText = "Modern view"
         } else {
@@ -192,7 +200,7 @@ $(function () {
             fixedTable.relayout();
             stickyHeaderToggle.innerText = "Compatibility view"
         }
-        resetButton = !resetButton;
+        modernView = !modernView;
         disabled = false;
     }.bind(this));
 
@@ -204,7 +212,7 @@ $(function () {
         if (!resizeTimeout) {
             resizeTimeout = setTimeout(function () {
                 resizeTimeout = null;
-                if (resetButton) {
+                if (modernView) {
                     fixedTable.relayout();
                 }
             }, 500);

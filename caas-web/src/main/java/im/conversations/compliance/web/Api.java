@@ -10,6 +10,8 @@ public class Api {
             str.append(server);
             str.append('\n');
         }
+        response.type("text/plain");
+        response.header("Content-Encoding", "gzip");
         return str.toString();
     };
 }

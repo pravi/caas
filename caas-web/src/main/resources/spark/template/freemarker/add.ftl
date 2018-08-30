@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#import "page.ftl" as page>
 <#assign description="Test an XMPP server for compliance with latest extensions and features. Once added, we will run tests periodically for the servers notifying its subscribers about changes in its results" in page>
-<#assign title="Test an XMPP server for compliance | ${page.project_name}" in page>
+<#assign title="Test an XMPP server for compliance &middot; ${page.project_name}" in page>
 <#assign stylesheets=["/css/add.css"] in page>
 <#assign scripts=["/js/add.js"] in page>
 <@page.page>

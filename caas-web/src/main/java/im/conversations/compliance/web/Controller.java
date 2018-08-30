@@ -31,6 +31,7 @@ public class Controller {
         Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentResultsByServer();
         HashMap<String, Object> model = new HashMap<>();
         WebUtils.addDataForComplianceTable(model, resultsByServer);
+        WebUtils.addRootUrl(model, request);
         return new ModelAndView(model, "root.ftl");
     };
 
@@ -41,12 +42,11 @@ public class Controller {
         return new ModelAndView(model, "tests.ftl");
     };
 
-    public static TemplateViewRoute getAbout = (request, response) -> {
-        return new ModelAndView(null, "about.ftl");
-    };
+    public static TemplateViewRoute getAbout = (request, response) -> new ModelAndView(null, "about.ftl");
 
     public static TemplateViewRoute getAdd = ((request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
+        WebUtils.addRootUrl(model, request);
         return new ModelAndView(model, "add.ftl");
     });
 

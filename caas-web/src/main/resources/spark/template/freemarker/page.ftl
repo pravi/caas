@@ -8,6 +8,11 @@
     <meta property="og:title" content="${title!"Check your XMPP server for compliance"}">
     <title>${title!project_name}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <#if root_url??>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="${root_url}/img/cover.png">
+    </#if>
+    <meta name="twitter:creator" content="@iNPUTmice">
     <meta property="og:description" content="${description!default_description}">
     <meta property="og:locale" content="en_US">
     <meta charset="UTF-8">

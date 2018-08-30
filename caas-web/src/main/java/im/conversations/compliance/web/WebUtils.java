@@ -15,6 +15,10 @@ public class WebUtils {
 
     private static String[] WELL_KNOWN_PING_TARGETS = new String[]{"8.8.8.8", "1.1.1.1"};
 
+    public static void addRootUrl(HashMap<String, Object> model, Request request) {
+        model.put("root_url", getRootUrlFrom(request));
+    }
+
     /**
      * Gets root url for a request
      * e.g. if request url is "https://compliance.conversations.im/badge/conversations.im",
@@ -25,8 +29,10 @@ public class WebUtils {
      */
     public static String getRootUrlFrom(Request request) {
         String rootUrl = Configuration.getInstance().getRootURL();
-        if(rootUrl == null) {
-            rootUrl = request.url().split(request.uri())[0];
+        if (rootUrl == null) {
+            final String url = request.url();
+            final String path = request.uri();
+            rootUrl = url.substring(0, url.length() - path.length());
         }
         return rootUrl;
     }
@@ -48,7 +54,7 @@ public class WebUtils {
                 total++;
             }
         }
-        if(total <= 0) {
+        if (total <= 0) {
             return;
         }
         int percent = pass * 100 / total;

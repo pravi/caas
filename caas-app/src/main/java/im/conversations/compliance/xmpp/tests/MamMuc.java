@@ -10,9 +10,9 @@ import rocks.xmpp.extensions.muc.ChatRoom;
 import rocks.xmpp.extensions.muc.ChatService;
 import rocks.xmpp.extensions.muc.MultiUserChatManager;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @ComplianceTest(
@@ -24,10 +24,25 @@ import java.util.concurrent.ExecutionException;
                 "record conversations that take place on clients that do not support local history storage, etc. for a MUC"
 )
 public class MamMuc extends AbstractTest {
+
+    private static final char[] VOWELS = "aeiou".toCharArray();
+    private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
+
+    private static String generateConversationsLikePronounceableName() {
+        final SecureRandom random = new SecureRandom();
+        char[] output = new char[random.nextInt(4) * 2 + 5];
+        boolean vowel = random.nextBoolean();
+        for(int i = 0; i < output.length; ++i) {
+            output[i] = vowel ? VOWELS[random.nextInt(VOWELS.length)] : CONSONANTS[random.nextInt(CONSONANTS.length)];
+            vowel = !vowel;
+        }
+        return String.valueOf(output);
+    }
+
+
     public MamMuc(XmppClient client) {
         super(client);
     }
-
     @Override
     public boolean run() {
         final ServiceDiscoveryManager serviceDiscoveryManager = client.getManager(ServiceDiscoveryManager.class);
@@ -38,8 +53,8 @@ public class MamMuc extends AbstractTest {
                 return false;
             }
             final ChatService chatService = chatServices.get(0);
-            final ChatRoom room = chatService.createRoom(UUID.randomUUID().toString());
-            room.enter("test");
+            final ChatRoom room = chatService.createRoom(generateConversationsLikePronounceableName());
+            room.enter("test").getResult();
             boolean hasFormField = false;
             try {
                 DataForm form = room.getConfigurationForm().get();

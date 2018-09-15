@@ -307,6 +307,11 @@ public class Controller {
         String domain = request.queryParams("domain");
         String rootUrl = WebUtils.getRootUrlFrom(request);
         ServerResponse serverResponse;
+        boolean validDomain = DBOperations.getServers(false).stream().map(Server::getDomain).anyMatch(it -> it.equals(domain));
+        if(!validDomain) {
+            serverResponse = new ServerResponse(false, "ERROR: Subscription request made for invalid domain", null);
+            return gson.toJson(serverResponse);
+        }
         EmailValidator validator = EmailValidator.getInstance();
         if (validator.isValid(email)) {
             boolean exists = DBOperations.getSubscribersFor(domain).stream()

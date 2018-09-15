@@ -18,6 +18,10 @@ public class TestLiveWebsocket {
     @OnWebSocketConnect
     public void connected(Session session) {
         String domain = session.getUpgradeRequest().getParameterMap().get("domain").get(0);
+        // Fix for rare cases in which tests stop running before websocket connection is established
+        if (!OneOffTestRunner.isTestRunningFor(domain)) {
+            OneOffTestRunner.runOneOffTestsFor(domain);
+        }
         boolean status = OneOffTestRunner.addResultListener(domain, (success, msg) -> {
             try {
                 ServerResponse liveResultResponse = new ServerResponse(

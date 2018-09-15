@@ -153,19 +153,12 @@ public class Controller {
     public static TemplateViewRoute getLive = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        Credential credential = DBOperations.getCredentials()
-                .stream()
-                .filter(it -> it.getDomain().equals(domain))
-                .findFirst()
-                .orElse(null);
-
-        if (credential == null) {
+        if(!OneOffTestRunner.runOneOffTestsFor(domain)) {
             model.put("error_code", 404);
             String howToAdd =  "You can add credentials by going to " + WebUtils.getRootUrlFrom(request) + "/add";
             model.put("error_msg", "No credentials for " + domain + "  found in the database. " + howToAdd);
             return new ModelAndView(model, "error.ftl");
         }
-        OneOffTestRunner.runOneOffTestsFor(credential);
         model.put("domain", domain);
         return new ModelAndView(model, "live.ftl");
     };

@@ -23,6 +23,23 @@ public class OneOffTestRunner {
         testRunningFor = new ConcurrentHashMap<>();
     }
 
+    public static boolean isTestRunningFor(String domain) {
+        return testRunningFor.containsKey(domain);
+    }
+
+    public static boolean runOneOffTestsFor(String domain) {
+        Credential credential = DBOperations.getCredentials()
+                .stream()
+                .filter(it -> it.getDomain().equals(domain))
+                .findFirst()
+                .orElse(null);
+        if (credential == null) {
+            return false;
+        }
+        runOneOffTestsFor(credential);
+        return true;
+    }
+
     public static void runOneOffTestsFor(Credential credential) {
         List<Result> results = null;
         synchronized (testRunningFor) {

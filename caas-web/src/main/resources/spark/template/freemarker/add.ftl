@@ -15,6 +15,7 @@
         <div>
             <label for="password" class="input_label_add">Password</label>
             <input name="password" class="input_add" id="password" type="password"/>
+            <div id="password_toggle" class="show">Show</div>
         </div>
         <div id="input_error_msg" class="error_message"></div>
         <div id="loading_add" class="loading_status">

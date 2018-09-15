@@ -23,6 +23,16 @@
     max-width: 900px;
     margin: 40px auto auto;
 }
+#password_toggle {
+    display: inline;
+    position: absolute;
+    cursor: pointer;
+    background-color: #43a047;
+    color: #fafafa;
+    padding: 7px;
+    border-radius: 30px;
+    transform: translate(10px, -7px);
+}
 
 #button_add {
     width: 150px;

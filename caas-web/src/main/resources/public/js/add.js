@@ -40,7 +40,21 @@ $(function () {
         listedServer = !listedServer;
     }.bind(this));
 
+    $("#password_toggle").click(function () {
+        if ($(this).hasClass('show')) {
+            $(this).text('Hide');
+            $('#password').attr('type', 'text');
+            $(this).removeClass('show');
+        } else {
+            $(this).text('Show');
+            $('#password').attr('type', 'password');
+            $(this).addClass('show');
+        }
+    });
+
     $("#form_add").submit(function (event) {
+        $("#password_toggle").text('Show');
+        $('#password').attr('type', 'password');
         event.preventDefault();
         if (!canRequestBeSent()) {
             return;

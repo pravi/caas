@@ -18,6 +18,12 @@
     width: 340px;
 }
 
+.note {
+    font-size: 0.8em;
+    max-width: 900px;
+    margin: 40px auto auto;
+}
+
 #button_add {
     width: 150px;
     border-radius: 101px;

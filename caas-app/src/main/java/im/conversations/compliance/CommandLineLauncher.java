@@ -5,6 +5,7 @@ import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
 import im.conversations.compliance.xmpp.TestExecutor;
 import im.conversations.compliance.xmpp.TestFactory;
+import org.apache.commons.cli.*;
 import rocks.xmpp.addr.Jid;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
@@ -15,17 +16,36 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandLineLauncher {
-    public static void main(String[] args) {
+    public static void main(String[] input) {
+
+        Options options = new Options();
+        options.addOption("v","verbose",false,null);
+
+        final CommandLine cmd;
+        try {
+            cmd = new DefaultParser().parse(options, input);
+        } catch (ParseException e) {
+            System.err.println("Unable to parse command line arguments");
+            e.printStackTrace();
+            return;
+        }
+        final List<String> args = cmd.getArgList();
         String password;
-        if (args.length < 1 || args.length > 2) {
+        if (args.size() > 2 || args.size() < 1) {
             System.err.println("java -jar ComplianceTester.jar username@domain.tld [password]");
             System.exit(1);
             return;
         }
-        Jid jid = Jid.of(args[0]);
 
-        if (args.length == 2) {
-            password = args[1];
+        if (cmd.hasOption("v")) {
+            Properties properties = System.getProperties();
+            properties.setProperty("org.slf4j.simpleLogger.defaultLogLevel","debug");
+        }
+
+        Jid jid = Jid.of(args.get(0));
+
+        if (args.size() == 2) {
+            password = args.get(1);
             AccountStore.storePassword(jid, password);
         } else {
             String storedPassword = AccountStore.getPassword(jid);

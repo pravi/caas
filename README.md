@@ -28,10 +28,9 @@ To build both the command line tool and web service, simply run
 ```
 mvn package
 ```
-If you just want to test your server locally with the command line tool
+To build only the command line tool you can use
 ```
-cd caas-app
-mvn package
+mvn package -pl caas-annotations,caas-app
 ```
 
 ### Run server

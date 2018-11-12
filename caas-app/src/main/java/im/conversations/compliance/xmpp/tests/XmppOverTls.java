@@ -11,7 +11,7 @@ import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.IOException;
+import java.io.*;
 import java.util.Collections;
 
 @ComplianceTest(
@@ -44,9 +44,20 @@ public class XmppOverTls extends AbstractTest {
                     socket.setSoTimeout(1000);
                     socket.startHandshake();
                     final boolean result;
-                    result = XmppDomainVerifier.getInstance().verify(domain, socket.getSession());
+                    if (!XmppDomainVerifier.getInstance().verify(domain, socket.getSession())) {
+                        return false;
+                    }
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    bufferedWriter.write("<?xml version='1.0'?><stream to='"+domain+"' version='1.0' xml:lang='en' xmlns='jabber:client xmlns:stream='http://etherx.jabber.org/streams'>");
+                    bufferedWriter.flush();
+                    char[] buffer = new char[21];
+                    if (bufferedReader.read(buffer) != buffer.length) {
+                        return false;
+                    }
+                    final String serverOpening = new String(buffer);
                     socket.close();
-                    return result;
+                    return serverOpening.startsWith("<?xml");
                 } catch (IOException e) {
                     //ignored
                 }

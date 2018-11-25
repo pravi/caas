@@ -2,6 +2,8 @@ package im.conversations.compliance.xmpp.tests;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.xmpp.utils.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.extensions.data.model.DataForm;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import static im.conversations.compliance.utils.ConversationsUtils.generateConversationsLikePronounceableName;
+
 @ComplianceTest(
         short_name = "xep0313muc",
         full_name = "XEP-0313: Message Archive Management (for Multi-User Chat)",
@@ -25,20 +29,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class MamMuc extends AbstractTest {
 
-    private static final char[] VOWELS = "aeiou".toCharArray();
-    private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
-
-    private static String generateConversationsLikePronounceableName() {
-        final SecureRandom random = new SecureRandom();
-        char[] output = new char[random.nextInt(4) * 2 + 5];
-        boolean vowel = random.nextBoolean();
-        for(int i = 0; i < output.length; ++i) {
-            output[i] = vowel ? VOWELS[random.nextInt(VOWELS.length)] : CONSONANTS[random.nextInt(CONSONANTS.length)];
-            vowel = !vowel;
-        }
-        return String.valueOf(output);
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MamMuc.class);
 
     public MamMuc(XmppClient client) {
         super(client);
@@ -50,6 +41,7 @@ public class MamMuc extends AbstractTest {
         try {
             List<ChatService> chatServices = multiUserChatManager.discoverChatServices().getResult();
             if (chatServices.size() < 1) {
+                LOGGER.debug("Unable to find a MUC service");
                 return false;
             }
             final ChatService chatService = chatServices.get(0);
@@ -70,6 +62,7 @@ public class MamMuc extends AbstractTest {
             room.destroy().getResult();
             return (hasFeature || hasFormField);
         } catch (XmppException e) {
+            LOGGER.debug("Unable to create a test room ("+e.getMessage()+")");
             return false;
         }
     }

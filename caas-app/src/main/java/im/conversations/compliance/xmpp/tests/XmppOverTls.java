@@ -43,7 +43,6 @@ public class XmppOverTls extends AbstractTest {
                     socket.setSSLParameters(parameters);
                     socket.setSoTimeout(1000);
                     socket.startHandshake();
-                    final boolean result;
                     if (!XmppDomainVerifier.getInstance().verify(domain, socket.getSession())) {
                         return false;
                     }

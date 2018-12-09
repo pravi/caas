@@ -111,6 +111,12 @@ $(function () {
             trs.forEach(function (tr, i) {
                 var tds = [].slice.call(tr.querySelectorAll('td'));
                 tds.forEach(function (td, j) {
+                    // Add an invisible text containing the server name to facilitate ctrl+f
+                    if(j === 2) {
+                        td.style["font-size"] = "2px";
+                        td.style["color"] = "#00000000";
+                        td.innerText = tr.getAttribute("server");
+                    }
                     if (j === 0) {
                         td.style.display = 'none';
                     }

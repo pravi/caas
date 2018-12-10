@@ -21,7 +21,7 @@ import static im.conversations.compliance.utils.ConversationsUtils.generateConve
 
 @ComplianceTest(
         short_name = "xep0313muc",
-        full_name = "XEP-0313: Message Archive Management (for Multi-User Chat)",
+        full_name = "XEP-0313: Message Archive Management (Multi-User Chat)",
         url = "https://xmpp.org/extensions/xep-0313.html",
         description = "Provides a protocol to query and control an archive of messages of a multi user chat stored on a server. " +
                 "It is used to synchronise conversation history seamlessly between multiple clients, " +

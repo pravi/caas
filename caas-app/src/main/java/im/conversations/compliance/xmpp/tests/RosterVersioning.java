@@ -7,7 +7,7 @@ import rocks.xmpp.core.stream.model.StreamFeature;
 
 @ComplianceTest(
         short_name = "roster_versioning",
-        full_name = "Roster Versioning",
+        full_name = "RFC 6121: Roster Versioning",
         url = "https://tools.ietf.org/html/rfc6121#section-2.6",
         description = "Provides a way to send roster changes efficiently from servers " +
                 "by associating a version with roster and sending only the changed parts of roster"

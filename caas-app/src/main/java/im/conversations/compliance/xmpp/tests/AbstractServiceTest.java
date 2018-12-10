@@ -1,17 +1,15 @@
 package im.conversations.compliance.xmpp.tests;
 
 
-import rocks.xmpp.addr.Jid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.extensions.disco.ServiceDiscoveryManager;
-import rocks.xmpp.extensions.disco.model.items.Item;
-import rocks.xmpp.extensions.disco.model.items.ItemNode;
-import rocks.xmpp.util.concurrent.AsyncResult;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractServiceTest extends AbstractTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceTest.class);
 
     public AbstractServiceTest(XmppClient client) {
         super(client);
@@ -20,28 +18,12 @@ public abstract class AbstractServiceTest extends AbstractTest {
     @Override
     public boolean run() {
         ServiceDiscoveryManager manager = client.getManager(ServiceDiscoveryManager.class);
-
-        //manually iterating over items. ignoring the faulty ones
-        AsyncResult<ItemNode> itemNode = manager.discoverItems(client.getDomain());
         try {
-            List<Jid> items = new ArrayList<>();
-            itemNode.getResult().getItems().stream().map(Item::getJid).forEach(items::add);
-            items.add(client.getDomain());
-            for (Jid jid : items) {
-                try {
-                    for (String feature : manager.discoverInformation(jid).getResult().getFeatures()) {
-                        if (getNamespace().equals(feature)) {
-                            return true;
-                        }
-                    }
-                } catch (Exception e) {
-                    //ignored
-                }
-            }
-        } catch (Exception e) {
+            return manager.discoverServices(getNamespace()).getResult().size() > 0;
+        } catch (XmppException e) {
+            LOGGER.debug(e.getMessage());
             return false;
         }
-        return false;
     }
 
     public abstract String getNamespace();

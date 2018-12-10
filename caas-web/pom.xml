@@ -87,13 +87,13 @@
         <dependency>
             <groupId>rocks.xmpp</groupId>
             <artifactId>xmpp-core-client</artifactId>
-            <version>0.7.5</version>
+            <version>0.8.0</version>
         </dependency>
 
         <dependency>
             <groupId>rocks.xmpp</groupId>
             <artifactId>xmpp-extensions-client</artifactId>
-            <version>0.7.5</version>
+            <version>0.8.0</version>
         </dependency>
 
         <dependency>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>org.sql2o</groupId>
             <artifactId>sql2o</artifactId>
-            <version>1.6.0-RC3</version>
+            <version>1.6.0</version>
         </dependency>
 
         <dependency>

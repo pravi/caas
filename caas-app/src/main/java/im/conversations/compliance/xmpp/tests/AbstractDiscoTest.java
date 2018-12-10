@@ -1,6 +1,8 @@
 package im.conversations.compliance.xmpp.tests;
 
 import im.conversations.compliance.xmpp.utils.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.addr.Jid;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractDiscoTest extends AbstractTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDiscoTest.class);
 
     public AbstractDiscoTest(XmppClient client) {
         super(client);

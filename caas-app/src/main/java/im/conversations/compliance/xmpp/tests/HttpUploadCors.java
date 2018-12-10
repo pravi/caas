@@ -41,17 +41,17 @@ public class HttpUploadCors extends AbstractTest {
     public boolean run() {
         ServiceDiscoveryManager manager = client.getManager(ServiceDiscoveryManager.class);
         try {
-            List<Item> items = manager.discoverServices(Upload.NAMESPACE).getResult();
-            boolean result = items.size() > 0;
-            for (Item item : items) {
-                IQ slotRequest = new IQ(IQ.Type.GET, DUMMY_SLOT_REQUEST);
-                slotRequest.setTo(item.getJid());
-                IQ response = client.query(slotRequest).getResult();
-                Slot slot = response.getExtension(Slot.class);
-                URL put = slot.getPut().getUrl();
-                result &= checkCorsHeaders(put);
+            final List<Item> items = manager.discoverServices(Upload.NAMESPACE).getResult();
+            if (items.size() == 0) {
+                LOGGER.debug("No HTTP upload service found");
+                return false;
             }
-            return result;
+            IQ slotRequest = new IQ(IQ.Type.GET, DUMMY_SLOT_REQUEST);
+            slotRequest.setTo(items.get(0).getJid());
+            IQ response = client.query(slotRequest).getResult();
+            Slot slot = response.getExtension(Slot.class);
+            URL put = slot.getPut().getUrl();
+            return checkCorsHeaders(put);
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
             return false;

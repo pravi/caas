@@ -29,7 +29,7 @@
             </thead>
             <tbody>
         <#list resultsByServer as domain,results>
-        <tr>
+        <tr server="${domain}">
             <td>
                 <a href="/server/${domain}">
                     ${domain}

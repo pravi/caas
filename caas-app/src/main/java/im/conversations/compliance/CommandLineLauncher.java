@@ -80,11 +80,16 @@ public class CommandLineLauncher {
             })).stream().collect(Collectors.partitioningBy(r -> r.getTest().informational()));
             System.out.println("\nCompliance report for " + credential.getDomain());
             int padding = Collections.max(results.values().stream().flatMap(List::stream).collect(Collectors.toList()), Comparator.comparing(r -> r.getTest().full_name().length())).getTest().full_name().length() + 1;
-            for (Result result : results.get(false)) {
+
+            final List<Result> nonInformational = new ArrayList<>(results.get(false));
+            final List<Result> informational = new ArrayList<>(results.get(true));
+            nonInformational.sort(Comparator.comparing(a -> a.getTest().full_name()));
+            informational.sort(Comparator.comparing(a -> a.getTest().full_name()));
+            for (Result result : nonInformational) {
                 print(result, padding);
             }
             System.out.println("\nInformational tests:");
-            for (Result result : results.get(true)) {
+            for (Result result : informational) {
                 print(result, padding);
             }
         } catch (TestFactory.TestCreationException | XmppException e) {

@@ -60,6 +60,8 @@ public class HttpUploadCors extends AbstractTest {
 
     private static boolean checkCorsHeaders(URL url) throws IOException {
 
+        LOGGER.debug("checking CORS Header on "+url.toString());
+
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(url)
                 .addHeader("Origin", "https://compliance.conversations.im")
@@ -72,11 +74,11 @@ public class HttpUploadCors extends AbstractTest {
 
         Response response = client.newCall(request).execute();
 
-        Set<String> headers = response.headers().toMultimap().keySet();
+        final Set<String> headers = response.headers().toMultimap().keySet();
 
         response.close();
         for (String required : REQUIRED_CORS_HEADERS) {
-            if (!headers.contains(required)) {
+            if (headers.stream().noneMatch(required::equalsIgnoreCase)) {
                 LOGGER.debug("http upload missing header " + required + " headers " + headers);
                 LOGGER.debug("slot url was: " + url.toString());
                 shutdown(client);

@@ -5,6 +5,8 @@ import de.measite.minidns.hla.ResolverResult;
 import de.measite.minidns.record.SRV;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.xmpp.XmppDomainVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.session.XmppClient;
 
 import javax.net.ssl.SNIHostName;
@@ -23,6 +25,8 @@ import java.util.Collections;
                 "For servers, it allows multiple services to run on the same port."
 )
 public class XmppOverTls extends AbstractTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmppOverTls.class);
 
     public XmppOverTls(XmppClient client) {
         super(client);
@@ -58,10 +62,11 @@ public class XmppOverTls extends AbstractTest {
                     socket.close();
                     return serverOpening.startsWith("<?xml");
                 } catch (IOException e) {
-                    //ignored
+                    LOGGER.debug(e.getMessage());
                 }
             }
         } catch (Exception e) {
+            LOGGER.debug(e.getMessage());
             return false;
         }
         return false;

@@ -35,6 +35,12 @@ public class HelpsTest {
         checkHelpFile("Openfire");
     }
 
+    @Test
+    public void validHelpExistsForTigase() {
+        checkHelpFile("tigase");
+        checkHelpFile("Tigase");
+    }
+
     void checkHelpFile(String server) {
         HashMap<String, String> help = Help.getInstance().getHelpFor(server).get();
         List<String> testsForWhichHelpAvailable = help.keySet()

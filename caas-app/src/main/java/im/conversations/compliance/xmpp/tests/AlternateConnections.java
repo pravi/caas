@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,8 +45,12 @@ public class AlternateConnections extends AbstractTest {
     }
 
     private static boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
-        try (final InputStream is = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : "")).openStream()) {
-            return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
+        try {
+            URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
+            URLConnection connection = url.openConnection();
+            try (final InputStream is = connection.getInputStream()) {
+                return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
+            }
         } catch (Throwable throwable) {
             return false;
         }

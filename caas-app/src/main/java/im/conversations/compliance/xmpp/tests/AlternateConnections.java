@@ -46,8 +46,11 @@ public class AlternateConnections extends AbstractTest {
 
     private static boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
         try {
-            URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
-            URLConnection connection = url.openConnection();
+            final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
+            final URLConnection connection = url.openConnection();
+            if (!"*".equals(connection.getHeaderField("Access-Control-Allow-Origin"))) {
+                return false;
+            }
             try (final InputStream is = connection.getInputStream()) {
                 return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
             }

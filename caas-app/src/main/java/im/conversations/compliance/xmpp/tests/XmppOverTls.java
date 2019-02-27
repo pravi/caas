@@ -52,7 +52,7 @@ public class XmppOverTls extends AbstractTest {
                     }
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                    bufferedWriter.write("<?xml version='1.0'?><stream to='"+domain+"' version='1.0' xml:lang='en' xmlns='jabber:client xmlns:stream='http://etherx.jabber.org/streams'>");
+                    bufferedWriter.write("<?xml version='1.0'?><stream:stream to='"+domain+"' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>");
                     bufferedWriter.flush();
                     char[] buffer = new char[21];
                     if (bufferedReader.read(buffer) != buffer.length) {

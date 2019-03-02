@@ -3,7 +3,7 @@ package im.conversations.compliance.xmpp.tests;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.xmpp.extensions.omemo.Bundle;
 import rocks.xmpp.core.session.XmppClient;
-import rocks.xmpp.core.stanza.StanzaException;
+import rocks.xmpp.core.stanza.model.StanzaErrorException;
 import rocks.xmpp.core.stanza.model.errors.Condition;
 import rocks.xmpp.extensions.disco.ServiceDiscoveryManager;
 import rocks.xmpp.extensions.disco.model.info.Identity;
@@ -86,8 +86,8 @@ public class OMEMO extends AbstractTest {
             node.publish(object, PublishOptions.builder().accessModel(accessModel).build()).get();
             return true;
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof StanzaException) {
-                StanzaException stanzaException = (StanzaException) e.getCause();
+            if (e.getCause() instanceof StanzaErrorException) {
+                StanzaErrorException stanzaException = (StanzaErrorException) e.getCause();
                 if (stanzaException.getCondition().equals(Condition.CONFLICT) && retry) {
                     try {
                         node.configureNode(NodeConfiguration.builder().accessModel(accessModel).build()).get();

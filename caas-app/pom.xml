@@ -12,6 +12,17 @@
         <version>0.0.1</version>
     </parent>
 
+
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+
+
     <dependencies>
 
 
@@ -21,14 +32,14 @@
             <version>0.0.1</version>
         </dependency>
         <dependency>
-            <groupId>rocks.xmpp</groupId>
+            <groupId>org.bitbucket.sco0ter.babbler</groupId>
             <artifactId>xmpp-core-client</artifactId>
-            <version>0.8.0</version>
+            <version>160f882</version>
         </dependency>
         <dependency>
-            <groupId>rocks.xmpp</groupId>
+            <groupId>org.bitbucket.sco0ter.babbler</groupId>
             <artifactId>xmpp-extensions-client</artifactId>
-            <version>0.8.0</version>
+            <version>160f882</version>
         </dependency>
         <dependency>
             <groupId>de.measite.minidns</groupId>

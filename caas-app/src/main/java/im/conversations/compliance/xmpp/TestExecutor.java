@@ -4,7 +4,6 @@ package im.conversations.compliance.xmpp;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
-import im.conversations.compliance.xmpp.extensions.csi.ClientStateIndication;
 import im.conversations.compliance.xmpp.extensions.omemo.Bundle;
 import im.conversations.compliance.xmpp.extensions.upload.Get;
 import im.conversations.compliance.xmpp.extensions.upload.Put;
@@ -27,7 +26,7 @@ public class TestExecutor {
 
     static {
         configuration = XmppSessionConfiguration.builder()
-                .extensions(Extension.of(ClientStateIndication.class, Bundle.class, Request.class, Slot.class, Get.class, Put.class))
+                .extensions(Extension.of(Bundle.class, Request.class, Slot.class, Get.class, Put.class))
                 .defaultResponseTimeout(Duration.ofSeconds(10))
                 //.debugger(ConsoleDebugger.class)
                 .initialPresence(null)

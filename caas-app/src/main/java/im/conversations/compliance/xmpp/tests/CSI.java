@@ -1,9 +1,9 @@
 package im.conversations.compliance.xmpp.tests;
 
 import im.conversations.compliance.annotations.ComplianceTest;
-import im.conversations.compliance.xmpp.extensions.csi.ClientStateIndication;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.stream.model.StreamFeature;
+import rocks.xmpp.extensions.csi.model.ClientState;
 
 @ComplianceTest(
         short_name = "xep0352",
@@ -19,6 +19,6 @@ public class CSI extends AbstractStreamFeatureTest {
 
     @Override
     Class<? extends StreamFeature> getStreamFeature() {
-        return ClientStateIndication.class;
+        return ClientState.FEATURE.getClass();
     }
 }

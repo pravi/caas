@@ -7,6 +7,8 @@ import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.extensions.disco.ServiceDiscoveryManager;
 
+import java.util.concurrent.ExecutionException;
+
 public abstract class AbstractServiceTest extends AbstractTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractServiceTest.class);
@@ -19,8 +21,8 @@ public abstract class AbstractServiceTest extends AbstractTest {
     public boolean run() {
         ServiceDiscoveryManager manager = client.getManager(ServiceDiscoveryManager.class);
         try {
-            return manager.discoverServices(getNamespace()).getResult().size() > 0;
-        } catch (XmppException e) {
+            return manager.discoverServices(getNamespace()).getResult().size() > 0 || manager.discoverInformation(client.getDomain()).get().getFeatures().contains(getNamespace());
+        } catch (XmppException | InterruptedException | ExecutionException e) {
             LOGGER.debug(e.getMessage());
             return false;
         }

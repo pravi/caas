@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.xmpp.addr.Jid;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.stanza.model.IQ;
 import rocks.xmpp.extensions.disco.ServiceDiscoveryManager;
@@ -42,12 +43,22 @@ public class HttpUploadCors extends AbstractTest {
         ServiceDiscoveryManager manager = client.getManager(ServiceDiscoveryManager.class);
         try {
             final List<Item> items = manager.discoverServices(Upload.NAMESPACE).getResult();
-            if (items.size() == 0) {
-                LOGGER.debug("No HTTP upload service found");
-                return false;
+
+            final Jid jid;
+
+            if (items.size() > 0) {
+                jid = items.get(0).getJid();
+            } else {
+                Jid domain = client.getDomain();
+                if (manager.discoverInformation(client.getDomain()).get().getFeatures().contains(Upload.NAMESPACE)) {
+                    jid = domain;
+                } else {
+                    LOGGER.debug("No HTTP upload service found");
+                    return false;
+                }
             }
             IQ slotRequest = new IQ(IQ.Type.GET, DUMMY_SLOT_REQUEST);
-            slotRequest.setTo(items.get(0).getJid());
+            slotRequest.setTo(jid);
             IQ response = client.query(slotRequest).getResult();
             Slot slot = response.getExtension(Slot.class);
             URL put = slot.getPut().getUrl();

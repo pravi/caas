@@ -28,11 +28,18 @@ public class Controller {
     private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getRoot = (request, response) -> {
+        List<Server> servers = DBOperations.getServers(false);
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("servers",gson.toJson(servers.stream().map(server -> server.getDomain()).collect(Collectors.toList())));
+        return new ModelAndView(model,"root.ftl");
+    };
+
+    public static TemplateViewRoute getOld = (request, response) -> {
         Map<String, HashMap<String, Boolean>> resultsByServer = DBOperations.getCurrentResultsByServer();
         HashMap<String, Object> model = new HashMap<>();
         WebUtils.addDataForComplianceTable(model, resultsByServer);
         WebUtils.addRootUrl(model, request);
-        return new ModelAndView(model, "root.ftl");
+        return new ModelAndView(model, "old.ftl");
     };
 
     public static TemplateViewRoute getTests = (request, response) -> {

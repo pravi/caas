@@ -130,7 +130,7 @@ public class InternalDBOperations {
     }
 
     public static List<Server> getPublicServers(Connection connection) {
-        String query = "select domain,software_name,software_version,listed from servers where listed=1";
+        String query = "select domain,software_name,software_version,listed from servers where listed=1 order by domain";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
                 .addColumnMapping("software_version", "softwareVersion")
@@ -138,7 +138,7 @@ public class InternalDBOperations {
     }
 
     public static List<Server> getAllServers(Connection connection) {
-        String query = "select domain,software_name,software_version,listed from servers";
+        String query = "select domain,software_name,software_version,listed from servers order by domain";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
                 .addColumnMapping("software_version", "softwareVersion")

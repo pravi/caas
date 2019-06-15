@@ -18,9 +18,7 @@ import spark.Route;
 import spark.TemplateViewRoute;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -30,8 +28,12 @@ public class Controller {
     public static TemplateViewRoute getRoot = (request, response) -> {
         List<Server> servers = DBOperations.getServers(false);
         HashMap<String, Object> model = new HashMap<>();
-        model.put("servers",gson.toJson(servers.stream().map(server -> server.getDomain()).collect(Collectors.toList())));
-        return new ModelAndView(model,"root.ftl");
+        model.put("servers", gson.toJson(servers.stream().map(Server::getDomain).collect(Collectors.toList())));
+        List<String> compliantServerNames = DBOperations.getCompliantServers();
+        Collections.shuffle(compliantServerNames);
+        compliantServerNames = compliantServerNames.stream().limit(5).collect(Collectors.toList());
+        model.put("recommendations", compliantServerNames);
+        return new ModelAndView(model, "root.ftl");
     };
 
     public static TemplateViewRoute getOld = (request, response) -> {
@@ -160,9 +162,9 @@ public class Controller {
     public static TemplateViewRoute getLive = (request, response) -> {
         HashMap<String, Object> model = new HashMap<>();
         String domain = request.params("domain");
-        if(!OneOffTestRunner.runOneOffTestsFor(domain)) {
+        if (!OneOffTestRunner.runOneOffTestsFor(domain)) {
             model.put("error_code", 404);
-            String howToAdd =  "You can add credentials by going to " + WebUtils.getRootUrlFrom(request) + "/add";
+            String howToAdd = "You can add credentials by going to " + WebUtils.getRootUrlFrom(request) + "/add";
             model.put("error_msg", "No credentials for " + domain + "  found in the database. " + howToAdd);
             return new ModelAndView(model, "error.ftl");
         }
@@ -192,7 +194,7 @@ public class Controller {
 
         WebUtils.addResultStats(model, results);
 
-        HashMap<String,String> help = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
+        HashMap<String, String> help = Help.getInstance().getHelpFor(server.getSoftwareName()).orElse(null);
         model.put("helps", help);
         Instant lastRun = DBOperations.getLastRunFor(domain);
         model.put("domain", domain);
@@ -207,7 +209,7 @@ public class Controller {
         String resultUrl = WebUtils.getRootUrlFrom(request) + "/server/" + domain;
         model.put("badgeCode", "<a href='" + resultUrl + "'><img src='" + imageUrl + "'></a>");
         boolean mailExists = Configuration.getInstance().getMailConfig() != null;
-        model.put("mailExists",mailExists);
+        model.put("mailExists", mailExists);
         return new ModelAndView(model, "server.ftl");
     };
 
@@ -308,7 +310,7 @@ public class Controller {
         String rootUrl = WebUtils.getRootUrlFrom(request);
         ServerResponse serverResponse;
         boolean validDomain = DBOperations.getServers(false).stream().map(Server::getDomain).anyMatch(it -> it.equals(domain));
-        if(!validDomain) {
+        if (!validDomain) {
             serverResponse = new ServerResponse(false, "ERROR: Subscription request made for invalid domain", null);
             return gson.toJson(serverResponse);
         }
@@ -331,7 +333,7 @@ public class Controller {
     public static Route getUnsubscribe = (request, response) -> {
         String code = request.params("code");
         Subscriber subscriber = DBOperations.removeSubscriber(code);
-        if(subscriber == null) {
+        if (subscriber == null) {
             return "Invalid unsubscription code";
         }
         return "Unsubscribed " + subscriber.getEmail()

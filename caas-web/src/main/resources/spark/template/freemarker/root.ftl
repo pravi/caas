@@ -13,7 +13,7 @@
         <div id="search_suggestion_box">
             <div id="input_div">
                 <input id="search_field" v-model="filter" @keyup.enter="enter"/>
-                <div id="search_submit" @click="enter">Submit</div>
+                <div id="search_submit" @click="enter">Go</div>
             </div>
             <div class="suggestions">
                 <div class="suggestion_item" @click="go" v-for="server,index in displayServers">{{server}}</div>
@@ -21,7 +21,16 @@
             </div>
         </div>
     </div>
-
+    <#if recommendations?has_content>
+        <div id="recommended_servers">
+        <h3>Recommended Servers</h3>
+        <#list recommendations as recommendation>
+            <div class="chip clickable" onclick="location.href='/server/${recommendation}'">
+            ${recommendation}
+            </div>
+        </#list>
+        </div>
+    </#if>
     <script>
         createVueApp(JSON.parse('${servers?no_esc}'));
     </script>

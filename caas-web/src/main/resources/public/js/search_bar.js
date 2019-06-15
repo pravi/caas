@@ -14,7 +14,8 @@ function createVueApp(serverParam) {
                 var temp = [];
                 for (var i = 0; i < this.allServers.length; i++) {
                     var server = this.allServers[i];
-                    if (server.match(this.filter)) {
+                    var regex = RegExp(this.filter,"i");
+                    if (regex.test(server)) {
                         temp.push(server);
                     }
                     if (temp.length == 10) break;

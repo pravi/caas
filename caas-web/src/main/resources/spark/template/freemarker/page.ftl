@@ -75,7 +75,7 @@
     </div>
     <div id="nav_list_menu" onclick="menu_toggle()">
         <a href="/add">
-            Test a server
+            Add a server
         </a>
         <a href="/">
             Servers

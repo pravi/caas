@@ -14,7 +14,7 @@ function createVueApp(serverParam) {
                 var temp = [];
                 for (var i = 0; i < this.allServers.length; i++) {
                     var server = this.allServers[i];
-                    var regex = RegExp(this.filter,"i");
+                    var regex = RegExp(this.filter, "i");
                     if (regex.test(server)) {
                         temp.push(server);
                     }
@@ -25,10 +25,30 @@ function createVueApp(serverParam) {
         },
         methods:
             {
+                selectAdd: function (index) {
+                    this.selected = this.displayServers.length;
+                },
+                setSelection: function (index) {
+                    this.selected = index;
+                },
+                selectionDown: function () {
+                    if (this.selected < this.displayServers.length) {
+                        this.selected++
+                    }
+                },
+                selectionUp: function () {
+                    if (this.selected > 0) {
+                        this.selected--
+                    }
+                },
                 enter: function () {
                     var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/add/";
-                    if (this.displayServers.length != 0) {
-                        url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/server/" + this.displayServers[this.selected] + "/";
+                    if (this.displayServers.length !== 0) {
+                        if (this.displayServers.length === this.selected) {
+                            this.add();
+                        } else {
+                            url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/server/" + this.displayServers[this.selected] + "/";
+                        }
                     } else {
                         this.add();
                     }

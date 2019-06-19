@@ -51,7 +51,8 @@ public class WebLauncher {
                 response.redirect(request.pathInfo() + "/");
             }
         });
-        get("/", Controller.getRoot, templateEngine);
+        get("/", Controller.getRoot,templateEngine);
+        get("/old/", Controller.getOld, templateEngine);
         get("/tests/", Controller.getTests, templateEngine);
         get("/about/", Controller.getAbout, templateEngine);
         get("/add/", Controller.getAdd, templateEngine);
@@ -68,7 +69,7 @@ public class WebLauncher {
         if (mailConfig != null) {
             post("/subscribe/", Controller.postSubscription);
             get("/confirm/:code/", Controller.getConfirmation);
-            get("/unsubscribe/:code/",Controller.getUnsubscribe);
+            get("/unsubscribe/:code/", Controller.getUnsubscribe);
             try {
                 MailBuilder.init(mailConfig.getFrom(), Configuration.getInstance().getRootURL());
             } catch (Exception ex) {

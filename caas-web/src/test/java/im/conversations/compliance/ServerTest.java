@@ -40,7 +40,7 @@ public class ServerTest {
         Assert.assertEquals(unlistedServer, InternalDBOperations.getServer(connection, unlistedServer.getDomain()));
         Assert.assertEquals(listedServer, InternalDBOperations.getServer(connection, listedServer.getDomain()));
         Assert.assertEquals(
-                Arrays.asList(unlistedServer, listedServer),
+                Arrays.asList(listedServer, unlistedServer),
                 InternalDBOperations.getAllServers(connection)
         );
         Assert.assertEquals(

@@ -2,7 +2,8 @@ package im.conversations.compliance.xmpp.tests;
 
 import im.conversations.compliance.annotations.ComplianceTest;
 import rocks.xmpp.core.session.XmppClient;
-import rocks.xmpp.extensions.register.RegistrationManager;
+import rocks.xmpp.core.stream.client.StreamFeaturesManager;
+import rocks.xmpp.extensions.register.model.feature.RegisterFeature;
 
 @ComplianceTest(
         short_name = "xep0077",
@@ -23,12 +24,8 @@ public class InBandRegistrationTest extends AbstractTest {
         final XmppClient testClient = XmppClient.create(domain);
         try {
             testClient.connect();
-            RegistrationManager registrationManager = testClient.getManager(RegistrationManager.class);
-            if (registrationManager.isRegistrationSupported().getResult()) {
-                registrationManager.getRegistration().get();
-                return true;
-            }
-            return false;
+            final StreamFeaturesManager streamFeaturesManager = testClient.getManager(StreamFeaturesManager.class);
+            return streamFeaturesManager.getFeatures(RegisterFeature.class).size() > 0;
         } catch (Exception e) {
             return false;
         }

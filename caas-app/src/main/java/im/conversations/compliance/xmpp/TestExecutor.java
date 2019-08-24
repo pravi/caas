@@ -10,11 +10,12 @@ import im.conversations.compliance.xmpp.extensions.upload.Put;
 import im.conversations.compliance.xmpp.extensions.upload.Request;
 import im.conversations.compliance.xmpp.extensions.upload.Slot;
 import im.conversations.compliance.xmpp.tests.AbstractTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.Extension;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.session.XmppSessionConfiguration;
-import rocks.xmpp.core.session.debug.ConsoleDebugger;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ import java.util.List;
 
 
 public class TestExecutor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestExecutor.class);
+
     private static final XmppSessionConfiguration configuration;
 
     static {
@@ -48,6 +52,7 @@ public class TestExecutor {
         List<Class<? extends AbstractTest>> testClasses = Tests.getTests();
         for (Class<? extends AbstractTest> testClass : testClasses) {
             ComplianceTest test = testClass.getAnnotation(ComplianceTest.class);
+            LOGGER.debug("running "+testClass.getName());
             Result result = new Result(test, TestFactory.create(testClass, client).run());
             results.add(result);
         }

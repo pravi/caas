@@ -1,22 +1,18 @@
 package im.conversations.compliance.xmpp.tests;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.xrd.ExtensibleResourceDescriptor;
 import im.conversations.compliance.xrd.Link;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.session.XmppClient;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
+import java.net.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +25,8 @@ import java.util.List;
         description = "Allows web clients to discover connections methods"
 )
 public class AlternateConnections extends AbstractTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlternateConnections.class);
 
     private static final GsonBuilder GSON_BUILDER = new GsonBuilder();
     private static final List<String> rels = Arrays.asList("urn:xmpp:alt-connections:xbosh", "urn:xmpp:alt-connections:websocket");
@@ -47,7 +45,10 @@ public class AlternateConnections extends AbstractTest {
     private static boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
         try {
             final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
+            LOGGER.debug(String.format("checking on %s ",url.toString()));
             final URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(5000);
             if (!"*".equals(connection.getHeaderField("Access-Control-Allow-Origin"))) {
                 return false;
             }
@@ -95,7 +96,9 @@ public class AlternateConnections extends AbstractTest {
     }
 
     private static boolean checkConnection(String host, int port) {
+        LOGGER.debug(String.format("checking connection to %s:%d", host, port));
         try (final Socket socket = new Socket()) {
+            socket.setSoTimeout(2000);
             socket.connect(new InetSocketAddress(host, port));
             return socket.isConnected();
         } catch (Throwable t) {

@@ -47,6 +47,7 @@ public class XmppOverTls extends AbstractTest {
                     socket.setSSLParameters(parameters);
                     socket.setSoTimeout(1000);
                     socket.startHandshake();
+                    LOGGER.debug("attempting to verify certificate on "+record.name.toString()+":"+record.port);
                     if (!XmppDomainVerifier.getInstance().verify(domain, socket.getSession())) {
                         return false;
                     }

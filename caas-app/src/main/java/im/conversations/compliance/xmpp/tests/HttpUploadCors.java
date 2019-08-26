@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static im.conversations.compliance.xmpp.utils.HttpUtils.shutdown;
+
 @ComplianceTest(
         short_name = "xep0363_cors",
         full_name = "XEP-0363: HTTP File Upload (CORS Headers)",
@@ -98,14 +100,5 @@ public class HttpUploadCors extends AbstractTest {
         }
         shutdown(client);
         return true;
-    }
-
-    private static void shutdown(OkHttpClient client) throws IOException {
-        client.dispatcher().executorService().shutdown();
-        client.connectionPool().evictAll();
-        final Cache cache = client.cache();
-        if (cache != null) {
-            cache.close();
-        }
     }
 }

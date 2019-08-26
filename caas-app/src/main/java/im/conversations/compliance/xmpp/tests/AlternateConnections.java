@@ -2,19 +2,29 @@ package im.conversations.compliance.xmpp.tests;
 
 import com.google.gson.GsonBuilder;
 import im.conversations.compliance.annotations.ComplianceTest;
+import im.conversations.compliance.xmpp.utils.HttpUtils;
 import im.conversations.compliance.xrd.ExtensibleResourceDescriptor;
 import im.conversations.compliance.xrd.Link;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.session.XmppClient;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 @ComplianceTest(
@@ -31,33 +41,9 @@ public class AlternateConnections extends AbstractTest {
     private static final GsonBuilder GSON_BUILDER = new GsonBuilder();
     private static final List<String> rels = Arrays.asList("urn:xmpp:alt-connections:xbosh", "urn:xmpp:alt-connections:websocket");
 
+
     public AlternateConnections(XmppClient client) {
         super(client);
-    }
-
-    private static boolean discoverAndTestAltConnections(final String domain) {
-        return discoverAndTestAltConnections(domain, false, true)
-                || discoverAndTestAltConnections(domain, true, true)
-                || discoverAndTestAltConnections(domain, false, false)
-                || discoverAndTestAltConnections(domain, true, false);
-    }
-
-    private static boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
-        try {
-            final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
-            LOGGER.debug(String.format("checking on %s ",url.toString()));
-            final URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(2000);
-            connection.setReadTimeout(5000);
-            if (!"*".equals(connection.getHeaderField("Access-Control-Allow-Origin"))) {
-                return false;
-            }
-            try (final InputStream is = connection.getInputStream()) {
-                return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
-            }
-        } catch (Throwable throwable) {
-            return false;
-        }
     }
 
     private static boolean testAltConnectionsFromXml(InputStream is) throws Throwable {
@@ -103,6 +89,53 @@ public class AlternateConnections extends AbstractTest {
             return socket.isConnected();
         } catch (Throwable t) {
             return false;
+        }
+    }
+
+    private static boolean containsIgnoreCase(Map<String, List<String>> headers, String needle, String expectedValue) {
+        for (Map.Entry<String, List<String>> header : headers.entrySet()) {
+            if (header.getKey().equalsIgnoreCase(needle)) {
+                return header.getValue().contains(expectedValue);
+            }
+        }
+        return false;
+    }
+
+    private boolean discoverAndTestAltConnections(final String domain) {
+        return discoverAndTestAltConnections(domain, false, true)
+                || discoverAndTestAltConnections(domain, true, true)
+                || discoverAndTestAltConnections(domain, false, false)
+                || discoverAndTestAltConnections(domain, true, false);
+    }
+
+    private boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        try {
+            final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
+            LOGGER.debug(String.format("checking on %s ", url.toString()));
+            Request request = new Request.Builder().url(url).build();
+            Response response = okHttpClient.newCall(request).execute();
+            Map<String, List<String>> headers = response.headers().toMultimap();
+            if (!containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*")) {
+                response.close();
+                LOGGER.debug(url + " did not set Access-Control-Allow-Origin to *");
+                return false;
+            }
+            final ResponseBody body = response.body();
+            if (body == null) {
+                response.close();
+                return false;
+            }
+            try (final InputStream is = body.byteStream()) {
+                return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
+            } finally {
+                response.close();
+            }
+        } catch (Throwable throwable) {
+            LOGGER.debug("unable to discover ", throwable);
+            return false;
+        } finally {
+            HttpUtils.shutdownAndIgnoreException(okHttpClient);
         }
     }
 

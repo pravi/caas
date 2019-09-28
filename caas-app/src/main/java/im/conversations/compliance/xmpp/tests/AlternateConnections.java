@@ -15,11 +15,8 @@ import rocks.xmpp.core.session.XmppClient;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -78,17 +75,33 @@ public class AlternateConnections extends AbstractTest {
                 port = 80;
             }
         }
-        return checkConnection(uri.getHost(), port);
+        return checkConnection(uri, port);
     }
 
-    private static boolean checkConnection(String host, int port) {
-        LOGGER.debug(String.format("checking connection to %s:%d", host, port));
-        try (final Socket socket = new Socket()) {
-            socket.setSoTimeout(2000);
-            socket.connect(new InetSocketAddress(host, port));
-            return socket.isConnected();
+    private static boolean checkConnection(URI uri, int port) {
+        final String url;
+        switch (uri.getScheme()) {
+            case "wss":
+                url = String.format("https://%s:%d/%s", uri.getHost(), port, uri.getPath());
+                break;
+            case "ws":
+                url = String.format("http://%s:%d/%s", uri.getHost(), port, uri.getPath());
+                break;
+            default:
+                url = String.format("%s://%s:%d/%s", uri.getScheme(), uri.getHost(), port, uri.getPath());
+                break;
+        }
+        final OkHttpClient okHttpClient = new OkHttpClient();
+        LOGGER.debug(String.format("checking CORS Headers on %s", url));
+        try {
+            Request request = new Request.Builder().url(url).head().build();
+            Response response = okHttpClient.newCall(request).execute();
+            Map<String, List<String>> headers = response.headers().toMultimap();
+            return containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
         } catch (Throwable t) {
             return false;
+        } finally {
+            HttpUtils.shutdownAndIgnoreException(okHttpClient);
         }
     }
 

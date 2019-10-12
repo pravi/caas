@@ -78,27 +78,32 @@ public class AlternateConnections extends AbstractTest {
         return checkConnection(uri, port);
     }
 
-    private static boolean checkConnection(URI uri, int port) {
+    private static boolean checkConnection(final URI uri, final int port) {
         final String url;
         switch (uri.getScheme()) {
             case "wss":
-                url = String.format("https://%s:%d/%s", uri.getHost(), port, uri.getPath());
+                url = String.format("https://%s:%d%s", uri.getHost(), port, uri.getPath());
                 break;
             case "ws":
-                url = String.format("http://%s:%d/%s", uri.getHost(), port, uri.getPath());
+                url = String.format("http://%s:%d%s", uri.getHost(), port, uri.getPath());
                 break;
             default:
-                url = String.format("%s://%s:%d/%s", uri.getScheme(), uri.getHost(), port, uri.getPath());
+                url = String.format("%s://%s:%d%s", uri.getScheme(), uri.getHost(), port, uri.getPath());
                 break;
         }
         final OkHttpClient okHttpClient = new OkHttpClient();
         LOGGER.debug(String.format("checking CORS Headers on %s", url));
         try {
-            Request request = new Request.Builder().url(url).head().build();
-            Response response = okHttpClient.newCall(request).execute();
-            Map<String, List<String>> headers = response.headers().toMultimap();
+            Request.Builder builder = new Request.Builder().url(url).head();
+            if (Arrays.asList("ws", "wss").contains(uri.getScheme())) {
+                builder.header("Connection", "Upgrade");
+                builder.header("Upgrade", "websocket");
+            }
+            final Response response = okHttpClient.newCall(builder.build()).execute();
+            final Map<String, List<String>> headers = response.headers().toMultimap();
             return containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
         } catch (Throwable t) {
+            LOGGER.debug("CORS request failed", t);
             return false;
         } finally {
             HttpUtils.shutdownAndIgnoreException(okHttpClient);
@@ -126,17 +131,23 @@ public class AlternateConnections extends AbstractTest {
         try {
             final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
             LOGGER.debug(String.format("checking on %s ", url.toString()));
-            Request request = new Request.Builder().url(url).build();
-            Response response = okHttpClient.newCall(request).execute();
-            Map<String, List<String>> headers = response.headers().toMultimap();
-            if (!containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*")) {
-                response.close();
-                LOGGER.debug(url + " did not set Access-Control-Allow-Origin to *");
-                return false;
-            }
+            final Request request = new Request.Builder().url(url).build();
+            final Response response = okHttpClient.newCall(request).execute();
             final ResponseBody body = response.body();
             if (body == null) {
                 response.close();
+                return false;
+            }
+            final int code = response.code();
+            if (code != 200) {
+                LOGGER.debug(String.format("%s had response code %d", url, code));
+                response.close();
+                return false;
+            }
+            final Map<String, List<String>> headers = response.headers().toMultimap();
+            if (!containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*")) {
+                response.close();
+                LOGGER.debug(url + " did not set Access-Control-Allow-Origin to *");
                 return false;
             }
             try (final InputStream is = body.byteStream()) {

@@ -5,10 +5,7 @@ import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.xmpp.utils.HttpUtils;
 import im.conversations.compliance.xrd.ExtensibleResourceDescriptor;
 import im.conversations.compliance.xrd.Link;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.session.XmppClient;
@@ -20,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -91,17 +89,25 @@ public class AlternateConnections extends AbstractTest {
                 url = String.format("%s://%s:%d%s", uri.getScheme(), uri.getHost(), port, uri.getPath());
                 break;
         }
-        final OkHttpClient okHttpClient = new OkHttpClient();
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1)).build();
         LOGGER.debug(String.format("checking CORS Headers on %s", url));
         try {
-            Request.Builder builder = new Request.Builder().url(url).head();
-            if (Arrays.asList("ws", "wss").contains(uri.getScheme())) {
+            final boolean ws = Arrays.asList("ws", "wss").contains(uri.getScheme());
+            final Request.Builder builder = new Request.Builder().url(url);
+            if (ws) {
                 builder.header("Connection", "Upgrade");
                 builder.header("Upgrade", "websocket");
+                builder.get();
+            } else {
+                builder.head();
             }
             final Response response = okHttpClient.newCall(builder.build()).execute();
             final Map<String, List<String>> headers = response.headers().toMultimap();
-            return containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
+            if (ws) {
+                return response.code() <= 299;
+            } else {
+                return containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
+            }
         } catch (Throwable t) {
             LOGGER.debug("CORS request failed", t);
             return false;
@@ -110,7 +116,7 @@ public class AlternateConnections extends AbstractTest {
         }
     }
 
-    private static boolean containsIgnoreCase(Map<String, List<String>> headers, String needle, String expectedValue) {
+    private static boolean containsIgnoreCase(final Map<String, List<String>> headers, final String needle, final String expectedValue) {
         for (Map.Entry<String, List<String>> header : headers.entrySet()) {
             if (header.getKey().equalsIgnoreCase(needle)) {
                 return header.getValue().contains(expectedValue);
@@ -127,7 +133,7 @@ public class AlternateConnections extends AbstractTest {
     }
 
     private boolean discoverAndTestAltConnections(final String domain, final boolean json, final boolean https) {
-        OkHttpClient okHttpClient = new OkHttpClient();
+        final OkHttpClient okHttpClient = new OkHttpClient();
         try {
             final URL url = new URL(https ? "https" : "http", domain, "/.well-known/host-meta" + (json ? ".json" : ""));
             LOGGER.debug(String.format("checking on %s ", url.toString()));

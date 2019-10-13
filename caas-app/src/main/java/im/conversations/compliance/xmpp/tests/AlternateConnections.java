@@ -90,23 +90,37 @@ public class AlternateConnections extends AbstractTest {
                 break;
         }
         final OkHttpClient okHttpClient = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1)).build();
-        LOGGER.debug(String.format("checking CORS Headers on %s", url));
+        final boolean ws = Arrays.asList("ws", "wss").contains(uri.getScheme());
+        if (ws) {
+            LOGGER.debug(String.format("checking reachability of %s", url));
+        } else {
+            LOGGER.debug(String.format("checking CORS Headers on %s", url));
+        }
         try {
-            final boolean ws = Arrays.asList("ws", "wss").contains(uri.getScheme());
             final Request.Builder builder = new Request.Builder().url(url);
             if (ws) {
                 builder.header("Connection", "Upgrade");
                 builder.header("Upgrade", "websocket");
                 builder.get();
             } else {
-                builder.head();
+                builder.method("OPTIONS", null);
             }
             final Response response = okHttpClient.newCall(builder.build()).execute();
             final Map<String, List<String>> headers = response.headers().toMultimap();
             if (ws) {
-                return response.code() <= 299;
+                final boolean validResponseCode = response.code() <= 299;
+                if (response.code() <= 299) {
+                    return true;
+                }
+                LOGGER.debug(String.format("check of %s returned invalid response code (%d)", url, response.code()));
+                return false;
             } else {
-                return containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
+                final boolean corsHeaders = containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
+                if (response.code() == 200 && corsHeaders) {
+                    return true;
+                }
+                LOGGER.debug(String.format("check of %s failed. response code=%d, CORS=%b",url, response.code(), corsHeaders));
+                return false;
             }
         } catch (Throwable t) {
             LOGGER.debug("CORS request failed", t);

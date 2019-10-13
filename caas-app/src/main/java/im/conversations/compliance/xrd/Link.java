@@ -3,6 +3,7 @@ package im.conversations.compliance.xrd;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
+import java.util.StringJoiner;
 
 @XmlRootElement(name = "Link")
 public class Link {
@@ -23,6 +24,14 @@ public class Link {
 
     public URI getHref() {
         return href;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Link.class.getSimpleName() + "[", "]")
+                .add("rel='" + rel + "'")
+                .add("href=" + href)
+                .toString();
     }
 }
 

@@ -32,9 +32,9 @@ $(function () {
         return pass != '' && jidregex.test(jid);
     };
 
-    $('#jid').keyup(canRequestBeSent);
+    $('#jid').on('input',canRequestBeSent);
 
-    $('#password').keyup(canRequestBeSent);
+    $('#password').on('input',canRequestBeSent);
 
     $('#listed').click(function () {
         listedServer = !listedServer;

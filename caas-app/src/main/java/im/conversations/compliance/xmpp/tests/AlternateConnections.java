@@ -16,11 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 @ComplianceTest(
         short_name = "xep0156",
@@ -101,6 +97,11 @@ public class AlternateConnections extends AbstractTest {
             if (ws) {
                 builder.header("Connection", "Upgrade");
                 builder.header("Upgrade", "websocket");
+                builder.header("Sec-WebSocket-Protocol", "xmpp");
+                builder.header("Sec-WebSocket-Version", "13");
+                final byte[] uuidBytes = UUID.randomUUID().toString().getBytes();
+                final String securityKey = Base64.getEncoder().encodeToString(uuidBytes);
+                builder.header("Sec-WebSocket-Key", securityKey);
                 builder.get();
             } else {
                 builder.method("OPTIONS", null);

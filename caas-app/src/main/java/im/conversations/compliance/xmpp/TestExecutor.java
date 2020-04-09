@@ -4,6 +4,8 @@ package im.conversations.compliance.xmpp;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.Credential;
 import im.conversations.compliance.pojo.Result;
+import im.conversations.compliance.xmpp.extensions.extservices.Service;
+import im.conversations.compliance.xmpp.extensions.extservices.Services;
 import im.conversations.compliance.xmpp.extensions.omemo.Bundle;
 import im.conversations.compliance.xmpp.extensions.upload.Get;
 import im.conversations.compliance.xmpp.extensions.upload.Put;
@@ -16,6 +18,7 @@ import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.Extension;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.session.XmppSessionConfiguration;
+import rocks.xmpp.core.session.debug.ConsoleDebugger;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class TestExecutor {
 
     static {
         configuration = XmppSessionConfiguration.builder()
-                .extensions(Extension.of(Bundle.class, Request.class, Slot.class, Get.class, Put.class))
+                .extensions(Extension.of(Bundle.class, Request.class, Slot.class, Get.class, Put.class, Services.class))
                 .defaultResponseTimeout(Duration.ofSeconds(10))
                 //.debugger(ConsoleDebugger.class)
                 .initialPresence(null)

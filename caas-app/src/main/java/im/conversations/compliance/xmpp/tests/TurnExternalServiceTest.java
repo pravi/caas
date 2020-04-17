@@ -38,7 +38,7 @@ public class TurnExternalServiceTest extends AbstractExternalServiceTest {
                 continue;
             }
 
-            if (Arrays.asList("tcp", "udp").contains(service.getTransport()) && "turn".equals(service.getType())) {
+            if (Arrays.asList("tcp", "udp").contains(service.getTransport()) && Arrays.asList("turn","turns").contains(service.getType())) {
                 if (Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) {
                     LOGGER.debug("{}/{} server without username and password are invalid in webrtc", service.getType(), service.getTransport());
                     continue;

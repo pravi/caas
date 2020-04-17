@@ -29,7 +29,7 @@ public class StunExternalServiceTest extends AbstractExternalServiceTest {
                 continue;
             }
 
-            if (Arrays.asList("tcp", "udp").contains(service.getTransport()) && "stun".equals(service.getType())) {
+            if (Arrays.asList("tcp", "udp").contains(service.getTransport()) && Arrays.asList("stun","stuns").contains(service.getType())) {
                 return true;
             }
         }

@@ -102,13 +102,7 @@
             <artifactId>guava</artifactId>
             <version>29.0-jre</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.56</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.sql2o</groupId>
             <artifactId>sql2o</artifactId>
@@ -180,13 +174,6 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>1.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.200</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

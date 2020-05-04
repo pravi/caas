@@ -45,7 +45,7 @@ public class InternalDBOperations {
     }
 
     public static List<String> getCompliantServers(Connection connection) {
-        String query = "select servers.domain from servers inner join current_tests on current_tests.domain = servers.domain" +
+        String query = "select servers.domain from servers join credentials on servers.domain=credentials.domain inner join current_tests on current_tests.domain = servers.domain" +
                 " where listed=1 and test in (:tests) group by current_tests.domain having sum(success) = count(success)";
         List<String> tests = new ArrayList<>(TestUtils.getTestNames());
 

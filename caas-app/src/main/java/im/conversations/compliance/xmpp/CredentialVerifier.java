@@ -5,6 +5,7 @@ import rocks.xmpp.addr.Jid;
 import rocks.xmpp.core.XmppException;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.session.XmppSessionConfiguration;
+import rocks.xmpp.extensions.caps.EntityCapabilitiesManager;
 
 import java.time.Duration;
 
@@ -22,6 +23,7 @@ public class CredentialVerifier {
         }
         String password = credentials.getPassword();
         try (XmppClient xmppClient = XmppClient.create(jid.getDomain(), xmppSessionConfiguration)) {
+            xmppClient.getManager(EntityCapabilitiesManager.class).setEnabled(false);
             xmppClient.connect();
             xmppClient.login(jid.getLocal(), password);
         } catch (XmppException e) {

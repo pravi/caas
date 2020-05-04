@@ -22,6 +22,8 @@ public class Configuration {
     private String rootUrl;
     private MailConfig mailConfig;
     private String dbUrl = "jdbc:sqlite:data.db";
+    private String dbUsername;
+    private String dbPassword;
 
     private Configuration() {
 
@@ -58,8 +60,16 @@ public class Configuration {
         return testRunInterval;
     }
 
-    public Optional<String> getDBUrl() {
-        return Optional.ofNullable(dbUrl);
+    public String getDBUrl() {
+        return dbUrl;
+    }
+
+    public Optional<DbCredentials> getDbCredentials() {
+        if (dbUsername != null && dbPassword != null) {
+            return Optional.of(new DbCredentials(dbUsername, dbPassword));
+        } else {
+            return Optional.empty();
+        }
     }
 
     public int getDBConnections() {
@@ -72,5 +82,15 @@ public class Configuration {
 
     public String getRootURL() {
         return rootUrl;
+    }
+
+    public static class DbCredentials {
+        public final String username;
+        public final String password;
+
+        public DbCredentials(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
 }

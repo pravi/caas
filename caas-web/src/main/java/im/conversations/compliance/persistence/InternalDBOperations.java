@@ -49,8 +49,8 @@ public class InternalDBOperations {
 
         connection.createQuery("create table if not exists periodic_test_iterations(" +
                 "iteration_number integer primary key," +
-                "begin_time integer," +
-                "end_time integer)"
+                "begin_time datetime," +
+                "end_time datetime)"
         ).executeUpdate();
 
         connection.createQuery("create table if not exists subscribers(" +
@@ -118,14 +118,14 @@ public class InternalDBOperations {
 
     public static List<String> getCompliantServers(Connection connection) {
         String query = "select servers.domain from servers inner join current_tests on current_tests.domain = servers.domain" +
-                " where test in (:tests) group by current_tests.domain having sum(success) = count(success) and listed = 1";
+                " where listed=1 and test in (:tests) group by current_tests.domain having sum(success) = count(success)";
         List<String> tests = new ArrayList<>(TestUtils.getTestNames());
 
         //Make sure server supports in-band registration
         tests.add("xep0077");
 
         return connection.createQuery(query)
-                .addParameter("tests",tests)
+                .addParameter("tests", tests)
                 .executeAndFetch(String.class);
     }
 
@@ -165,24 +165,6 @@ public class InternalDBOperations {
     // Methods related to iterations
 
     /**
-     * Get the iteration which has the given iteration number
-     *
-     * @param connection
-     * @param iterationNumber The iteration numbers for which the corresponding iteration is to be found
-     * @return A list of iterations
-     */
-    public static Iteration getIteration(Connection connection, int iterationNumber) {
-        String query = "select iteration_number, begin_time, end_time from periodic_test_iterations" +
-                " where iteration_number = (:iteration) limit 1";
-        return connection.createQuery(query)
-                .addParameter("iteration", iterationNumber)
-                .addColumnMapping("iteration_number", "iterationNumber")
-                .addColumnMapping("begin_time", "begin")
-                .addColumnMapping("end_time", "end")
-                .executeAndFetchFirst(Iteration.class);
-    }
-
-    /**
      * Get latest iteration, null if no iteration exists
      *
      * @param connection
@@ -196,32 +178,6 @@ public class InternalDBOperations {
                 .addColumnMapping("begin_time", "begin")
                 .addColumnMapping("end_time", "end")
                 .executeAndFetchFirst(Iteration.class);
-    }
-
-    private static void addIteration(Connection connection, int iterationNumber, Instant beginTime, Instant endTime) {
-        String query = "insert into periodic_test_iterations(iteration_number,begin_time,end_time) " +
-                "values(:number,:begin,:end)";
-        //Insert periodic result iteration details
-            connection.createQuery(query)
-                    .addParameter("number", iterationNumber)
-                    .addParameter("begin", beginTime)
-                    .addParameter("end", endTime)
-                    .executeUpdate();
-    }
-
-    /**
-     * Gets iteration number for next iteration, 0 if no iteration exists
-     *
-     * @param connection
-     * @return
-     */
-    private static int getNextIterationNumber(Connection connection) {
-        String query = "select max(iteration_number) from periodic_test_iterations";
-        try {
-            return connection.createQuery(query).executeScalar(Integer.class) + 1;
-        } catch (Exception ex) {
-            return 0;
-        }
     }
 
     // Methods related to historical snapshots
@@ -262,6 +218,58 @@ public class InternalDBOperations {
             historicalSnapshotsByServer.put(domain, historicalSnapshots);
         }
         return historicalSnapshotsByServer;
+    }
+
+    /**
+     * Get points at which there is a change in the periodic results, along with a corresponding list of all the changes.
+     * It takes all periodic results for a particular test-domain pair and adds all the points at which
+     * there is a change along with the value taken as a parameter
+     *
+     * @param changes              The map to which all the changes will be added
+     * @param value                The value which has to be stored corresponding to this change
+     *                             (when grouping by test, it is server's domain name and vice versa)
+     * @param iterationResultPairs A list of rows of results for a particular domain and test
+     */
+    private static void addHistoricalPoints(HashMap<Integer, HistoricalSnapshot.Change> changes, String value, List<Row> iterationResultPairs) {
+        int lastResult = -1;
+        int len = iterationResultPairs.size();
+        for (int i = 0; i < len; i++) {
+            Row row = iterationResultPairs.get(i);
+            int iterationNumber = row.getInteger("iteration_number");
+            int success = row.getBoolean("success") ? 1 : 0;
+            // Only add to change if the new result is different than the older results
+            if (lastResult != success) {
+                changes.putIfAbsent(iterationNumber, new HistoricalSnapshot.Change());
+                if (success == 0) {
+                    changes.get(iterationNumber).getFail().add(value);
+                } else {
+                    changes.get(iterationNumber).getPass().add(value);
+                }
+                lastResult = success;
+            }
+            //Add the latest test result on graph (if there are more than 1 points)
+            else if (len > 1 && i == (len - 1)) {
+                changes.putIfAbsent(iterationNumber, new HistoricalSnapshot.Change());
+            }
+        }
+    }
+
+    /**
+     * Get the iteration which has the given iteration number
+     *
+     * @param connection
+     * @param iterationNumber The iteration numbers for which the corresponding iteration is to be found
+     * @return A list of iterations
+     */
+    public static Iteration getIteration(Connection connection, int iterationNumber) {
+        String query = "select iteration_number, begin_time, end_time from periodic_test_iterations" +
+                " where iteration_number = (:iteration) limit 1";
+        return connection.createQuery(query)
+                .addParameter("iteration", iterationNumber)
+                .addColumnMapping("iteration_number", "iterationNumber")
+                .addColumnMapping("begin_time", "begin")
+                .addColumnMapping("end_time", "end")
+                .executeAndFetchFirst(Iteration.class);
     }
 
     public static HashMap<String, List<HistoricalSnapshot>> getHistoricalSnapshotGroupedByTest(Connection connection, List<String> tests, List<String> domains) {
@@ -335,43 +343,68 @@ public class InternalDBOperations {
     }
 
     /**
-     * Get points at which there is a change in the periodic results, along with a corresponding list of all the changes.
-     * It takes all periodic results for a particular test-domain pair and adds all the points at which
-     * there is a change along with the value taken as a parameter
+     * Gets iteration number for next iteration, 0 if no iteration exists
      *
-     * @param changes              The map to which all the changes will be added
-     * @param value                The value which has to be stored corresponding to this change
-     *                             (when grouping by test, it is server's domain name and vice versa)
-     * @param iterationResultPairs A list of rows of results for a particular domain and test
+     * @param connection
+     * @return
      */
-    private static void addHistoricalPoints(HashMap<Integer, HistoricalSnapshot.Change> changes, String value, List<Row> iterationResultPairs) {
-        int lastResult = -1;
-        int len = iterationResultPairs.size();
-        for (int i = 0; i < len; i++) {
-            Row row = iterationResultPairs.get(i);
-            int iterationNumber = row.getInteger("iteration_number");
-            int success = row.getInteger("success");
-            // Only add to change if the new result is different than the older results
-            if (lastResult != success) {
-                changes.putIfAbsent(iterationNumber, new HistoricalSnapshot.Change());
-                if (success == 0) {
-                    changes.get(iterationNumber).getFail().add(value);
-                } else {
-                    changes.get(iterationNumber).getPass().add(value);
-                }
-                lastResult = success;
-            }
-            //Add the latest test result on graph (if there are more than 1 points)
-            else if (len > 1 && i == (len - 1)) {
-                changes.putIfAbsent(iterationNumber, new HistoricalSnapshot.Change());
-            }
+    private static int getNextIterationNumber(Connection connection) {
+        String query = "select max(iteration_number) from periodic_test_iterations";
+        try {
+            return connection.createQuery(query).executeScalar(Integer.class) + 1;
+        } catch (Exception ex) {
+            return 0;
         }
+    }
+
+    private static void addIteration(Connection connection, int iterationNumber, Instant beginTime, Instant endTime) {
+        String query = "insert into periodic_test_iterations(iteration_number,begin_time,end_time) " +
+                "values(:number,:begin,:end)";
+        //Insert periodic result iteration details
+        connection.createQuery(query)
+                .addParameter("number", iterationNumber)
+                .addParameter("begin", beginTime)
+                .addParameter("end", endTime)
+                .executeUpdate();
+    }
+
+    /**
+     * @param connection
+     * @param domain
+     * @param results
+     * @param timestamp
+     * @return
+     */
+    public static boolean addCurrentResults(Connection connection, String domain, List<Result> results, Instant timestamp) {
+        String queryText = "replace into current_tests(domain,test,success,timestamp) " +
+                "values(:domain,:test,:success,:timestamp)";
+        Query query = connection.createQuery(queryText);
+        results.forEach(
+                result -> query
+                        .addParameter("test", result.getTest().short_name())
+                        .addParameter("success", result.isSuccess())
+                        .addParameter("domain", domain)
+                        .addParameter("timestamp", timestamp)
+                        .addToBatch()
+        );
+        query.executeBatch();
+        return true;
     }
 
     public static boolean addCredential(Connection connection, Credential credential) {
         String query = "insert into credentials(domain,jid,password) values(:domain,:jid,:password)";
         connection.createQuery(query).bind(credential).executeUpdate();
         return true;
+    }
+
+    public static void setFailure(Connection connection, Credential credential, String reason) {
+        final String query = "UPDATE credentials set failures = failures +1, failure_reason=:reason where jid=:jid and password=:password";
+        connection.createQuery(query).addParameter("reason", reason).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
+    }
+
+    public static void setSuccess(Connection connection, Credential credential) {
+         final String query = "UPDATE credentials set failures = 0, failure_reason=NULL where jid=:jid and password=:password";
+        connection.createQuery(query).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
     }
 
     public static List<Credential> getCredentials(Connection connection) {
@@ -389,29 +422,6 @@ public class InternalDBOperations {
     public static boolean removeCredential(Connection connection, Credential credential) {
         String query = "delete from credentials where jid=:jid and password=:password";
         connection.createQuery(query).bind(credential).executeUpdate();
-        return true;
-    }
-
-    /**
-     * @param connection
-     * @param domain
-     * @param results
-     * @param timestamp
-     * @return
-     */
-    public static boolean addCurrentResults(Connection connection, String domain, List<Result> results, Instant timestamp) {
-        String queryText = "insert into current_tests(domain,test,success,timestamp) " +
-                "values(:domain,:test,:success,:timestamp)";
-        Query query = connection.createQuery(queryText);
-        results.forEach(
-                result -> query
-                        .addParameter("test", result.getTest().short_name())
-                        .addParameter("success", result.isSuccess())
-                        .addParameter("domain", domain)
-                        .addParameter("timestamp", timestamp)
-                        .addToBatch()
-        );
-        query.executeBatch();
         return true;
     }
 
@@ -449,7 +459,7 @@ public class InternalDBOperations {
         table.rows().forEach(
                 row -> {
                     String test = row.getString("test");
-                    boolean success = row.getInteger("success") == 1;
+                    boolean success = row.getBoolean("success");
                     ComplianceTest complianceTest = TestUtils.getTestFrom(test);
                     Result result = new Result(complianceTest, success);
                     results.add(result);
@@ -469,7 +479,7 @@ public class InternalDBOperations {
         table.rows().forEach(
                 row -> {
                     String domain = row.getString("domain");
-                    boolean success = row.getInteger("success") == 1;
+                    boolean success = row.getBoolean("success");
                     results.put(domain, success);
                 });
         return results;

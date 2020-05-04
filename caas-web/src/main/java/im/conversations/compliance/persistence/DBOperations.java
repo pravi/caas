@@ -1,8 +1,12 @@
 package im.conversations.compliance.persistence;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.xmpp.utils.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sql2o.Connection;
 
 import java.time.Instant;
@@ -14,42 +18,48 @@ import java.util.stream.Collectors;
  * reducing database load
  */
 public class DBOperations {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBOperations.class);
+
     private static Map<String, List<HistoricalSnapshot>> historicalSnapshotsByServer;
     private static Map<String, List<HistoricalSnapshot>> historicalSnapshotsByTest;
 
     public static void init() {
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            InternalDBOperations.init(connection);
+            //InternalDBOperations.init(connection);
             reloadHistoricalSnapshots(connection);
         }
     }
 
     private static void reloadHistoricalSnapshots(Connection connection) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+        LOGGER.info("reloading historical snapshots");
         List<Server> allServers = InternalDBOperations.getAllServers(connection);
         List<Server> publicServers = InternalDBOperations.getPublicServers(connection);
         List<String> allDomains = allServers
                 .stream()
-                .map(it -> it.getDomain())
+                .map(Server::getDomain)
                 .collect(Collectors.toList());
         List<String> publicDomains = publicServers
                 .stream()
-                .map(it -> it.getDomain())
+                .map(Server::getDomain)
                 .collect(Collectors.toList());
+        LOGGER.info("getting by server for {} domains", allDomains.size());
         historicalSnapshotsByServer = InternalDBOperations.getHistoricalSnapshotsGroupedByServer(connection, TestUtils.getTestNames(), allDomains);
+        LOGGER.info("getting by test for {} domains", publicDomains.size());
         historicalSnapshotsByTest = InternalDBOperations.getHistoricalSnapshotGroupedByTest(connection, TestUtils.getAllTestNames(), publicDomains);
+        LOGGER.info("reloading historical snapshots took {}", stopwatch.stop().elapsed());
     }
 
     public static boolean addServer(Server server) {
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            boolean success = InternalDBOperations.addServer(connection, server);
-            return success;
+            return InternalDBOperations.addServer(connection, server);
         }
     }
 
     public static boolean updateServer(Server server) {
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            boolean success = InternalDBOperations.updateServer(connection, server);
-            return success;
+            return InternalDBOperations.updateServer(connection, server);
         }
     }
 
@@ -116,10 +126,16 @@ public class DBOperations {
     }
 
     public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByServer() {
+        if (historicalSnapshotsByServer == null) {
+            return Collections.emptyMap();
+        }
         return Collections.unmodifiableMap(historicalSnapshotsByServer);
     }
 
     public static Map<String, List<HistoricalSnapshot>> getHistoricResultsGroupedByTest() {
+        if (historicalSnapshotsByTest == null) {
+            return Collections.emptyMap();
+        }
         return Collections.unmodifiableMap(historicalSnapshotsByTest);
     }
 
@@ -174,6 +190,20 @@ public class DBOperations {
             connection.commit();
         }
         return success;
+    }
+
+     public static void setFailure(Credential credential, String reason) {
+        final String query = "UPDATE credentials set failures = failures +1, failure_reason=:reason where jid=:jid and password=:password";
+         try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+             connection.createQuery(query).addParameter("reason", reason).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
+         }
+    }
+
+    public static void setSuccess(Credential credential) {
+         final String query = "UPDATE credentials set failures = 0, failure_reason=NULL where jid=:jid and password=:password";
+        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
+            connection.createQuery(query).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
+        }
     }
 
     /**

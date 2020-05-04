@@ -18,8 +18,7 @@ public abstract  class AbstractExternalServiceTest extends AbstractTest {
         request.setTo(client.getDomain());
         try {
             return test(client.query(request, Services.class).get().getServices());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
             return false;
         }
     }

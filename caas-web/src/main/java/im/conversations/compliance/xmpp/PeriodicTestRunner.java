@@ -1,5 +1,9 @@
 package im.conversations.compliance.xmpp;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import im.conversations.compliance.email.MailBuilder;
 import im.conversations.compliance.email.MailSender;
 import im.conversations.compliance.persistence.DBOperations;
@@ -8,34 +12,39 @@ import im.conversations.compliance.web.WebUtils;
 import org.simplejavamail.email.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.xmpp.core.sasl.AuthenticationException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PeriodicTestRunner implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
+    private final static ScheduledThreadPoolExecutor SCHEDULED_THREAD_POOL_EXECUTOR = new ScheduledThreadPoolExecutor(1);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
-    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+    private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(4);
     private final Queue<Credential> credentialsMarkedForRemoval = new ArrayDeque<>();
 
     private PeriodicTestRunner() {
-        scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-        Iteration lastIteration = DBOperations.getLatestIteration().orElse(null);
+        final var interval = Configuration.getInstance().getTestRunInterval();
+        final Iteration lastIteration = DBOperations.getLatestIteration().orElse(null);
         long minutesLeft = 0;
         if (lastIteration != null) {
             Duration between = Duration.between(lastIteration.getBegin(), Instant.now());
-            minutesLeft = Configuration.getInstance().getTestRunInterval() - between.toMinutes();
+            minutesLeft = interval - between.toMinutes();
         }
         if (minutesLeft > 0) {
             LOGGER.info("Next test scheduled " + minutesLeft + " minutes from now");
         }
         // Run on start
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this, minutesLeft, Configuration.getInstance().getTestRunInterval(), TimeUnit.MINUTES);
+        SCHEDULED_THREAD_POOL_EXECUTOR.scheduleAtFixedRate(this, minutesLeft, interval, TimeUnit.MINUTES);
     }
 
     public static PeriodicTestRunner getInstance() {
@@ -47,7 +56,7 @@ public class PeriodicTestRunner implements Runnable {
     public void run() {
         if (!WebUtils.isConnected()) {
             LOGGER.warn("Internet connection not available. Retrying in 5 minutes");
-            scheduledThreadPoolExecutor.schedule(this, 5, TimeUnit.MINUTES);
+            SCHEDULED_THREAD_POOL_EXECUTOR.schedule(this, 5, TimeUnit.MINUTES);
             return;
         }
         List<Credential> credentials = DBOperations.getCredentials();
@@ -63,32 +72,37 @@ public class PeriodicTestRunner implements Runnable {
         Instant beginTime = Instant.now();
         LOGGER.info("Started running periodic tests #" + (iterationNumber + 1) + " at " + beginTime);
 
-        List<ResultDomainPair> rdpList = credentials.parallelStream()
-                .map(credential -> {
-                    ResultDomainPair rdp = null;
-                    try {
-                        rdp = new ResultDomainPair(credential.getDomain(), TestExecutor.executeTestsFor(credential, (client) -> ServerMetadataChecker.updateServerMetadataFor(client, credential)));
-                    } catch (TestFactory.TestCreationException e) {
-                        e.printStackTrace();
-                    } catch (AuthenticationException ex) {
-                        synchronized (credentialsMarkedForRemoval) {
-                            credentialsMarkedForRemoval.add(credential);
-                        }
-                        ex.printStackTrace();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    return rdp;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
+        List<ListenableFuture<ResultDomainPair>> futures = Lists.transform(credentials, c -> Futures.submit(() -> performTest(c), THREAD_POOL_EXECUTOR_SERVICE));
+        final List<ResultDomainPair> results;
+        try {
+            results = Futures.allAsList(futures).get().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("Unable to execute tests", Throwables.getRootCause(e));
+            return;
+        }
         Instant endTime = Instant.now();
         //Add results to database
-        DBOperations.addPeriodicResults(rdpList, beginTime, endTime);
-
+        DBOperations.addPeriodicResults(results, beginTime, endTime);
+        LOGGER.info("Attempted {} tests. Got {} results", credentials.size(), results.size());
         LOGGER.info("Ended running periodic tests #" + (iterationNumber + 1) + " at " + endTime);
         postTestsRun();
+    }
+
+    private static ResultDomainPair performTest(Credential credential) {
+        try {
+            final List<Result> result = TestExecutor.executeTestsFor(
+                    credential,
+                    (client) -> ServerMetadataChecker.updateServerMetadataFor(client, credential)
+            );
+            LOGGER.info("Completed test for {}", credential.getDomain());
+            DBOperations.setSuccess(credential);
+            return new ResultDomainPair(credential.getDomain(), result);
+        } catch (final Exception e) {
+            Class<? extends Exception> clazz = e.getClass();
+            LOGGER.warn("Unable to perform test for {} - {}", credential.getDomain(), clazz.getSimpleName());
+            DBOperations.setFailure(credential, clazz.getSimpleName());
+            return null;
+        }
     }
 
     private void postTestsRun() {

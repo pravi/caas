@@ -5,43 +5,42 @@ import im.conversations.compliance.pojo.Configuration;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
+import java.util.Optional;
+
 import static java.sql.Connection.TRANSACTION_SERIALIZABLE;
 
 public class DBConnections {
     private static DBConnections INSTANCE;
     private static boolean init;
     private final Sql2o database;
-    private String dbUrl;
 
-    private DBConnections(String dbUrl) {
-        this.dbUrl = dbUrl;
-        if (dbUrl == null) {
-            dbUrl = Configuration.getInstance().getDBUrl().orElse("jdbc:sqlite:data.db");
+    private DBConnections() {
+        final HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(Configuration.getInstance().getDBUrl());
+        dataSource.setJdbcUrl(Configuration.getInstance().getDBUrl());
+        Optional<Configuration.DbCredentials> credentials = Configuration.getInstance().getDbCredentials();
+        if (credentials.isPresent()) {
+            dataSource.setPassword(credentials.get().password);
+            dataSource.setUsername(credentials.get().username);
         }
-        HikariDataSource dataSource = new HikariDataSource();
         dataSource.setMaximumPoolSize(Configuration.getInstance().getDBConnections());
-        dataSource.setJdbcUrl(dbUrl);
         database = new Sql2o(dataSource);
     }
 
     public static void init() {
-        init(null);
-    }
-
-    public static void init(String dbUrl) {
         if (init) {
             throw new IllegalStateException("DBConnections has already been initialised");
         }
         init = true;
-        INSTANCE = new DBConnections(dbUrl);
+        INSTANCE = new DBConnections();
     }
 
     public static DBConnections getInstance() {
         return INSTANCE;
     }
 
-    public Connection getConnection(boolean serialisable) {
-        if (serialisable) {
+    public Connection getConnection(boolean serializable) {
+        if (serializable) {
             return database.beginTransaction(TRANSACTION_SERIALIZABLE);
         } else {
             return database.open();

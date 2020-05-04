@@ -41,7 +41,6 @@ public class OneOffTestRunner {
     }
 
     public static void runOneOffTestsFor(Credential credential) {
-        List<Result> results = null;
         synchronized (testRunningFor) {
             if (!testRunningFor.containsKey(credential.getDomain())) {
                 testRunningFor.put(credential.getDomain(), new ArrayList<>());

@@ -12,6 +12,7 @@ import im.conversations.compliance.web.WebUtils;
 import org.simplejavamail.email.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rocks.xmpp.core.XmppException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -29,7 +30,7 @@ public class PeriodicTestRunner implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
     private final static ScheduledThreadPoolExecutor SCHEDULED_THREAD_POOL_EXECUTOR = new ScheduledThreadPoolExecutor(1);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
-    private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(4);
+    private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(12);
     private final Queue<Credential> credentialsMarkedForRemoval = new ArrayDeque<>();
 
     private PeriodicTestRunner() {
@@ -98,7 +99,7 @@ public class PeriodicTestRunner implements Runnable {
             DBOperations.setSuccess(credential);
             return new ResultDomainPair(credential.getDomain(), result);
         } catch (final Exception e) {
-            Class<? extends Exception> clazz = e.getClass();
+            final Class<? extends Exception> clazz = e.getClass();
             LOGGER.warn("Unable to perform test for {} - {}", credential.getDomain(), clazz.getSimpleName());
             DBOperations.setFailure(credential, clazz.getSimpleName());
             return null;

@@ -26,8 +26,8 @@ public class Controller {
     private static final Gson gson = JsonReader.gson;
 
     public static TemplateViewRoute getRoot = (request, response) -> {
-        List<Server> servers = DBOperations.getServers(true);
-        HashMap<String, Object> model = new HashMap<>();
+        final var servers = DBOperations.getServers(true);
+        final var model = new HashMap<>();
         model.put("servers", gson.toJson(servers.stream().map(Server::getDomain).collect(Collectors.toList())));
         List<String> compliantServerNames = DBOperations.getCompliantServers();
         Collections.shuffle(compliantServerNames);
@@ -88,7 +88,7 @@ public class Controller {
         Credential existingCredential = DBOperations.getCredentialFor(credential.getDomain()).orElse(null);
         if (existingCredential != null) {
             //Update server's listed status
-            Server server = DBOperations.getServer(credential.getDomain()).get();
+            final Server server = DBOperations.getServer(credential.getDomain()).get();
             DBOperations.setListed(server.getDomain(), listedServer);
 
             //If existing credential does not work update it

@@ -12,6 +12,7 @@ import im.conversations.compliance.xmpp.extensions.upload.Put;
 import im.conversations.compliance.xmpp.extensions.upload.Request;
 import im.conversations.compliance.xmpp.extensions.upload.Slot;
 import im.conversations.compliance.xmpp.tests.AbstractTest;
+import im.conversations.compliance.xmpp.tests.EntityCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rocks.xmpp.core.XmppException;
@@ -19,6 +20,7 @@ import rocks.xmpp.core.session.Extension;
 import rocks.xmpp.core.session.XmppClient;
 import rocks.xmpp.core.session.XmppSessionConfiguration;
 import rocks.xmpp.core.session.debug.ConsoleDebugger;
+import rocks.xmpp.extensions.caps.EntityCapabilitiesManager;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -42,8 +44,9 @@ public class TestExecutor {
 
     public static List<Result> executeTestsFor(Credential credential, Hook... hooks) throws XmppException, TestFactory.TestCreationException {
 
-        ArrayList<Result> results = new ArrayList<>();
+        final ArrayList<Result> results = new ArrayList<>();
         XmppClient client = XmppClient.create(credential.getDomain(), configuration);
+        client.getManager(EntityCapabilitiesManager.class).setEnabled(false);
         client.connect(credential.getJid());
         client.login(credential.getJid().getLocal(), credential.getPassword(), "caas");
 

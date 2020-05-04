@@ -130,7 +130,7 @@ public class InternalDBOperations {
     }
 
     public static List<Server> getPublicServers(Connection connection) {
-        String query = "select domain,software_name,software_version,listed from servers where listed=1 order by domain";
+        String query = "select servers.domain,software_name,software_version,listed from servers join credentials on servers.domain=credentials.domain where listed=1 order by servers.domain";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
                 .addColumnMapping("software_version", "softwareVersion")
@@ -138,7 +138,7 @@ public class InternalDBOperations {
     }
 
     public static List<Server> getAllServers(Connection connection) {
-        String query = "select domain,software_name,software_version,listed from servers order by domain";
+        String query = "select servers.domain,software_name,software_version,listed from servers join credentials on servers.domain=credentials.domain order by servers.domain";
         return connection.createQuery(query)
                 .addColumnMapping("software_name", "softwareName")
                 .addColumnMapping("software_version", "softwareVersion")
@@ -152,14 +152,6 @@ public class InternalDBOperations {
                 .addColumnMapping("software_version", "softwareVersion")
                 .addParameter("domain", domain)
                 .executeAndFetchFirst(Server.class);
-    }
-
-    public static boolean removeServer(Connection connection, Server server) {
-        String query = "delete from servers where domain=:domain";
-        connection.createQuery(query)
-                .bind(server)
-                .executeUpdate();
-        return true;
     }
 
     // Methods related to iterations

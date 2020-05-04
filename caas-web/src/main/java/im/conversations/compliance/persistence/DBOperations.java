@@ -101,14 +101,6 @@ public class DBOperations {
         return Optional.ofNullable(server);
     }
 
-    public static boolean removeServer(Server server) {
-        boolean success;
-        try (Connection connection = DBConnections.getInstance().getConnection(false)) {
-            success = InternalDBOperations.removeServer(connection, server);
-        }
-        return success;
-    }
-
     public static Iteration getIteration(int iterationNumber) {
         Iteration iteration;
         try (Connection connection = DBConnections.getInstance().getConnection(false)) {

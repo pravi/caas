@@ -75,8 +75,7 @@ public class OMEMO extends AbstractTest {
             } else {
                 return features.contains(WHITELISTED);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
             return false;
         }
     }

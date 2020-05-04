@@ -14,78 +14,6 @@ import java.util.stream.Collectors;
 
 public class InternalDBOperations {
 
-    public static void init(Connection connection) {
-        connection.createQuery("create table if not exists credentials(" +
-                "domain text," +
-                "jid text primary key," +
-                "password text," +
-                "unique(domain) on conflict replace)"
-        ).executeUpdate();
-
-        connection.createQuery("create table if not exists servers(" +
-                "domain text primary key," +
-                "listed integer," +
-                "software_name text," +
-                "software_version text)"
-        ).executeUpdate();
-
-        connection.createQuery("create table if not exists current_tests(" +
-                "domain text," +
-                "test text," +
-                "success integer," +
-                "timestamp integer," +
-                "primary key(domain,test), " +
-                "unique(domain,test) on conflict replace)"
-        ).executeUpdate();
-
-        connection.createQuery("create table if not exists periodic_tests(" +
-                "domain text," +
-                "test text," +
-                "success integer," +
-                "iteration_number integer," +
-                "primary key(domain,test,iteration_number)," +
-                "unique(domain,test,iteration_number) on conflict replace)"
-        ).executeUpdate();
-
-        connection.createQuery("create table if not exists periodic_test_iterations(" +
-                "iteration_number integer primary key," +
-                "begin_time datetime," +
-                "end_time datetime)"
-        ).executeUpdate();
-
-        connection.createQuery("create table if not exists subscribers(" +
-                "domain text," +
-                "unsubscribeCode text," +
-                "email text)"
-        ).executeUpdate();
-
-        connection.createQuery("create index if not exists current_results_index on current_tests(domain)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists periodic_results_index on periodic_tests(iteration_number,domain)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists periodic_iterations_index" +
-                " on periodic_test_iterations(iteration_number)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists" +
-                " credentials_index on credentials(domain)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists servers_index on servers(domain)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists subscribers_domain_index on subscribers(domain)")
-                .executeUpdate();
-
-        connection.createQuery("create index if not exists subscribers_code_index on subscribers(unsubscribeCode)")
-                .executeUpdate();
-
-    }
-
-    // Methods related to servers
-
     public static boolean addServer(Connection connection, Server server) {
         String query = "insert into servers(domain,listed,software_name,software_version) values(:domain,:listed,:softwareName,:softwareVersion)";
         connection.createQuery(query).bind(server).executeUpdate();
@@ -395,7 +323,7 @@ public class InternalDBOperations {
     }
 
     public static void setSuccess(Connection connection, Credential credential) {
-         final String query = "UPDATE credentials set failures = 0, failure_reason=NULL where jid=:jid and password=:password";
+        final String query = "UPDATE credentials set failures = 0, failure_reason=NULL where jid=:jid and password=:password";
         connection.createQuery(query).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
     }
 
@@ -433,7 +361,7 @@ public class InternalDBOperations {
                 row -> {
                     String domain = row.getString("domain");
                     String test = row.getString("test");
-                    boolean success = row.getInteger("success") == 1;
+                    boolean success = row.getBoolean("success");
                     resultsByServer.putIfAbsent(domain, new HashMap<>());
                     resultsByServer.get(domain).put(test, success);
                 }
@@ -489,7 +417,7 @@ public class InternalDBOperations {
                 row -> {
                     String domain = row.getString("domain");
                     String test = row.getString("test");
-                    boolean success = row.getInteger("success") == 1;
+                    boolean success = row.getBoolean("success");
                     resultsByTests.putIfAbsent(test, new HashMap<>());
                     resultsByTests.get(test).put(domain, success);
                 }
@@ -523,7 +451,7 @@ public class InternalDBOperations {
                 row -> {
                     String domain = row.getString("domain");
                     String test = row.getString("test");
-                    boolean success = row.getInteger("success") == 1;
+                    boolean success = row.getBoolean("success");
                     resultsByServer.putIfAbsent(domain, new HashMap<>());
                     resultsByServer.get(domain).put(test, success);
                 }
@@ -540,7 +468,7 @@ public class InternalDBOperations {
         ArrayList<Result> r = table.rows().stream()
                 .map(row -> new Result(
                         TestUtils.getTestFrom(row.getString("test")),
-                        row.getInteger("success") == 1
+                        row.getBoolean("success")
                 ))
                 .collect(Collectors.toCollection(ArrayList::new));
         return r;

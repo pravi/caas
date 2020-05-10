@@ -515,4 +515,7 @@ public class InternalDBOperations {
         return subscriber;
     }
 
+    public static int deleteFailedCredentials(Connection connection) {
+        return connection.createQuery("DELETE from credentials WHERE failures > 2").executeUpdate().getResult();
+    }
 }

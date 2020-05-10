@@ -92,22 +92,23 @@ public class AlternateConnections extends AbstractTest {
         } else {
             LOGGER.debug(String.format("checking CORS Headers on %s", url));
         }
+        final Request.Builder builder = new Request.Builder().url(url);
+        if (ws) {
+            builder.header("Connection", "Upgrade");
+            builder.header("Upgrade", "websocket");
+            builder.header("Sec-WebSocket-Protocol", "xmpp");
+            builder.header("Sec-WebSocket-Version", "13");
+            final byte[] uuidBytes = UUID.randomUUID().toString().getBytes();
+            final String securityKey = Base64.getEncoder().encodeToString(uuidBytes);
+            builder.header("Sec-WebSocket-Key", securityKey);
+            builder.get();
+        } else {
+            builder.method("OPTIONS", null);
+            builder.header("Origin", "null");
+        }
+        Response response = null;
         try {
-            final Request.Builder builder = new Request.Builder().url(url);
-            if (ws) {
-                builder.header("Connection", "Upgrade");
-                builder.header("Upgrade", "websocket");
-                builder.header("Sec-WebSocket-Protocol", "xmpp");
-                builder.header("Sec-WebSocket-Version", "13");
-                final byte[] uuidBytes = UUID.randomUUID().toString().getBytes();
-                final String securityKey = Base64.getEncoder().encodeToString(uuidBytes);
-                builder.header("Sec-WebSocket-Key", securityKey);
-                builder.get();
-            } else {
-                builder.method("OPTIONS", null);
-                builder.header("Origin", "null");
-            }
-            final Response response = okHttpClient.newCall(builder.build()).execute();
+            response = okHttpClient.newCall(builder.build()).execute();
             final Map<String, List<String>> headers = response.headers().toMultimap();
             if (ws) {
                 final boolean validResponseCode = response.code() <= 299;
@@ -121,14 +122,21 @@ public class AlternateConnections extends AbstractTest {
                 if (response.code() == 200 && corsHeaders) {
                     return true;
                 }
-                LOGGER.debug(String.format("check of %s failed. response code=%d, CORS=%b",url, response.code(), corsHeaders));
+                LOGGER.debug(String.format("check of %s failed. response code=%d, CORS=%b", url, response.code(), corsHeaders));
                 return false;
             }
         } catch (Throwable t) {
             LOGGER.debug("CORS request failed", t);
             return false;
         } finally {
+            close(response);
             HttpUtils.shutdownAndIgnoreException(okHttpClient);
+        }
+    }
+
+    private static void close(final Response response) {
+        if (response != null) {
+            response.close();
         }
     }
 
@@ -163,6 +171,7 @@ public class AlternateConnections extends AbstractTest {
             final int code = response.code();
             if (code != 200) {
                 LOGGER.debug(String.format("%s had response code %d", url, code));
+                body.close();
                 response.close();
                 return false;
             }
@@ -175,6 +184,7 @@ public class AlternateConnections extends AbstractTest {
             try (final InputStream is = body.byteStream()) {
                 return json ? testAltConnectionsFromJson(is) : testAltConnectionsFromXml(is);
             } finally {
+                body.close();
                 response.close();
             }
         } catch (Throwable throwable) {

@@ -1,7 +1,6 @@
 package im.conversations.compliance.persistence;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Maps;
 import im.conversations.compliance.annotations.ComplianceTest;
 import im.conversations.compliance.pojo.*;
 import im.conversations.compliance.xmpp.utils.TestUtils;
@@ -288,5 +287,11 @@ public class DBOperations {
             subscriber = InternalDBOperations.removeSubscriber(connection, unsubscribeCode);
         }
         return subscriber;
+    }
+
+    public static int deleteFailedCredentials() {
+        try (final Connection connection = DBConnections.getInstance().getConnection(false)) {
+            return InternalDBOperations.deleteFailedCredentials(connection);
+        }
     }
 }

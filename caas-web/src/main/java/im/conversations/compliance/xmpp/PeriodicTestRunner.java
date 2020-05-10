@@ -12,14 +12,11 @@ import im.conversations.compliance.web.WebUtils;
 import org.simplejavamail.email.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rocks.xmpp.core.XmppException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -31,7 +28,6 @@ public class PeriodicTestRunner implements Runnable {
     private final static ScheduledThreadPoolExecutor SCHEDULED_THREAD_POOL_EXECUTOR = new ScheduledThreadPoolExecutor(1);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
     private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(12);
-    private final Queue<Credential> credentialsMarkedForRemoval = new ArrayDeque<>();
 
     private PeriodicTestRunner() {
         final var interval = Configuration.getInstance().getTestRunInterval();
@@ -108,28 +104,8 @@ public class PeriodicTestRunner implements Runnable {
 
     private void postTestsRun() {
         //Remove invalid credential
-        Credential credential;
-        synchronized (this.credentialsMarkedForRemoval) {
-            while ((credential = credentialsMarkedForRemoval.poll()) != null) {
-                DBOperations.removeCredential(credential);
-                if (Configuration.getInstance().getMailConfig() != null) {
-                    List<Email> mails = MailBuilder.getInstance().buildCredentialRemovalEmails(credential);
-                    if (!mails.isEmpty()) {
-                        LOGGER.info(
-                                "Sending email to subscribers of "
-                                        + credential.getDomain()
-                                        + " notifying about credential failing to authenticate"
-                        );
-                        MailSender.sendMails(mails);
-                        LOGGER.info(
-                                "Sent email to subscribers of "
-                                        + credential.getDomain()
-                                        + " notifying about credential failing to authenticate"
-                        );
-                    }
-                }
-            }
-        }
+        final int deleted = DBOperations.deleteFailedCredentials();
+        LOGGER.info("Deleted {} failing credentials", deleted);
         if (Configuration.getInstance().getMailConfig() != null) {
             sendMailsForChange();
         }

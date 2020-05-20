@@ -28,11 +28,14 @@ function createVueApp(serverParam) {
                 selectAdd: function (index) {
                     this.selected = this.displayServers.length;
                 },
+                selectCheck: function (index) {
+                    this.selected = this.displayServers.length + 1;
+                },
                 setSelection: function (index) {
                     this.selected = index;
                 },
                 selectionDown: function () {
-                    if (this.selected < this.displayServers.length) {
+                    if (this.selected <= this.displayServers.length) {
                         this.selected++
                     }
                 },
@@ -41,27 +44,32 @@ function createVueApp(serverParam) {
                         this.selected--
                     }
                 },
+                getBaseUrl: function () {
+                    return window.location.protocol + "//" + window.location.hostname + ":" + window.location.port;
+                },
                 enter: function () {
-                    var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/add/";
-                    if (this.displayServers.length !== 0) {
-                        if (this.displayServers.length === this.selected) {
-                            this.add();
-                        } else {
-                            url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/server/" + this.displayServers[this.selected] + "/";
-                        }
-                    } else {
+                    if (this.selected === this.displayServers.length ) {
                         this.add();
+                    } else if (this.selected === this.displayServers.length + 1) {
+                        this.goInput();
+                    } else {
+                        this.goToResultPage(this.displayServers[this.selected]);
                     }
-                    window.location = url;
                 },
-                go: function (event) {
-                    var domain = event.target.innerText;
-                    var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/server/" + domain + "/";
-                    window.location = url;
+                add: function (domain) {
+                    this.goToPath("/add/");
                 },
-                add: function () {
-                    var url = window.location.protocol + "//" + location.hostname + ":" + location.port + "/add/";
-                    window.location = url;
+                goInput: function () {
+                    this.goToResultPage(document.getElementById("search_field").value);
+                },
+                goSuggestion: function (event) {
+                    this.goToResultPage(event.target.innerText);
+                },
+                goToResultPage: function (domain) {
+                    this.goToPath("/server/" + domain + "/");
+                },
+                goToPath: function (path) {
+                    window.location = this.getBaseUrl() + path;
                 }
             }
     });

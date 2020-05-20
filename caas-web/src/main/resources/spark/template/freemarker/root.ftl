@@ -15,8 +15,9 @@
                 <input id="search_field" v-on:keyup.up="selectionUp" v-on:keyup.down="selectionDown" v-model="filter" @keyup.enter="enter"/>
             </div>
             <div class="suggestions">
-                <div class="suggestion_item" v-for="server,index in displayServers" v-bind:class="{selected: selected==index}" @mouseover="setSelection(index)" @click="go" v-show='filter != null && filter != ""'>{{server}}</div>
+                <div class="suggestion_item" v-for="server,index in displayServers" v-bind:class="{selected: selected==index}" @mouseover="setSelection(index)" @click="goSuggestion" v-show='filter != null && filter != ""'>{{server}}</div>
                 <div class="suggestion_item" @mouseover="selectAdd()" v-bind:class="{selected: selected == displayServers.length}" @click="add" v-show='filter != null && filter != ""'>Add {{filter}}</div>
+                <div class="suggestion_item" @mouseover="selectCheck()" v-bind:class="{selected: selected == displayServers.length + 1}" @click="goInput" v-show='filter != null && filter.indexOf(".") != -1'>Check {{filter}}</div>
             </div>
         </div>
     </div>

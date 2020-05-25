@@ -27,7 +27,7 @@ public class PeriodicTestRunner implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicTestRunner.class);
     private final static ScheduledThreadPoolExecutor SCHEDULED_THREAD_POOL_EXECUTOR = new ScheduledThreadPoolExecutor(1);
     private static final PeriodicTestRunner INSTANCE = new PeriodicTestRunner();
-    private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(12);
+    private final static ExecutorService THREAD_POOL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(24);
 
     private PeriodicTestRunner() {
         final var interval = Configuration.getInstance().getTestRunInterval();

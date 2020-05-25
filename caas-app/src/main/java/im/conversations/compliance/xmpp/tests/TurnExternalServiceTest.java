@@ -14,8 +14,7 @@ import java.util.List;
         short_name = "turn",
         full_name = "XEP-0215: External Service Discovery (TURN)",
         url = "https://xmpp.org/extensions/xep-0215.html",
-        description = "Checks if the server provides a TURN server",
-        informational = true
+        description = "Checks if the server provides a TURN server"
 )
 public class TurnExternalServiceTest extends AbstractExternalServiceTest {
 

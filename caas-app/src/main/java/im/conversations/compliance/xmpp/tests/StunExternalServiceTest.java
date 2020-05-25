@@ -11,8 +11,7 @@ import java.util.List;
         short_name = "stun",
         full_name = "XEP-0215: External Service Discovery (STUN)",
         url = "https://xmpp.org/extensions/xep-0215.html",
-        description = "Checks if the server provides a STUN server",
-        informational = true
+        description = "Checks if the server provides a STUN server"
 )
 public class StunExternalServiceTest extends AbstractExternalServiceTest {
     public StunExternalServiceTest(XmppClient client) {

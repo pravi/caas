@@ -111,7 +111,6 @@ public class AlternateConnections extends AbstractTest {
             response = okHttpClient.newCall(builder.build()).execute();
             final Map<String, List<String>> headers = response.headers().toMultimap();
             if (ws) {
-                final boolean validResponseCode = response.code() <= 299;
                 if (response.code() <= 299) {
                     return true;
                 }
@@ -119,7 +118,7 @@ public class AlternateConnections extends AbstractTest {
                 return false;
             } else {
                 final boolean corsHeaders = containsIgnoreCase(headers, "Access-Control-Allow-Origin", "*");
-                if (response.code() == 200 && corsHeaders) {
+                if (response.code() <= 299 && corsHeaders) {
                     return true;
                 }
                 LOGGER.debug(String.format("check of %s failed. response code=%d, CORS=%b", url, response.code(), corsHeaders));

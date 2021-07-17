@@ -317,16 +317,6 @@ public class InternalDBOperations {
         return true;
     }
 
-    public static void setFailure(Connection connection, Credential credential, String reason) {
-        final String query = "UPDATE credentials set failures = failures +1, failure_reason=:reason where jid=:jid and password=:password";
-        connection.createQuery(query).addParameter("reason", reason).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
-    }
-
-    public static void setSuccess(Connection connection, Credential credential) {
-        final String query = "UPDATE credentials set failures = 0, failure_reason=NULL where jid=:jid and password=:password";
-        connection.createQuery(query).addParameter("jid", credential.getJid()).addParameter("password", credential.getPassword()).executeUpdate();
-    }
-
     public static List<Credential> getCredentials(Connection connection) {
         String query = "select domain,jid,password from credentials";
         return connection.createQuery(query).executeAndFetch(Credential.class);
@@ -350,6 +340,7 @@ public class InternalDBOperations {
         List<String> tests = TestUtils.getTestNames();
         Table table = connection.createQuery("select test,servers.domain,success from current_tests" +
                 " inner join servers on servers.domain = current_tests.domain" +
+                " join credentials on servers.domain=credentials.domain " +
                 " where test in (:tests) and listed = 1" +
                 " order by (select sum(success) from current_tests" +
                 " where domain=servers.domain and test in (:tests))" +

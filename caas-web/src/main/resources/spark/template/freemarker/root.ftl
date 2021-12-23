@@ -23,7 +23,7 @@
     </div>
     <#if recommendations?has_content>
         <div id="recommended_servers">
-        <h3>Randomly suggested compliant servers</h3>
+        <h3>Randomly suggested compliant servers (Refresh page to see more)</h3>
         <#list recommendations as recommendation>
             <div class="chip clickable" onclick="location.href='/server/${recommendation}'">
             ${recommendation}
